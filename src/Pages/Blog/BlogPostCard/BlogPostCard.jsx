@@ -1,7 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import ku1Image from './../../../../public/Banner/ku1.jpg';
-import ku2Image from './../../../../public/Banner/ku2.jpg';
-import innovationImage from './../../../../public/Banner/innovation-showcasing.png';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -21,7 +18,7 @@ const BlogPostCard = () => {
   const posts = [
     {
       id: 1,
-      image: ku1Image,
+      image: '/Events/AIChatBot.png',
       title: 'Building an AI-Powered Chatbot',
       category: 'Tutorial',
       tags: ['AI', 'Python', 'NLP'],
@@ -32,7 +29,7 @@ const BlogPostCard = () => {
     },
     {
       id: 2,
-      image: ku2Image,
+      image: '/Events/QuantumComputing.png',
       title: 'Exploring Quantum Computing',
       category: 'Research',
       tags: ['Quantum', 'Physics', 'Computing'],
@@ -43,7 +40,7 @@ const BlogPostCard = () => {
     },
     {
       id: 3,
-      image: innovationImage,
+      image: '/Events/innovationShowcasing.png',
       title: 'Innovation Showcasing Event',
       category: 'Event',
       tags: ['Innovation', 'Technology', 'Showcase'],
@@ -54,7 +51,7 @@ const BlogPostCard = () => {
     },
     {
       id: 4,
-      image: ku1Image,
+      image: '/Events/MachineLearningAlgorithms.png',
       title: 'Understanding Machine Learning Algorithms',
       category: 'Education',
       tags: ['Machine Learning', 'Algorithms', 'Data Science'],
@@ -65,7 +62,7 @@ const BlogPostCard = () => {
     },
     {
       id: 5,
-      image: ku2Image,
+      image: '/Events/FutureOfBlockchain.png',
       title: 'The Future of Blockchain Technology',
       category: 'Technology',
       tags: ['Blockchain', 'Cryptocurrency', 'Future'],
@@ -76,7 +73,7 @@ const BlogPostCard = () => {
     },
     {
       id: 6,
-      image: innovationImage,
+      image: '/Events/CybersecurityBestPractices.png',
       title: 'Cybersecurity Best Practices',
       category: 'Security',
       tags: ['Cybersecurity', 'Best Practices', 'IT'],
@@ -87,18 +84,7 @@ const BlogPostCard = () => {
     },
     {
       id: 7,
-      image: ku1Image,
-      title: 'Advancements in Renewable Energy',
-      category: 'Environment',
-      tags: ['Renewable Energy', 'Sustainability', 'Environment'],
-      author: 'Emily White',
-      date: 'May 21, 2025',
-      excerpt: 'Exploring the latest advancements in renewable energy technologies.',
-      restricted: false,
-    },
-    {
-      id: 8,
-      image: ku2Image,
+      image: '/Events/AugmentedRealityTrends.png',
       title: 'The Rise of Augmented Reality',
       category: 'Technology',
       tags: ['Augmented Reality', 'AR', 'Virtual Reality'],
@@ -108,8 +94,8 @@ const BlogPostCard = () => {
       restricted: false,
     },
     {
-      id: 9,
-      image: innovationImage,
+      id: 8,
+      image: '/Events/DataPrivacyDigitalAge.png',
       title: 'Data Privacy in the Digital Age',
       category: 'Privacy',
       tags: ['Data Privacy', 'GDPR', 'Digital Rights'],
@@ -119,25 +105,14 @@ const BlogPostCard = () => {
       restricted: false,
     },
     {
-      id: 10,
-      image: ku1Image,
+      id: 9,
+      image: '/Events/FutureTrendsAI.png',
       title: 'Future Trends in Artificial Intelligence',
       category: 'AI',
       tags: ['Artificial Intelligence', 'Future Trends', 'Tech'],
       author: 'John Doe',
       date: 'May 24, 2025',
       excerpt: 'Exploring the future trends in artificial intelligence and their potential impact.',
-      restricted: false,
-    },
-    {
-      id: 11,
-      image: ku2Image,
-      title: 'The Impact of 5G Technology',
-      category: 'Telecommunications',
-      tags: ['5G', 'Telecom', 'Technology'],
-      author: 'Jane Smith',
-      date: 'May 25, 2025',
-      excerpt: 'Examining the impact of 5G technology on various industries.',
       restricted: false,
     },
   ];

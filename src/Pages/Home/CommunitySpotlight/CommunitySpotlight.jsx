@@ -1,23 +1,23 @@
-
-
 import { motion } from 'framer-motion';
 
 const CommunitySpotlight = () => {
   const spotlights = [
     {
-      title: 'AI-Powered Healthcare Project',
-      subtitle: 'Led by Team NeuralNet',
-      description: 'An innovative ML model for early disease detection, showcased at Symposium 2024 with groundbreaking results.',
-      link: '/projects',
-      icon: '🧠',
+      title: 'QBeamformer Paper Award at KCC 2025',
+      image: 'https://i.imghippo.com/files/Dhsr8583Jzc.jpeg',
+      subtitle: 'Awared to Avi Deb Raha, batch 2016',
+      description: 'I am delighted to share that our paper titled \'QBeamformer: Quantum Transformer Empowered mmWave Beamforming for UAVs in NextG Wireless Networks\' has been awarded as best of the best papers (Excellent Paper) in the \'Information and Communication\' section at the Korea Computer Congress Conference 2025 (KCC 2025). Thanks to the co-authors for their contributions and my professor for his guidance. Thanks to my family for the support and to the Almighty for everything.',
+      link: '/research',
+      icon: '📜',
       color: 'from-blue-500 to-cyan-500',
       bgPattern: 'from-blue-50 to-cyan-50'
     },
     {
-      title: 'Alumnus Spotlight: Jane Doe',
-      subtitle: 'Batch 2018, SDE at Google',
-      description: 'Jane shares her inspiring journey from CLUSTER to building world-class products at a global tech giant.',
-      link: '/alumni',
+      title: 'Alumnus Spotlight: C M Khaled Saifullah',
+      image: 'https://i.imghippo.com/files/NJDZ6722sgQ.jpg',
+      subtitle: 'Batch 2011, Software Engineer at Microsoft',
+      description: 'Khaled reflects on his transformative journey from CLUSTER, where he honed his technical prowess, to becoming a key contributor at Microsoft since October 2022. With over 5 years of experience in large-scale software development, he excels in writing clean, high-quality code across languages like Java, Python, and React.js. His expertise spans designing bug-free applications, conducting test-driven development, and troubleshooting complex issues using tools like Git and Jira. Khaled’s strong collaboration skills shine as he navigates fast-paced environments, manages tight deadlines, and contributes to comprehensive code reviews, all while staying ahead of tech trends with Docker, Kubernetes, and SQL databases.',
+      link: '/alumni/khaled-saifullah',
       icon: '🌟',
       color: 'from-purple-500 to-pink-500',
       bgPattern: 'from-purple-50 to-pink-50'
@@ -111,7 +111,7 @@ const CommunitySpotlight = () => {
   };
 
   return (
-    <section className="relative py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 overflow-hidden">
+    <section className="relative py-12 md:py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -156,7 +156,7 @@ const CommunitySpotlight = () => {
         {/* Enhanced Title Section */}
         <div className="text-center mb-20">
           <motion.h2 
-            className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-800 via-blue-600 to-purple-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-6xl font-bold mb-4 py-4 bg-gradient-to-r from-gray-800 via-blue-600 to-purple-600 bg-clip-text text-transparent"
             variants={titleVariants}
             style={{ perspective: '1000px' }}
           >
@@ -245,8 +245,20 @@ const CommunitySpotlight = () => {
                   </div>
                 </div>
                 
+                
                 {/* Content */}
                 <div className="p-8 relative">
+                  {/* Image Background */}
+                <div className='w-full h-64 relative overflow-hidden rounded-lg shadow-lg mb-6 group'>
+                  <motion.img
+                    src={spotlight.image}
+                    alt={spotlight.title}
+                    className='h-full w-full object-cover rounded-lg shadow-lg mb-6 group-hover:scale-105 transition-transform duration-500'
+                    initial={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.05 }}  
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
                   <motion.h3 
                     className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300"
                     whileHover={{ 
@@ -287,7 +299,7 @@ const CommunitySpotlight = () => {
                       whileTap={{ scale: 0.95 }}
                     >
                       <span className="relative z-10 mr-2">
-                        {spotlight.link === '/projects' ? 'View Project' : 'Read More'}
+                        {spotlight.link === '/research' ? 'View Research' : 'Read More'}
                       </span>
                       <motion.svg 
                         className="w-5 h-5 relative z-10" 

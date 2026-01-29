@@ -3,9 +3,9 @@ import { useState } from 'react';
 import EventRegistrationForm from '../EventRegistrationForm/EventRegistrationForm';
 
 // Replace with actual image imports
-const datathonImage = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4";
-const symposiumImage = "https://images.unsplash.com/photo-1431540015161-0bf868a2d407";
-const iupcImage = "https://images.unsplash.com/photo-1553877522-43269d4ea984";
+const datathonImage = "/Events/SynergyXDatathon.png";
+const symposiumImage = "/Events/ProjectSymposium.png";
+const iupcImage = "/Events/KUIUPC.png";
 
 const EventCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

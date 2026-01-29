@@ -51,7 +51,7 @@ const Timeline = () => {
   };
 
   return (
-    <section className="relative py-20 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+    <section className="relative py:12 lg:py-20 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -88,7 +88,7 @@ const Timeline = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.h2 
-          className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-gray-800 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+          className="text-4xl md:text-5xl font-bold text-center py-4 mb-16 bg-gradient-to-r from-gray-800 via-purple-600 to-blue-600 bg-clip-text text-transparent"
           initial={{ opacity: 0, y: -50, rotateX: 90 }}
           whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
           transition={{ 
@@ -153,7 +153,7 @@ const Timeline = () => {
               <div className={`flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} items-center`}>
                 {/* Date with 3D effect */}
                 <motion.div
-                  className={`flex-shrink-0 w-24 h-24 rounded-full bg-white border-4 border-blue-500 flex items-center justify-center shadow-lg z-10 ${index % 2 === 0 ? 'mr-6' : 'ml-6'}`}
+                  className={`flex-shrink-0 w-28 h-28 p-3 rounded-full bg-white border-4 border-blue-500 flex items-center justify-center shadow-lg z-10 ${index % 2 === 0 ? 'mr-6' : 'ml-6'}`}
                   whileHover={{ 
                     scale: 1.1,
                     rotateZ: 5,
@@ -224,7 +224,7 @@ const Timeline = () => {
                   </motion.p>
                   
                   <motion.div 
-                    className="flex items-center text-sm text-gray-500"
+                    className={`flex text-sm text-gray-500 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
                     whileHover={{ x: index % 2 === 0 ? 5 : -5 }}
                   >
                     <motion.svg 

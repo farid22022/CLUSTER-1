@@ -4,14 +4,18 @@ import ResourceFilters from './ResourceFilters/ResourceFilters';
 import ResourceCard from './ResourceCard/ResourceCard';
 
 import { FiBook } from 'react-icons/fi';
+import { useEffect } from 'react';
 
 const Resources = () => {
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   return (
     <div className="bg-gray-50 font-sans min-h-screen">
       
       {/* Hero Section */}
       <motion.section 
-        className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-24 text-center relative overflow-hidden"
+        className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 md:py-40 text-center relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -23,29 +27,29 @@ const Resources = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.h1 
-            className="text-4xl md:text-5xl font-bold mb-6"
-            initial={{ y: -20 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            CLUSTER Resources
-          </motion.h1>
-          
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "10rem" }}
-            transition={{ duration: 0.8 }}
-            className="h-1.5 bg-white mx-auto mb-6 rounded-full"
-          />
-          
-          <motion.p 
-            className="text-xl max-w-2xl mx-auto mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            Access a wealth of learning materials, from competitive programming to research papers and tutorials.
-          </motion.p>
+        className="text-4xl md:text-6xl font-bold mb-6"
+        initial={{ y: -20 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        Empower Your Tech Journey with CLUSTER Resources
+      </motion.h1>
+      
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: "10rem" }}
+        transition={{ duration: 0.8 }}
+        className="h-1.5 bg-white mx-auto mb-6 rounded-full"
+      />
+      
+      <motion.p 
+        className="text-xl max-w-2xl mx-auto mb-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        Dive into a treasure trove of knowledge, from competitive programming guides to cutting-edge research papers and tutorials.
+      </motion.p>
           
           <motion.div
             className="flex justify-center"

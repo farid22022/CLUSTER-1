@@ -11,10 +11,12 @@ const Alumni = () => {
   const [ setIsScrolled] = useState(false);
   const statsRef = useRef(null);
   const [statsInView, setStatsInView] = useState(false);
-
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   // Sample images for slider
   const slides = [
-    'https://ku.ac.bd/wp-content/uploads/2022/10/cse-building.jpg',
+    // '/Alumni/cseku.jpg',
     'https://images.unsplash.com/photo-1516321310762-479437144403',
     'https://images.unsplash.com/photo-1522071820081-009f0129c71c'
   ];
@@ -26,7 +28,7 @@ const Alumni = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [setIsScrolled]);
 
   // Auto-slide effect
   useEffect(() => {
@@ -34,7 +36,7 @@ const Alumni = () => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   // Stats counter observer
   useEffect(() => {
@@ -119,21 +121,21 @@ const Alumni = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.h1 
-            className="text-5xl md:text-6xl font-bold mb-6"
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 100 }}
-          >
-            KU CSE Alumni Network
-          </motion.h1>
-          <motion.p 
-            className="text-xl max-w-3xl mx-auto mb-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            Connecting graduates from Khulna University&#39;s Computer Science & Engineering department worldwide
-          </motion.p>
+        className="text-5xl md:text-6xl font-bold mb-6"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 100 }}
+      >
+        Unite with the KU CSE Alumni Community
+      </motion.h1>
+      <motion.p 
+        className="text-xl max-w-3xl mx-auto mb-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        Join a global network of Khulna University CSE graduates, sharing knowledge, opportunities, and innovation.
+      </motion.p>
           <div className="flex flex-wrap justify-center gap-4">
             <motion.button
               onClick={() => setIsMentorshipFormOpen(true)}
@@ -285,7 +287,7 @@ const Alumni = () => {
             >
               <div className="relative rounded-xl overflow-hidden shadow-2xl">
                 <motion.img
-                  src="https://ku.ac.bd/wp-content/uploads/2022/10/cse-building.jpg"
+                  src="/Alumni/cseku.jpg"
                   alt="KU CSE Building"
                   className="w-full h-auto"
                   initial={{ scale: 1.1 }}
@@ -294,7 +296,7 @@ const Alumni = () => {
                   viewport={{ once: true }}
                 />
                 <motion.div 
-                  className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6"
+                  className="absolute flex items-end p-6"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}

@@ -5,6 +5,15 @@ const Team = () => {
 
   const teamMembers = [
     {
+      designation: "Director",
+      name: "Professor Dr. Kazi Masudul Alam",
+      student_id: "",
+      image_url: "https://i.ibb.co/bXynWfb/Money.png",
+      facebook_url: "https://facebook.com/username0",
+      linkedin_url: "https://linkedin.com/in/username0",
+      email: "username0@email.com"
+    },
+    {
       designation: "President",
       name: "Tahmid Hasan Tasfi",
       student_id: "210218",
@@ -81,77 +90,35 @@ const Team = () => {
         </div>
 
         {/* Team Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {teamMembers.map((member, index) => (
-            <div
-              key={index}
-              className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
-              onMouseEnter={() => setHoveredMember(index)}
-              onMouseLeave={() => setHoveredMember(null)}
-            >
-              {/* Image Container */}
-              <div className="relative h-64 sm:h-72 lg:h-64 overflow-hidden">
-                <img
-                  src={member.image_url}
-                  alt={member.name}
-                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                
-                {/* Floating Badge */}
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
-                  <span className="text-xs font-semibold text-gray-700">ID: {member.student_id}</span>
-                </div>
+      <div className="grid grid-cols-1 gap-6 md:gap-8">
+      {/* First Row: First person centered */}
+      <div className="flex justify-center w-1/4 mx-auto">
+        {teamMembers.slice(0, 1).map((member, index) => (
+          <div
+            key={index}
+            className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 w-full max-w-md"
+            onMouseEnter={() => setHoveredMember(index)}
+            onMouseLeave={() => setHoveredMember(null)}
+          >
+            {/* Image Container */}
+            <div className="relative h-64 sm:h-72 overflow-hidden">
+              <img
+                src={member.image_url}
+                alt={member.name}
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
 
-                {/* Social Links Overlay */}
-                <div className={`absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 ${
-                  hoveredMember === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}>
-                  <div className="flex space-x-4">
-                    <a
-                      href={member.facebook_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-200 shadow-lg"
-                    >
-                      <FacebookIcon />
-                    </a>
-                    <a
-                      href={member.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-700 hover:text-blue-800 hover:scale-110 transition-all duration-200 shadow-lg"
-                    >
-                      <LinkedinIcon />
-                    </a>
-                    <a
-                      href={`mailto:${member.email}`}
-                      className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-800 hover:scale-110 transition-all duration-200 shadow-lg"
-                    >
-                      <EmailIcon />
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                    {member.name}
-                  </h3>
-                  <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4">
-                    {member.designation}
-                  </div>
-                </div>
-
-                {/* Mobile Social Links */}
-                <div className="flex justify-center space-x-4 md:hidden">
+              {/* Social Links Overlay */}
+              <div className={`absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+                hoveredMember === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}>
+                <div className="flex space-x-4">
                   <a
                     href={member.facebook_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-200 shadow-lg"
                   >
                     <FacebookIcon />
                   </a>
@@ -159,27 +126,165 @@ const Team = () => {
                     href={member.linkedin_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-700 hover:text-blue-800 hover:scale-110 transition-all duration-200 shadow-lg"
                   >
                     <LinkedinIcon />
                   </a>
                   <a
                     href={`mailto:${member.email}`}
-                    className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-800 hover:scale-110 transition-all duration-200 shadow-lg"
                   >
                     <EmailIcon />
                   </a>
                 </div>
               </div>
-
-              {/* Decorative Element */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             </div>
-          ))}
-        </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                  {member.name}
+                </h3>
+                <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4">
+                  {member.designation}
+                </div>
+              </div>
+
+              {/* Mobile Social Links */}
+              <div className="flex justify-center space-x-4 md:hidden">
+                <a
+                  href={member.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <FacebookIcon />
+                </a>
+                <a
+                  href={member.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <LinkedinIcon />
+                </a>
+                <a
+                  href={`mailto:${member.email}`}
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                >
+                  <EmailIcon />
+                </a>
+              </div>
+            </div>
+
+            {/* Decorative Element */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Second Row: Remaining four members in a 4-column grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {teamMembers.slice(1).map((member, index) => (
+          <div
+            key={index + 1}
+            className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
+            onMouseEnter={() => setHoveredMember(index + 1)}
+            onMouseLeave={() => setHoveredMember(null)}
+          >
+            {/* Image Container */}
+            <div className="relative h-64 sm:h-72 overflow-hidden">
+              <img
+                src={member.image_url}
+                alt={member.name}
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+              
+              {/* Floating Badge */}
+              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
+                <span className="text-xs font-semibold text-gray-700">ID: {member.student_id}</span>
+              </div>
+
+              {/* Social Links Overlay */}
+              <div className={`absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+                hoveredMember === index + 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}>
+                <div className="flex space-x-4">
+                  <a
+                    href={member.facebook_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-200 shadow-lg"
+                  >
+                    <FacebookIcon />
+                  </a>
+                  <a
+                    href={member.linkedin_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-700 hover:text-blue-800 hover:scale-110 transition-all duration-200 shadow-lg"
+                  >
+                    <LinkedinIcon />
+                  </a>
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-800 hover:scale-110 transition-all duration-200 shadow-lg"
+                  >
+                    <EmailIcon />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                  {member.name}
+                </h3>
+                <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4">
+                  {member.designation}
+                </div>
+              </div>
+
+              {/* Mobile Social Links */}
+              <div className="flex justify-center space-x-4 md:hidden">
+                <a
+                  href={member.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <FacebookIcon />
+                </a>
+                <a
+                  href={member.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <LinkedinIcon />
+                </a>
+                <a
+                  href={`mailto:${member.email}`}
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                >
+                  <EmailIcon />
+                </a>
+              </div>
+            </div>
+
+            {/* Decorative Element */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+          </div>
+        ))}
+      </div>
+    </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-16 md:mt-20">
+        {/* <div className="text-center mt-16 md:mt-20">
           <div className="max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Connect?</h3>
             <p className="text-gray-600 mb-8">
@@ -192,7 +297,7 @@ const Team = () => {
               </svg>
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

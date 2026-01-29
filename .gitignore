@@ -27,14 +27,6 @@ build/
 .firebase-debug.log
 .firebaserc
 
-# ===============================
-# OS / Editor files
-# ===============================
-.DS_Store
-Thumbs.db
-
-.vscode/
-!.vscode/extensions.json
 
 # ===============================
 # Logs

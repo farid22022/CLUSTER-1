@@ -1,141 +1,169 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-coverflow";
+import Rating from "react-rating";
+import {
+  Autoplay,
+  Pagination,
+  Navigation,
+  EffectCoverflow,
+} from "swiper/modules";
+import { FaQuoteLeft, FaRegStar, FaStar } from "react-icons/fa";
+import Aos from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 const Testimonials = () => {
-  const testimonials = [
-    {
-      designation: "Director",
-      name: "Professor Dr. Kazi Masudul Alam",
-      student_id: "210123",
-      image_url: "https://i.ibb.co.com/bXynWfb/Money.png", // Make sure this link is valid
-      facebook_url: "https://facebook.com/username1",
-      linkedin_url: "https://linkedin.com/in/username1",
-      email: "username1@email.com",
-      quote: "Leading with vision and empowering excellence."
-    },
-    {
-      designation: "President",
-      name: "Tahmid Hasan Tasfi",
-      student_id: "210218",
-      image_url: "https://i.ibb.co/TqxvVFb3/tasfi.jpg",
-      facebook_url: "https://facebook.com/username1",
-      linkedin_url: "https://linkedin.com/in/username1",
-      email: "username1@email.com",
-      quote: "Proud to serve and shape the future of CLUSTER."
-    },
-    {
-      designation: "Vice President-1",
-      name: "Md Tasbi Hassan",
-      student_id: "210216",
-      image_url: "https://i.ibb.co/4RhPX7Ks/tasbi.jpg",
-      facebook_url: "https://facebook.com/username2",
-      linkedin_url: "https://linkedin.com/in/username2",
-      email: "username2@email.com",
-      quote: "Working together is our biggest strength."
-    },
-    {
-      designation: "Vice President-2",
-      name: "Razu Sarder",
-      student_id: "220220",
-      image_url: "https://example.com/image3.jpg",
-      facebook_url: "https://facebook.com/username3",
-      linkedin_url: "https://linkedin.com/in/username3",
-      email: "username3@email.com",
-      quote: "Committed to creating an inclusive tech community."
-    },
-    {
-      designation: "General Secretary",
-      name: "Md Anjir Hossain",
-      student_id: "210230",
-      image_url: "https://i.ibb.co/1thHGwzw/anjir.jpg",
-      facebook_url: "https://facebook.com/username4",
-      linkedin_url: "https://linkedin.com/in/username4",
-      email: "username4@email.com",
-      quote: "Keeping everything running smoothly behind the scenes."
-    },
-    {
-      designation: "Joint Secretary",
-      name: "Sohag Chandra",
-      student_id: "220238",
-      image_url: "https://i.ibb.co/jZ5W0PJJ/sohag.jpg",
-      facebook_url: "https://facebook.com/username5",
-      linkedin_url: "https://linkedin.com/in/username5",
-      email: "username5@email.com",
-      quote: "A joint effort brings great success!"
-    }
-  ];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
+    Aos.init({ duration: 500 });
+  }, []);
+
+const reviews = [
+  {
+    feedback: "Leading with vision and empowering excellence across every initiative, inspiring both faculty and students to reach their highest potential.",
+    userData: [
+      {
+        name: "Professor Dr. Kazi Masudul Alam",
+        photo: "https://i.ibb.co/bXynWfb/Money.png",
+        role: "Director",
+      },
+    ],
+    rating: 5,
+  },
+  {
+    feedback: "Proud to serve and shape the future of CLUSTER, driving innovation and fostering a community of passionate learners and tech leaders.",
+    userData: [
+      {
+        name: "Tahmid Hasan Tasfi",
+        photo: "https://i.ibb.co/TqxvVFb3/tasfi.jpg",
+        role: "President",
+      },
+    ],
+    rating: 5,
+  },
+  {
+    feedback: "Working together is our biggest strength, and I truly believe that unity, collaboration, and determination are what fuel our progress.",
+    userData: [
+      {
+        name: "Md Tasbi Hassan",
+        photo: "https://i.ibb.co/4RhPX7Ks/tasbi.jpg",
+        role: "Vice President-1",
+      },
+    ],
+    rating: 5,
+  },
+  {
+    feedback: "Committed to creating an inclusive tech community where everyone feels empowered, valued, and encouraged to innovate and lead.",
+    userData: [
+      {
+        name: "Razu Sarder",
+        photo: "https://i.ibb.co/tpDz54TM/razu.jpg",
+        role: "Vice President-2",
+      },
+    ],
+    rating: 5,
+  },
+  {
+    feedback: "Keeping everything running smoothly behind the scenes, ensuring that every plan, event, and operation unfolds with precision and success.",
+    userData: [
+      {
+        name: "Md Anjir Hossain",
+        photo: "https://i.ibb.co/1thHGwzw/anjir.jpg",
+        role: "General Secretary",
+      },
+    ],
+    rating: 5,
+  },
+  {
+    feedback: "A joint effort brings great success! Every member’s contribution matters, and I’m proud to be a part of this united and passionate team.",
+    userData: [
+      {
+        name: "Sohag Chandra",
+        photo: "https://i.ibb.co/jZ5W0PJJ/sohag.jpg",
+        role: "Joint Secretary",
+      },
+    ],
+    rating: 5,
+  },
+];
+
 
   return (
-    <section className="py-20 bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-gray-800 to-blue-600 bg-clip-text text-transparent">
-          What Our Members Say
-        </h2>
-
-        <div className="relative h-96">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 flex flex-col items-center justify-center text-center max-w-3xl mx-auto p-8"
-            >
-              <motion.img
-                src={testimonials[currentIndex].image_url}
-                alt={testimonials[currentIndex].name}
-                className="w-24 h-24 rounded-full mb-6 border-4 border-blue-500 object-cover"
-                whileHover={{ scale: 1.1 }}
-              />
-              <p className="text-xl italic mb-6 text-gray-700 leading-relaxed">
-                &quot;{testimonials[currentIndex].quote}&quot;
-              </p>
-              <div>
-                <h4 className="text-xl font-bold text-gray-900">
-                  {testimonials[currentIndex].name}
-                </h4>
-                <p className="text-blue-600">
-                  {testimonials[currentIndex].designation}
-                </p>
-                <div className="mt-2 flex justify-center space-x-4">
-                  <a href={testimonials[currentIndex].facebook_url} target="_blank" rel="noopener noreferrer">
-                    <img src="https://img.icons8.com/ios-filled/25/000000/facebook--v1.png" alt="Facebook" />
-                  </a>
-                  <a href={testimonials[currentIndex].linkedin_url} target="_blank" rel="noopener noreferrer">
-                    <img src="https://img.icons8.com/ios-filled/25/000000/linkedin.png" alt="LinkedIn" />
-                  </a>
-                  <a href={`mailto:${testimonials[currentIndex].email}`}>
-                    <img src="https://img.icons8.com/ios-filled/25/000000/email.png" alt="Email" />
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+    <div className="bg-gradient-to-t from-primary to bg-purple-500 pb-8 pt-14 rounded-md px-6 md:px-12 lg:px-20">
+      <div className="container mx-auto text-white flex flex-col md:flex-row items-center justify-between gap-12">
+        {/* Left Side - Text Content */}
+        <div data-aos="fade-right" className="md:w-[45%] text-left space-y-6">
+          <div className="relative">
+            <FaQuoteLeft className="text-4xl lg:text-6xl text-white/60 absolute -top-5 sm:-top-8 sm:-left-10" />
+          </div>
+          <h2 className="flex text-2xl ml-3 md:text-3xl lg:mt-2 lg:text-4xl font-extrabold leading-tight">
+            The Power of Words from CLUSTER Leaders
+          </h2>
+          <p className="text-lg text-white/80">
+            Real voices, real leadership—our team’s words reflect the spirit of CLUSTER. Explore their insights and vision.
+          </p>
+          <div className="border-white border-b-4"></div>
         </div>
 
-        <div className="flex justify-center gap-3 mt-8">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentIndex ? 'bg-blue-600 w-6' : 'bg-gray-300'
-              }`}
-            />
-          ))}
+        {/* Right Side - Swiper Carousel */}
+        <div data-aos="fade-left" className="relative md:w-[50%]">
+          <Swiper
+            effect="coverflow"
+            grabCursor={true}
+            centeredSlides={true}
+            slidesPerView="auto"
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            pagination={{ clickable: true }}
+            coverflowEffect={{
+              rotate: 50,
+              stretch: 0,
+              depth: 100,
+              modifier: 1,
+              slideShadows: true,
+            }}
+            modules={[Autoplay, EffectCoverflow, Pagination, Navigation]}
+            className="max-w-md md:max-w-lg lg:max-w-xl"
+          >
+            {reviews.map((item, index) => (
+              <SwiperSlide key={index} className="max-w-sm mx-auto">
+                <div className="bg-white dark:bg-black dark:text-white text-gray-800 p-6 py-8 rounded-2xl shadow-lg mx-auto text-center transition-all duration-300 hover:shadow-xl">
+                  <Rating
+                    initialRating={item.rating}
+                    emptySymbol={
+                      <FaRegStar className="text-gray-400 text-lg" />
+                    }
+                    fullSymbol={<FaStar className="text-yellow-500 text-lg" />}
+                    readonly
+                  />
+                  <p className="mb-4 text-lg italic">{item.feedback}</p>
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <img
+                      src={item.userData[0].photo}
+                      alt={item.userData[0].name}
+                      className="w-14 h-14 rounded-full border-2 border-primary object-cover shadow-md"
+                    />
+                    <div>
+                      <p className="font-bold text-gray-900 dark:text-gray-300">
+                        {item.userData[0].name}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                        {item.userData[0].role} | CLUSTER
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

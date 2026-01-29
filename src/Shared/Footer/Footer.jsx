@@ -48,12 +48,14 @@ const Footer = () => {
           
           {/* Organization Info */}
           <div className="lg:col-span-2">
-            <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+           <div className='flex items-center w-fit gap-4 mb-6'>
+            <img src="/logo/cluster.png" className='flex w-10 h-10' alt="" />
+            <h3 className="flex font-extrabold text-2xl bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               CLUSTER
             </h3>
-            <p className="text-gray-300 mb-4 leading-relaxed">
-              Computer Science and Engineering Research Cluster at Khulna University. 
-              Advancing technology through innovative research and collaborative learning.
+            </div>
+            <p className="text-gray-300 mb-4 w-2/3 leading-relaxed">
+              Club for Updated Search on Computer at Khulna University CSE discipline. A cooperative, non-political, tech-driven student organization.
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-gray-300">

@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { FiCalendar, FiImage, FiYoutube, FiFileText, FiArrowRight } from 'react-icons/fi';
 
 // Replace with actual image imports
-const symposiumTalkImage = "https://images.unsplash.com/photo-1431540015161-0bf868a2d407";
+const symposiumTalkImage = "/Events/symposiumTalkImage.png";
+const techTalkImage = "/Events/techTalkImage.png";
 const datathonImage = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4";
 const iupcImage = "https://images.unsplash.com/photo-1553877522-43269d4ea984";
 
@@ -45,7 +46,7 @@ const EventArchive = () => {
       ]
     },
     {
-      image: symposiumTalkImage,
+      image: techTalkImage,
       title: 'Tech Talk Series 2023',
       date: 'December 12, 2023',
       description: 'Monthly tech talks covering emerging technologies in AI, blockchain, and cloud computing.',

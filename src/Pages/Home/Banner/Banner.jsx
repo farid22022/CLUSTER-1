@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,7 +12,7 @@ const Banner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Auto-slide every 6 seconds (increased for better UX)
+  // Auto-slide every 6 seconds
   useEffect(() => {
     if (!isHovered) {
       const interval = setInterval(() => {
@@ -23,6 +21,24 @@ const Banner = () => {
       return () => clearInterval(interval);
     }
   }, [isHovered]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowLeft') {
+        setCurrentIndex((prevIndex) => 
+          prevIndex === 0 ? bannerImages.length - 1 : prevIndex - 1
+        );
+      } else if (event.key === 'ArrowRight') {
+        setCurrentIndex((prevIndex) => 
+          (prevIndex + 1) % bannerImages.length
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Handle manual navigation
   const handlePrev = () => {
@@ -130,11 +146,116 @@ const Banner = () => {
     }
   };
 
+  // Slide content array
+  const slideContent = [
+    {
+      title: (
+        <>
+          Welcome to{' '}
+          <motion.span
+            className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            animate={{
+              textShadow: [
+                "0 0 20px rgba(59, 130, 246, 0.5)",
+                "0 0 40px rgba(147, 51, 234, 0.7)",
+                "0 0 20px rgba(59, 130, 246, 0.5)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            CLUSTER
+          </motion.span>
+        </>
+      ),
+      subtitle: 'Club for Updated Search on Computer at Khulna University. A cooperative, non-political, tech-driven student organization.',
+      buttons: [
+        { text: 'Discover More', href: '/home' },
+        { text: 'Contact Us', href: '/contact' }
+      ]
+    },
+    {
+      title: (
+        <>
+          Innovate with{' '}
+          <motion.span
+            className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            animate={{
+              textShadow: [
+                "0 0 20px rgba(59, 130, 246, 0.5)",
+                "0 0 40px rgba(147, 51, 234, 0.7)",
+                "0 0 20px rgba(59, 130, 246, 0.5)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            CLUSTER
+          </motion.span>
+        </>
+      ),
+      subtitle: 'Join our exciting events and collaborative projects to push the boundaries of technology at KU CSE.',
+      buttons: [
+        { text: 'Explore Events', href: '/events' },
+        { text: 'View Projects', href: '/projects' }
+      ]
+    },
+    {
+      title: (
+        <>
+          Learn with{' '}
+          <motion.span
+            className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            animate={{
+              textShadow: [
+                "0 0 20px rgba(59, 130, 246, 0.5)",
+                "0 0 40px rgba(147, 51, 234, 0.7)",
+                "0 0 20px rgba(59, 130, 246, 0.5)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            CLUSTER
+          </motion.span>
+        </>
+      ),
+      subtitle: 'Access cutting-edge resources and insightful blogs to fuel your tech journey at Khulna University.',
+      buttons: [
+        { text: 'Browse Resources', href: '/resources' },
+        { text: 'Read Blog', href: '/blog' }
+      ]
+    },
+    {
+      title: (
+        <>
+          Connect with{' '}
+          <motion.span
+            className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            animate={{
+              textShadow: [
+                "0 0 20px rgba(59, 130, 246, 0.5)",
+                "0 0 40px rgba(147, 51, 234, 0.7)",
+                "0 0 20px rgba(59, 130, 246, 0.5)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            CLUSTER
+          </motion.span>
+        </>
+      ),
+      subtitle: 'Engage with our vibrant alumni network and personalize your tech profile with CLUSTER.',
+      buttons: [
+        { text: 'Meet Alumni', href: '/alumni' },
+        { text: 'Your Profile', href: '/profile' }
+      ]
+    }
+  ];
+
   return (
     <section 
       className="relative bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900 text-white py-20 text-center min-h-screen flex items-center overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      tabIndex={0}
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -197,7 +318,7 @@ const Banner = () => {
       </div>
 
       {/* Navigation Buttons with Enhanced Design */}
-      <div className="absolute inset-0 flex justify-between items-center px-8 z-20">
+      <div className="absolute container mx-auto inset-0 flex justify-between items-center px-8 z-20">
         <motion.button
           onClick={handlePrev}
           className="group relative w-16 h-16 bg-white/10 backdrop-blur-lg rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
@@ -207,6 +328,7 @@ const Banner = () => {
             boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
           }}
           whileTap={{ scale: 0.9 }}
+          aria-label="Previous slide"
         >
           <motion.svg
             className="w-6 h-6"
@@ -227,6 +349,7 @@ const Banner = () => {
             boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
           }}
           whileTap={{ scale: 0.9 }}
+          aria-label="Next slide"
         >
           <motion.svg
             className="w-6 h-6"
@@ -251,27 +374,14 @@ const Banner = () => {
           variants={titleVariants}
           style={{ perspective: '1000px' }}
         >
-          Code the Future with{' '}
-          <motion.span
-            className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-            animate={{
-              textShadow: [
-                "0 0 20px rgba(59, 130, 246, 0.5)",
-                "0 0 40px rgba(147, 51, 234, 0.7)",
-                "0 0 20px rgba(59, 130, 246, 0.5)"
-              ]
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            CLUSTER
-          </motion.span>
+          {slideContent[currentIndex].title}
         </motion.h1>
         
         <motion.p 
           className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed text-gray-200"
           variants={subtitleVariants}
         >
-          Join the Computer League of Undergraduate Students for Technology, Education, and Research at KU CSE.
+          {slideContent[currentIndex].subtitle}
         </motion.p>
         
         <motion.div 
@@ -279,7 +389,7 @@ const Banner = () => {
           variants={buttonVariants}
         >
           <motion.a
-            href="/events"
+            href={slideContent[currentIndex].buttons[0].href}
             className="group relative px-10 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-full font-bold text-lg shadow-2xl border border-white/20 backdrop-blur-sm overflow-hidden"
             whileHover={{ 
               scale: 1.05,
@@ -288,12 +398,12 @@ const Banner = () => {
             }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="relative z-10">Explore Events</span>
+            <span className="relative z-10">{slideContent[currentIndex].buttons[0].text}</span>
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </motion.a>
           
           <motion.a
-            href="/signup"
+            href={slideContent[currentIndex].buttons[1].href}
             className="group relative px-10 py-4 bg-transparent border-2 border-white/30 rounded-full font-bold text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
             whileHover={{ 
               scale: 1.05,
@@ -303,30 +413,35 @@ const Banner = () => {
             }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="relative z-10">Join Now</span>
+            <span className="relative z-10">{slideContent[currentIndex].buttons[1].text}</span>
           </motion.a>
         </motion.div>
       </motion.div>
 
       {/* Enhanced Dots Navigation */}
       <motion.div 
-        className="absolute bottom-8 flex justify-center w-full z-10"
+        className="absolute bottom-8 flex justify-center w-full z-30 pointer-events-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.6 }}
+        role="tablist"
+        aria-label="Slide navigation"
       >
-        <div className="flex gap-3 bg-white/10 backdrop-blur-lg rounded-full px-6 py-3 border border-white/20">
+        <div className="flex gap-3 bg-white/10 backdrop-blur-lg rounded-full px-6 py-3 border border-white/20 pointer-events-auto">
           {bannerImages.map((_, index) => (
             <motion.button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`relative w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`relative w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent pointer-events-auto ${
                 index === currentIndex 
                   ? 'bg-white shadow-lg' 
                   : 'bg-white/40 hover:bg-white/60'
               }`}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
+              role="tab"
+              aria-selected={index === currentIndex}
+              aria-label={`Go to slide ${index + 1}`}
             >
               {index === currentIndex && (
                 <motion.div
@@ -337,21 +452,6 @@ const Banner = () => {
               )}
             </motion.button>
           ))}
-        </div>
-      </motion.div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
-          <motion.div
-            className="w-1 h-3 bg-white/60 rounded-full mt-2"
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
         </div>
       </motion.div>
     </section>

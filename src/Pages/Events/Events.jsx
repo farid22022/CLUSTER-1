@@ -1,31 +1,4 @@
-// import { useState } from "react";
-// import EventFilters from "./EventFilters/EventFilters";
-// import EventCard from "./EventCard/EventCard";
-// import EventArchive from "./EventArchive/EventArchive";
-// import EventCalendar from "./Calendar/EventCalendar";
-
-// const Events = () => {
-//   const [view, setView] = useState('grid'); // Toggle between grid and calendar view
-
-//   return (
-//     <div className="bg-gray-50 font-sans">
-//       <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-20 text-center">
-//         <div className="container mx-auto">
-//           <h1 className="text-4xl font-bold mb-4">Discover CLUSTER Events</h1>
-//           <p className="text-lg max-w-2xl mx-auto">
-//             Join our hackathons, workshops, datathons, and symposiums to ignite your tech passion!
-//           </p>
-//         </div>
-//       </section>
-//       <EventFilters setView={setView} />
-//       {view === 'grid' ? <EventCard /> : <EventCalendar />}
-//       <EventArchive />
-//     </div>
-//   );
-// };
-
-// export default Events;
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EventFilters from "./EventFilters/EventFilters";
 import EventCard from "./EventCard/EventCard";
@@ -35,30 +8,32 @@ import EventCalendar from "./Calendar/EventCalendar";
 const Events = () => {
   const [view, setView] = useState('grid'); // Toggle between grid and calendar view
   const [filtersOpen, setFiltersOpen] = useState(false);
-
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   return (
-    <div className="bg-gray-50 font-sans min-h-screen">
+    <div className="bg-gray-50  font-sans">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 md:py-20 px-4 text-center">
-        <div className="container mx-auto max-w-4xl">
-          <motion.h1 
-            className="text-3xl md:text-4xl font-bold mb-3 md:mb-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Discover CLUSTER Events
-          </motion.h1>
-          <motion.p 
-            className="text-base md:text-lg max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Join our hackathons, workshops, datathons, and symposiums to ignite your tech passion!
-          </motion.p>
-        </div>
-      </section>
+      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 md:py-40 px-4 text-center">
+  <div className="container mx-auto max-w-4xl">
+    <motion.h1 
+      className="text-4xl md:text-6xl font-bold mb-3 md:mb-4"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      Unleash Your Tech Potential with CLUSTER
+    </motion.h1>
+    <motion.p 
+      className="text-base md:text-lg max-w-2xl mx-auto"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2, duration: 0.6 }}
+    >
+      Dive into electrifying hackathons, workshops, datathons, and symposiums to fuel your innovation!
+    </motion.p>
+  </div>
+</section>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">
