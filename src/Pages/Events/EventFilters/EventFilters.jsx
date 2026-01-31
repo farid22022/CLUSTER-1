@@ -1,7 +1,33 @@
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 
-const EventFilters = ({ setView, currentView, onApply }) => {
+const EventFilters = ({ setView, currentView, filters, onFilterChange, onReset }) => {
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  // Handle filter changes
+  const handleFilterChange = (key, value) => {
+    const newFilters = { ...localFilters, [key]: value };
+    setLocalFilters(newFilters);
+  };
+
+  // Apply filters to parent
+  const handleApply = () => {
+    onFilterChange(localFilters);
+  };
+
+  // Reset filters
+  const handleReset = () => {
+    const resetFilters = {
+      type: '',
+      category: '',
+      dateRange: '',
+      search: ''
+    };
+    setLocalFilters(resetFilters);
+    onReset();
+  };
+
   // Animation variants for the container
   const containerVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -40,35 +66,51 @@ const EventFilters = ({ setView, currentView, onApply }) => {
         {/* Event Type Filter */}
         <motion.div variants={itemVariants}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-          <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>All Types</option>
-            <option>Hackathon</option>
-            <option>Workshop</option>
-            <option>Datathon</option>
-            <option>Symposium</option>
+          <select 
+            value={localFilters.type}
+            onChange={(e) => handleFilterChange('type', e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Types</option>
+            <option value="Hackathon">Hackathon</option>
+            <option value="Workshop">Workshop</option>
+            <option value="Datathon">Datathon</option>
+            <option value="Symposium">Symposium</option>
+            <option value="Seminar">Seminar</option>
+            <option value="Competition">Competition</option>
           </select>
         </motion.div>
         
         {/* Date Filter */}
         <motion.div variants={itemVariants}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-          <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Upcoming</option>
-            <option>Past</option>
-            <option>This Week</option>
-            <option>This Month</option>
+          <select 
+            value={localFilters.dateRange}
+            onChange={(e) => handleFilterChange('dateRange', e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Dates</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Past">Past</option>
+            <option value="This Week">This Week</option>
+            <option value="This Month">This Month</option>
           </select>
         </motion.div>
         
         {/* Category Filter */}
         <motion.div variants={itemVariants}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>All Categories</option>
-            <option>Tech</option>
-            <option>Career</option>
-            <option>Academic</option>
-            <option>Social</option>
+          <select 
+            value={localFilters.category}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Categories</option>
+            <option value="Tech">Tech</option>
+            <option value="Career">Career</option>
+            <option value="Academic">Academic</option>
+            <option value="Social">Social</option>
+            <option value="Networking">Networking</option>
           </select>
         </motion.div>
         
@@ -78,6 +120,8 @@ const EventFilters = ({ setView, currentView, onApply }) => {
           <div className="relative">
             <input
               type="text"
+              value={localFilters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
               placeholder="Search events..."
               className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
             />
@@ -119,17 +163,18 @@ const EventFilters = ({ setView, currentView, onApply }) => {
         
         <div className="flex gap-2">
           <motion.button
+            onClick={handleReset}
             className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Reset
+            Reset Filters
           </motion.button>
           <motion.button
+            onClick={handleApply}
             className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onApply}
           >
             Apply Filters
           </motion.button>
@@ -142,7 +187,9 @@ const EventFilters = ({ setView, currentView, onApply }) => {
 EventFilters.propTypes = {
   setView: PropTypes.func.isRequired,
   currentView: PropTypes.string.isRequired,
-  onApply: PropTypes.func,
+  filters: PropTypes.object,
+  onFilterChange: PropTypes.func,
+  onReset: PropTypes.func,
 };
 
 export default EventFilters;

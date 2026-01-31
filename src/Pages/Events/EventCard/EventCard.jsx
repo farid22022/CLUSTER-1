@@ -1,48 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import EventRegistrationForm from '../EventRegistrationForm/EventRegistrationForm';
+import { FiCalendar, FiMapPin, FiClock } from 'react-icons/fi';
+import PropTypes from 'prop-types';
 
-// Replace with actual image imports
-const datathonImage = "/Events/SynergyXDatathon.png";
-const symposiumImage = "/Events/ProjectSymposium.png";
-const iupcImage = "/Events/KUIUPC.png";
-
-const EventCard = () => {
+const EventCard = ({ events = [] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const events = [
-    {
-      image: datathonImage,
-      alt: 'Datathon',
-      title: 'SynergyX Datathon 2025',
-      date: 'June 15, 2025',
-      venue: 'Virtual',
-      description: 'Compete in data-driven challenges and win exciting prizes!',
-      link: '/datathon',
-      tags: ['Data Science', 'AI', 'Workshop']
-    },
-    {
-      image: symposiumImage,
-      alt: 'Symposium',
-      title: 'Project Symposium 2025',
-      date: 'July 10, 2025',
-      venue: 'Liakot Ali Auditorium, KU',
-      description: 'Showcase your projects and hear from industry leaders.',
-      link: '/ps',
-      tags: ['Networking', 'Exhibition', 'Keynote']
-    },
-    {
-      image: iupcImage,
-      alt: 'IUPC',
-      title: 'KU IUPC 2025',
-      date: 'August 5, 2025',
-      venue: 'CSE Discipline, KU',
-      description: 'Test your coding skills in our annual programming contest.',
-      link: '/cp',
-      tags: ['Competition', 'Coding', 'Algorithms']
-    },
-  ];
 
   const handleRegisterClick = (event) => {
     setSelectedEvent(event);
@@ -88,6 +52,37 @@ const EventCard = () => {
       duration: 0.3 
     }
   };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Get default image if none provided
+  const getEventImage = (event) => {
+    if (event.image) return event.image;
+    // Return default images based on event type or use a placeholder
+    if (event.tags && event.tags.includes('datathon')) {
+      return "/Events/SynergyXDatathon.png";
+    } else if (event.tags && event.tags.includes('symposium')) {
+      return "/Events/ProjectSymposium.png";
+    } else if (event.tags && event.tags.includes('programming')) {
+      return "/Events/KUIUPC.png";
+    }
+    return "/Events/default-event.png";
+  };
+
+  if (events.length === 0) {
+    return (
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative">
+        <div className="container mx-auto px-4 max-w-6xl text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">No Upcoming Events</h2>
+          <p className="text-gray-600 mb-8">Check back later for new events!</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative">
@@ -145,7 +140,7 @@ const EventCard = () => {
                 <div className="relative h-60 overflow-hidden">
                   <motion.div
                     className="w-full h-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${event.image})` }}
+                    style={{ backgroundImage: `url(${getEventImage(event)})` }}
                     initial={{ scale: 1.1 }}
                     whileHover={hoverImage}
                   />
@@ -153,7 +148,7 @@ const EventCard = () => {
                   
                   {/* Event tags */}
                   <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                    {event.tags.map((tag, tagIndex) => (
+                    {event.tags && event.tags.slice(0, 3).map((tag, tagIndex) => (
                       <span 
                         key={tagIndex} 
                         className="bg-blue-600 bg-opacity-90 text-white px-3 py-1 rounded-full text-xs font-medium shadow-md"
@@ -175,24 +170,27 @@ const EventCard = () => {
                   </div>
                   
                   <div className="flex items-center text-gray-600 mb-2">
-                    <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                    </svg>
-                    <span>{event.date}</span>
+                    <FiCalendar className="w-5 h-5 mr-2 text-blue-500" />
+                    <span>{formatDate(event.date)}</span>
                   </div>
                   
+                  {event.time && (
+                    <div className="flex items-center text-gray-600 mb-2">
+                      <FiClock className="w-5 h-5 mr-2 text-blue-500" />
+                      <span>{event.time}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center text-gray-600 mb-4">
-                    <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{event.venue}</span>
+                    <FiMapPin className="w-5 h-5 mr-2 text-blue-500" />
+                    <span>{event.location || event.venue || 'TBA'}</span>
                   </div>
                   
                   <p className="text-gray-600 mb-6">{event.description}</p>
                   
                   <div className="flex justify-between">
                     <motion.a 
-                      href={event.link}
+                      href={`/events/${event.id}`}
                       className="inline-flex items-center font-medium text-blue-600 hover:text-blue-800 transition-colors"
                       whileHover={{ 
                         x: 5,
@@ -251,6 +249,10 @@ const EventCard = () => {
       </AnimatePresence>
     </section>
   );
+};
+
+EventCard.propTypes = {
+  events: PropTypes.array,
 };
 
 export default EventCard;

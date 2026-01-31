@@ -1,63 +1,20 @@
 import { motion } from 'framer-motion';
 import { FiCalendar, FiImage, FiYoutube, FiFileText, FiArrowRight } from 'react-icons/fi';
+import PropTypes from 'prop-types';
 
-// Replace with actual image imports
-const symposiumTalkImage = "/Events/symposiumTalkImage.png";
-const techTalkImage = "/Events/techTalkImage.png";
-const datathonImage = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4";
-const iupcImage = "https://images.unsplash.com/photo-1553877522-43269d4ea984";
+const EventArchive = ({ events = [] }) => {
+  // Format date for display
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
 
-const EventArchive = () => {
-  const pastEvents = [
-    {
-      image: symposiumTalkImage,
-      title: 'Project Symposium 2024',
-      date: 'July 10, 2024',
-      description: 'A showcase of innovative projects with guest speakers from industry leaders including Google, Microsoft, and local startups.',
-      highlights: ['50+ projects showcased', '12 industry speakers', '5 winning teams awarded'],
-      links: [
-        { type: 'photos', url: '#' },
-        { type: 'videos', url: '#' },
-        { type: 'report', url: '#' }
-      ]
-    },
-    {
-      image: datathonImage,
-      title: 'SynergyX Datathon 2024',
-      date: 'May 15, 2024',
-      description: 'Data science competition focusing on real-world problems with datasets provided by industry partners.',
-      highlights: ['200+ participants', '3 problem tracks', '$5000 in prizes'],
-      links: [
-        { type: 'photos', url: '#' },
-        { type: 'videos', url: '#' },
-        { type: 'report', url: '#' }
-      ]
-    },
-    {
-      image: iupcImage,
-      title: 'KU IUPC 2024',
-      date: 'April 5, 2024',
-      description: 'Annual intra-university programming contest challenging students with algorithmic problems.',
-      highlights: ['25 teams competed', '5-hour competition', '3 winners selected'],
-      links: [
-        { type: 'photos', url: '#' },
-        { type: 'videos', url: '#' },
-        { type: 'report', url: '#' }
-      ]
-    },
-    {
-      image: techTalkImage,
-      title: 'Tech Talk Series 2023',
-      date: 'December 12, 2023',
-      description: 'Monthly tech talks covering emerging technologies in AI, blockchain, and cloud computing.',
-      highlights: ['8 sessions held', '15 expert speakers', '300+ attendees'],
-      links: [
-        { type: 'photos', url: '#' },
-        { type: 'videos', url: '#' },
-        { type: 'report', url: '#' }
-      ]
-    }
-  ];
+  // Get default image if none provided
+  const getEventImage = (event) => {
+    if (event.image) return event.image;
+    // Return default images based on event type or use a placeholder
+    return "/Events/default-event.png";
+  };
 
   // Animation variants
   const container = {
@@ -105,6 +62,17 @@ const EventArchive = () => {
     report: <FiFileText className="w-5 h-5" />
   };
 
+  if (events.length === 0) {
+    return (
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-gray-100 relative overflow-hidden">
+        <div className="container mx-auto px-4 max-w-6xl relative z-10 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">No Past Events</h2>
+          <p className="text-gray-600">Check out our upcoming events!</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-gray-100 relative overflow-hidden">
       {/* Decorative elements */}
@@ -150,9 +118,9 @@ const EventArchive = () => {
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {pastEvents.map((event, index) => (
+          {events.map((event, index) => (
             <motion.div 
-              key={index}
+              key={event.id}
               className="group"
               variants={item}
               whileHover={hoverCard}
@@ -161,7 +129,7 @@ const EventArchive = () => {
                 <div className="relative h-60 overflow-hidden">
                   <motion.div
                     className="w-full h-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${event.image})` }}
+                    style={{ backgroundImage: `url(${getEventImage(event)})` }}
                     initial={{ scale: 1.1 }}
                     whileHover={hoverImage}
                   />
@@ -169,14 +137,14 @@ const EventArchive = () => {
                   
                   {/* Event year badge */}
                   <div className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-sm font-bold px-4 py-1 rounded-full">
-                    {event.date.split(' ')[2]}
+                    {new Date(event.date).getFullYear()}
                   </div>
                 </div>
                 
                 <div className="p-6">
                   <div className="flex items-center mb-3">
                     <FiCalendar className="text-blue-500 mr-2" />
-                    <span className="text-gray-600 font-medium">{event.date}</span>
+                    <span className="text-gray-600 font-medium">{formatDate(event.date)}</span>
                   </div>
                   
                   <motion.h3 
@@ -188,35 +156,41 @@ const EventArchive = () => {
                   
                   <p className="text-gray-600 mb-4">{event.description}</p>
                   
-                  <div className="mb-5">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Event Highlights:</h4>
-                    <ul className="space-y-1">
-                      {event.highlights.map((highlight, i) => (
-                        <li key={i} className="flex items-start">
-                          <span className="text-blue-500 mr-2">•</span>
-                          <span className="text-gray-600">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {event.highlights && event.highlights.length > 0 && (
+                    <div className="mb-5">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Event Highlights:</h4>
+                      <ul className="space-y-1">
+                        {event.highlights.slice(0, 3).map((highlight, i) => (
+                          <li key={i} className="flex items-start">
+                            <span className="text-blue-500 mr-2">•</span>
+                            <span className="text-gray-600">{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between items-center">
                     <div className="flex gap-3">
-                      {event.links.map((link, linkIndex) => (
-                        <motion.a
-                          key={linkIndex}
-                          href={link.url}
-                          className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                          whileHover={{ y: -3 }}
-                          title={link.type.charAt(0).toUpperCase() + link.type.slice(1)}
-                        >
-                          {linkIcons[link.type]}
-                        </motion.a>
-                      ))}
+                      {event.links && event.links.length > 0 ? (
+                        event.links.slice(0, 3).map((link, linkIndex) => (
+                          <motion.a
+                            key={linkIndex}
+                            href={link.url}
+                            className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            whileHover={{ y: -3 }}
+                            title={link.type.charAt(0).toUpperCase() + link.type.slice(1)}
+                          >
+                            {linkIcons[link.type] || <FiFileText className="w-5 h-5" />}
+                          </motion.a>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-sm">No links available</span>
+                      )}
                     </div>
                     
                     <motion.a
-                      href="#"
+                      href={`/events/${event.id}`}
                       className="inline-flex items-center font-medium text-blue-600 hover:text-blue-800"
                       whileHover={{ 
                         x: 5,
@@ -250,6 +224,10 @@ const EventArchive = () => {
       </div>
     </section>
   );
+};
+
+EventArchive.propTypes = {
+  events: PropTypes.array,
 };
 
 export default EventArchive;
