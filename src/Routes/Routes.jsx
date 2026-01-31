@@ -22,6 +22,8 @@ import SuperAdminRoute from "./SuperAdminRoute";
 import Login from "../Shared/Login/LoginPage";
 import Logout from "../Shared/Login/LogoutPage";
 import AdminDetail from "../Pages/Dashboard/Home/AdminDetail";
+import CreateMeeting from "../Pages/Dashboard/Message/CreateMeeting";
+import ErrorPage from "../Shared/ErrorPage/ErrorPage";
 // import { Logout } from "../Shared/Login/LogoutPage";
 // import EmailMembers from "../Pages/Dashboard/Home/DashboardHome";
 
@@ -29,6 +31,7 @@ export const router = createBrowserRouter([
     {
         path:"/",
         element: <Main></Main>,
+        errorElement: <ErrorPage/>,
         children:[
             {
                 path: '/',
@@ -79,12 +82,21 @@ export const router = createBrowserRouter([
     {
         path: "/dashboard",
         element: <Dashboard />,
+        errorElement: <ErrorPage/>,
         children: [
           {
             path: "/dashboard",
             element: (
               <SuperAdminRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']} allowedPages={['home']}>
                 <HandleAdmin />
+              </SuperAdminRoute>
+            )
+          },
+          {
+            path: "/dashboard/meeting",
+            element: (
+              <SuperAdminRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']} allowedPages={['invite_admin']}>
+                <CreateMeeting />
               </SuperAdminRoute>
             )
           },
@@ -137,7 +149,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: "/dashboard/contact",
+            path: "/dashboard/contacts",
             element: (
               <SuperAdminRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']} allowedPages={['contact']}>
                 <DashboardContact />

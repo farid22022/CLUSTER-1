@@ -12,10 +12,7 @@ const EventCalendar = ({ events = [] }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // Filter events for the next 30 days
-  // In EventCalendar.jsx, update the getUpcomingEventsForSidebar function:
 
-  // Filter events for the next 30 days
   const getUpcomingEventsForSidebar = () => {
     const today = new Date();
     const thirtyDaysFromNow = new Date();

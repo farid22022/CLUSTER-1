@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiSend, FiUser, FiCode,  FiBookOpen, FiGitBranch, FiGlobe, FiChevronDown } from 'react-icons/fi';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+// import axios from 'axios';
+import { createProject } from '../../../api';
 
 const SubmissionForm = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,33 +24,47 @@ const SubmissionForm = ({ onClose }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setIsSubmitting(true);
   setError(null);
-  console.log('Submitting project with data:', formData,error);
-  const token = localStorage.getItem('access-token');
-  console.log('JWT Token:', token,32);
 
   try {
-    const token = localStorage.getItem('access-token');
-   
+    const token = localStorage.getItem('access_token');
+    
     if (!token) {
       throw new Error('You must be logged in to submit a project.');
     }
 
-    const response = await axios.post('http://localhost:5000/projects', formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    // Transform data if needed
+    const projectData = {
+      ...formData,
+      // Ensure techStack is a string if your backend expects it
+      techStack: Array.isArray(formData.techStack) 
+        ? formData.techStack.join(', ') 
+        : formData.techStack,
+      // Ensure team is a string if your backend expects it
+      team: Array.isArray(formData.team) 
+        ? formData.team.join(', ') 
+        : formData.team,
+    };
 
+    const response = await createProject(projectData);
+    
     console.log('Project submitted successfully:', response.data);
     setIsSubmitting(false);
+    
+    // Call success callback if provided
+    // eslint-disable-next-line no-undef
+    if (onSuccess) {
+      // eslint-disable-next-line no-undef
+      onSuccess();
+    }
+    
     onClose();
   } catch (err) {
     console.error('Error submitting project:', err);
-    setError(err.response?.data?.message || 'Failed to submit project. Please try again.');
+    setError(err.response?.data?.message || err.message || 'Failed to submit project. Please try again.');
     setIsSubmitting(false);
   }
 };

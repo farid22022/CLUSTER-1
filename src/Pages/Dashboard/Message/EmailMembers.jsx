@@ -319,7 +319,7 @@ export default function EmailMembers() {
   };
 
   return (
-    <div className="p-6 md:p-10 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-gray-900 min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-6 md:p-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

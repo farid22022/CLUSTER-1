@@ -125,23 +125,23 @@ const Events = () => {
           filtered = filtered.filter(event => event.is_upcoming === false);
           break;
         case 'This Week':
-          const weekFromNow = new Date();
+          { const weekFromNow = new Date();
           weekFromNow.setDate(today.getDate() + 7);
           filtered = filtered.filter(event => {
             if (!event.date) return false;
             const eventDate = new Date(event.date);
             return eventDate >= today && eventDate <= weekFromNow;
           });
-          break;
+          break; }
         case 'This Month':
-          const monthFromNow = new Date();
+          { const monthFromNow = new Date();
           monthFromNow.setMonth(today.getMonth() + 1);
           filtered = filtered.filter(event => {
             if (!event.date) return false;
             const eventDate = new Date(event.date);
             return eventDate >= today && eventDate <= monthFromNow;
           });
-          break;
+          break; }
         default:
           break;
       }
