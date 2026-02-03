@@ -5,6 +5,26 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Use Noto Sans Bengali or SolaimanLipi / Kalpurush / etc. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap');
+
+body, .ql-editor {
+  font-family: 'Noto Sans Bengali', 'Noto Sans', sans-serif !important;
+}
+
+/* Make sure Quill editor uses it */
+.ql-editor {
+  font-family: 'Noto Sans Bengali', sans-serif !important;
+  direction: ltr; /* or rtl if needed */
+  unicode-bidi: plaintext;
+}
+
+.ql-editor,
+.ql-editor * {
+  font-family: 'Noto Sans Bengali', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
 body {
   font-family: "Manrope", sans-serif;
   font-style: normal;

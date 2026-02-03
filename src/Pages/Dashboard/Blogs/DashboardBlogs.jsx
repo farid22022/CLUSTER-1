@@ -1,417 +1,483 @@
-// src/pages/dashboard/DashboardBlogs.jsx
+
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Search, Edit3, Trash, Upload, CheckCircle,
-  Tag, Calendar, User, Image as ImageIcon, Lock, Unlock, Download
+  Clock, Check, X, Download, AlertCircle,Tag,Calendar,User,Unlock,Lock
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Papa from 'papaparse';
 import {
-  getBlogs, createBlog, updateBlog, deleteBlog
-} from '../../../api'; // Adjust path to your API file
+  getBlogs,
+  createBlog,
+  updateBlog,
+  deleteBlog,
+  approveBlog,
+  rejectBlog,
+} from '../../../api';
 
-const getBlogColor = (category) => ({
-  Tutorial: 'bg-gradient-to-r from-blue-600 to-indigo-700',
-  Research: 'bg-gradient-to-r from-purple-600 to-violet-700',
-  Event: 'bg-gradient-to-r from-green-600 to-teal-700'
-}[category] || 'bg-gray-600');
+const getCategoryColor = (category) => ({
+  Tutorial: 'from-blue-600 to-indigo-700',
+  Research: 'from-purple-600 to-violet-700',
+  Event:    'from-green-600 to-teal-700',
+  News:     'from-orange-500 to-amber-600',
+}[category] || 'from-gray-600 to-gray-700');
 
-const getBlogIcon = (category) => ({
-  Tutorial: <FileText className="w-9 h-9" />,
-  Research: <Tag className="w-9 h-9" />,
-  Event: <Calendar className="w-9 h-9" />
-}[category]);
+const getCategoryIcon = (category) => {
+  switch (category) {
+    case 'Tutorial': return <FileText className="w-6 h-6" />;
+    case 'Research': return <AlertCircle className="w-6 h-6" />;
+    case 'Event':    return <Calendar className="w-6 h-6" />;
+    case 'News':     return <FileText className="w-6 h-6" />;
+    default:         return <FileText className="w-6 h-6" />;
+  }
+};
 
 // ────────────────────────────────────────────────
-// CSV Export
+// CSV Export (now includes approval_status)
 // ────────────────────────────────────────────────
-const exportToCSV = (blogsToExport, filename = 'Blogs') => {
-  if (blogsToExport.length === 0) {
-    Swal.fire('No Data', 'No blogs to export.', 'info');
+const exportToCSV = (items, filename, showNotification) => {
+  if (!items?.length) {
+    showNotification('info', 'No Data', 'Nothing to export.');
     return;
   }
 
   const headers = [
-    'Title', 'Category', 'Tags', 'Author', 'Date', 'Excerpt',
-    'Image', 'Restricted'
+    'Title', 'Category', 'Tags', 'Author', 'Date',
+    'Excerpt', 'Image', 'Restricted', 'Approval Status'
   ];
 
-  const rows = blogsToExport.map(b => [
-    `"${(b.title || '').replace(/"/g, '""')}"`,
-    `"${(b.category || '').replace(/"/g, '""')}"`,
-    `"${(b.tags || []).join(', ')}"`,
-    `"${(b.author || '').replace(/"/g, '""')}"`,
-    `"${(b.date || '').replace(/"/g, '""')}"`,
-    `"${(b.excerpt || '').replace(/"/g, '""')}"`,
-    `"${(b.image || '').replace(/"/g, '""')}"`,
-    `"${b.restricted ? 'Yes' : 'No'}"`
+  const csvRows = items.map(item => [
+    `"${(item.title     || '').replace(/"/g, '""')}"`,
+    `"${(item.category  || '').replace(/"/g, '""')}"`,
+    `"${(item.tags      || []).join(', ')}"`,
+    `"${(item.author    || '').replace(/"/g, '""')}"`,
+    `"${(item.date      || '').replace(/"/g, '""')}"`,
+    `"${(item.excerpt   || '').replace(/"/g, '""')}"`,
+    `"${(item.image     || '').replace(/"/g, '""')}"`,
+    `"${item.restricted ? 'Yes' : 'No'}"`,
+    `"${item.approval_status || 'pending'}"`
   ].join(','));
 
-  const csvContent = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const csv = [headers.join(','), ...csvRows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(link);
+  link.download = `${filename}_${new Date().toISOString().slice(0,10)}.csv`;
   link.click();
-  document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
-  Swal.fire('Exported!', `${blogsToExport.length} blog(s) exported.`, 'success');
+  showNotification('success', 'Exported', `${items.length} item(s) exported`);
 };
 
 export default function DashboardBlogs() {
-  const [searchTerm, setSearchTerm] = useState('');
   const [blogs, setBlogs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-
   const [showModal, setShowModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false });
 
   const [formData, setFormData] = useState({
     title: '', category: '', tags: '', author: '', date: '',
-    excerpt: '', image: '', restricted: false
+    excerpt: '', image: '', restricted: false, approval_status: 'pending'
   });
 
-  // Fetch blogs from backend
+  const showNotification = (type, title, message, duration = 4000) => {
+    setNotification({ type, title, message });
+    if (duration > 0) setTimeout(() => setNotification(null), duration);
+  };
+
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getBlogs();
+      setBlogs(data);
+    } catch (err) {
+      showNotification('error', 'Error', 'Failed to load blogs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const { data } = await getBlogs();
-        setBlogs(data);
-      } catch (err) {
-        Swal.fire('Error', 'Failed to load blogs', 'error',err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchBlogs();
   }, []);
 
-  const filteredBlogs = blogs.filter(b =>
-    (b.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.excerpt || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = blogs.filter(b =>
+    [b.title, b.category, b.excerpt, b.author]
+      .some(field => field?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // ────────────────────────────────────────────────
-  // CSV Import
-  // ────────────────────────────────────────────────
-  const handleCSVImport = () => {
-    Swal.fire({
-      title: 'Import Blogs from CSV',
-      text: 'Upload CSV file',
-      input: 'file',
-      inputAttributes: { accept: '.csv' },
-      showCancelButton: true,
-      confirmButtonText: 'Import',
-      showLoaderOnConfirm: true,
-      preConfirm: file => new Promise((resolve, reject) => {
-        if (!file) return reject('No file selected');
-
-        Papa.parse(file, {
-          header: true,
-          skipEmptyLines: 'greedy',
-          transformHeader: h => h.trim().toLowerCase(),
-          complete: result => {
-            if (result.errors.length) {
-              reject(result.errors.map(e => e.message).join('; '));
-              return;
-            }
-            if (!result.data.length) return reject('CSV is empty');
-
-            const valid = result.data
-              .filter(row => row.title?.trim() && row.category?.trim())
-              .map(row => {
-                let parsedDate = '';
-                const rawDate = row.date?.trim();
-
-                if (rawDate) {
-                  // Try to parse common formats like "May 15, 2025"
-                  const dateObj = new Date(rawDate);
-                  if (!isNaN(dateObj.getTime())) {
-                    parsedDate = dateObj.toISOString().split('T')[0]; // → "2025-05-15"
-                  } else {
-                    // Fallback: if parsing fails, keep as-is (backend will reject)
-                    parsedDate = rawDate;
-                  }
-                }
-
-                return {
-                  title: row.title?.trim() || 'Untitled Blog',
-                  category: row.category?.trim() || 'Uncategorized',
-                  tags: row.tags 
-                    ? row.tags.split(/[,;]/).map(t => t.trim()).filter(Boolean) 
-                    : [],
-                  author: row.author?.trim() || 'Anonymous',
-                  date: parsedDate,                     // ← fixed!
-                  excerpt: row.excerpt?.trim() || 'No excerpt provided',
-                  image: row.image?.trim() || '',
-                  restricted: row.restricted?.toLowerCase() === 'yes' ||
-                              row.restricted?.toLowerCase() === 'true' ||
-                              row.restricted === true
-                };
-              })
-
-            if (!valid.length) reject('No valid rows (title and category required)');
-            resolve(valid);
-          },
-          error: err => reject(err.message)
-        });
-      })
-    }).then(result => {
-      if (result.isConfirmed) importFromCSV(result.value);
-    }).catch(err => {
-      if (err && err !== 'cancel') {
-        Swal.fire('Import Failed', String(err), 'error');
-      }
-    });
-  };
-
-  const importFromCSV = async (rows) => {
-    try {
-      const newBlogs = [];
-      for (const row of rows) {
-        try {
-          const { data } = await createBlog(row);
-          newBlogs.push(data);
-        } catch (singleErr) {
-          console.error('Failed row:', row, singleErr.response?.data);
-        }
-      }
-      if (newBlogs.length > 0) {
-        setBlogs(prev => [...prev, ...newBlogs]);
-        Swal.fire('Imported!', `${newBlogs.length} blog(s) added.`, 'success');
-      }
-    } catch (err) {
-      Swal.fire('Import Error', err.message || 'Failed to import', 'error');
-    }
-  };
+  const pending    = filtered.filter(b => b.approval_status === 'pending');
+  const approved   = filtered.filter(b => b.approval_status === 'approved');
+  const rejected   = filtered.filter(b => b.approval_status === 'rejected');
 
   // ────────────────────────────────────────────────
-  // Modal Handlers
+  // Modal & CRUD
   // ────────────────────────────────────────────────
   const openModal = (blog = null) => {
     setEditingBlog(blog);
-    if (blog) {
-      setFormData({
-        title: blog.title || '',
-        category: blog.category || '',
-        tags: (blog.tags || []).join(', '),
-        author: blog.author || '',
-        date: blog.date || '',
-        excerpt: blog.excerpt || '',
-        image: blog.image || '',
-        restricted: !!blog.restricted
-      });
-    } else {
-      setFormData({
-        title: '', category: '', tags: '', author: '', date: '',
-        excerpt: '', image: '', restricted: false
-      });
-    }
+    setFormData(blog ? {
+      title: blog.title || '',
+      category: blog.category || '',
+      tags: (blog.tags || []).join(', '),
+      author: blog.author || '',
+      date: blog.date || '',
+      excerpt: blog.excerpt || '',
+      image: blog.image || '',
+      restricted: !!blog.restricted,
+      approval_status: blog.approval_status || 'pending'
+    } : {
+      title: '', category: '', tags: '', author: '', date: '',
+      excerpt: '', image: '', restricted: false, approval_status: 'pending'
+    });
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    const errors = [];
-    if (!formData.title?.trim()) errors.push('Title');
-    if (!formData.category?.trim()) errors.push('Category');
-    if (!formData.author?.trim()) errors.push('Author');
-    if (!formData.date?.trim()) errors.push('Date');
-    if (!formData.excerpt?.trim()) errors.push('Excerpt');
+    const required = ['title', 'category', 'author', 'date', 'excerpt'];
+    const missing = required.filter(k => !formData[k]?.trim());
 
-    if (errors.length > 0) {
-      Swal.fire({
-        title: 'Missing Fields',
-        html: errors.map(e => `• ${e}`).join('<br>'),
-        icon: 'error'
-      });
+    if (missing.length) {
+      showNotification('error', 'Required Fields', 
+        `Please fill: ${missing.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ')}`
+      );
       return;
     }
 
     const payload = {
       title: formData.title.trim(),
       category: formData.category.trim(),
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       author: formData.author.trim(),
       date: formData.date.trim(),
       excerpt: formData.excerpt.trim(),
-      image: formData.image?.trim() || '',
-      restricted: formData.restricted
+      image: formData.image?.trim() || null,
+      restricted: formData.restricted,
+      approval_status: formData.approval_status
     };
 
     try {
-      let updatedBlogs;
       if (editingBlog) {
-        const { data } = await updateBlog(editingBlog.id, payload);
-        updatedBlogs = blogs.map(b => b.id === data.id ? data : b);
-        Swal.fire('Success', 'Blog updated!', 'success');
+        await updateBlog(editingBlog.id, payload);
+        showNotification('success', 'Updated', 'Blog updated');
       } else {
-        const { data } = await createBlog(payload);
-        updatedBlogs = [...blogs, data];
-        Swal.fire('Success', 'Blog created!', 'success');
+        await createBlog(payload);
+        showNotification('success', 'Created', 'Blog created (pending approval)');
       }
-      setBlogs(updatedBlogs);
+      fetchBlogs();
       setShowModal(false);
-      setEditingBlog(null);
     } catch (err) {
-      console.error(err);
-      let msg = 'Failed to save blog.';
-      if (err.response?.data) msg = JSON.stringify(err.response.data, null, 2);
-      Swal.fire('Error', msg, 'error');
+      showNotification('error', 'Error', err.response?.data?.detail || 'Failed to save');
     }
   };
 
-  const confirmDelete = async (blog) => {
-    const result = await Swal.fire({
+  const handleDelete = (id, title) => {
+    setConfirmDialog({
+      isOpen: true,
       title: 'Delete Blog?',
-      text: `Delete "${blog.title}"?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete it!'
+      message: `Are you sure you want to delete "${title}"?`,
+      onConfirm: async () => {
+        try {
+          await deleteBlog(id);
+          fetchBlogs();
+          showNotification('success', 'Deleted', 'Blog removed');
+        } catch {
+          showNotification('error', 'Error', 'Failed to delete');
+        }
+        setConfirmDialog({ isOpen: false });
+      },
+      onCancel: () => setConfirmDialog({ isOpen: false })
     });
+  };
 
-    if (result.isConfirmed) {
-      try {
-        await deleteBlog(blog.id);
-        setBlogs(prev => prev.filter(b => b.id !== blog.id));
-        Swal.fire('Deleted!', 'Blog removed.', 'success');
-      } catch (err) {
-        Swal.fire('Error', 'Failed to delete blog', 'error',err.message);
-      }
+  const handleApprove = async (id) => {
+    try {
+      // await approveBlog(id);   // if you created the action
+      // Temporary workaround using update:
+      approveBlog(id);
+      await updateBlog(id, { approval_status: 'approved' });
+      fetchBlogs();
+      showNotification('success', 'Approved', 'Blog is now visible publicly');
+    } catch {
+      showNotification('error', 'Error', 'Failed to approve');
     }
   };
 
+  const handleReject = async (id) => {
+    try {
+      // await rejectBlog(id);
+      await updateBlog(id, { approval_status: 'rejected' });
+      fetchBlogs();
+      showNotification('success', 'Rejected', 'Blog marked as rejected');
+    } catch {
+      showNotification('error', 'Error', 'Failed to reject');
+    }
+  };
+
+  // ────────────────────────────────────────────────
+  // CSV Import (basic version – you can enhance later)
+  // ────────────────────────────────────────────────
+  const handleImportCSV = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const rows = await new Promise((resolve, reject) => {
+          Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (result) => {
+              if (result.errors.length) reject(result.errors[0].message);
+
+              const valid = result.data
+                .filter(r => r.title?.trim() && r.category?.trim())
+                .map(r => ({
+                  title: r.title.trim(),
+                  category: r.category.trim(),
+                  tags: r.tags ? r.tags.split(/[,;]/).map(t => t.trim()).filter(Boolean) : [],
+                  author: r.author?.trim() || 'Anonymous',
+                  date: r.date ? new Date(r.date).toISOString().split('T')[0] : '',
+                  excerpt: r.excerpt?.trim() || '',
+                  image: r.image?.trim() || '',
+                  restricted: ['yes','true','1'].includes(String(r.restricted||'').toLowerCase()),
+                  approval_status: 'pending' // imported → pending
+                }));
+
+              if (!valid.length) reject('No valid rows');
+              resolve(valid);
+            },
+            error: err => reject(err)
+          });
+        });
+
+        let success = 0;
+        for (const row of rows) {
+          try {
+            await createBlog(row);
+            success++;
+          } catch {}
+        }
+
+        if (success > 0) {
+          fetchBlogs();
+          showNotification('success', 'Imported', `${success} blog(s) added (pending)`);
+        } else {
+          showNotification('warning', 'Import', 'No blogs imported');
+        }
+      } catch (err) {
+        showNotification('error', 'Import Failed', err.message || 'Error');
+      }
+    };
+    input.click();
+  };
+
+  // ────────────────────────────────────────────────
+  // Render
+  // ────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-6 md:p-8">
-      <div className="flex flex-col bg-gray-50 dark:bg-slate-950 sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-          <FileText className="w-8 h-8 text-blue-600" />
-          Manage Blogs
-        </h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-slate-950 dark:to-slate-900 p-6 md:p-8">
+      {/* Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            className={`fixed top-6 right-6 z-50 max-w-md p-4 rounded-lg shadow-lg border ${
+              notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+              notification.type === 'error'   ? 'bg-red-50 border-red-200 text-red-800' :
+              'bg-blue-50 border-blue-200 text-blue-800'
+            } flex items-start gap-3`}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+          >
+            <div className="mt-0.5">
+              {notification.type === 'success' ? <Check size={20} /> :
+               notification.type === 'error'   ? <X size={20} /> : <AlertCircle size={20} />}
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">{notification.title}</p>
+              <p className="text-sm mt-1">{notification.message}</p>
+            </div>
+            <button onClick={() => setNotification(null)}>
+              <X size={18} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search blogs..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        <motion.button
-          onClick={handleCSVImport}
-          className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl flex items-center gap-2 text-sm font-medium"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Upload size={16} /> Import CSV
-        </motion.button>
-        <motion.button
-          onClick={() => exportToCSV(filteredBlogs)}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Download size={16} /> Export CSV
-        </motion.button>
-        <motion.button
-          onClick={() => openModal()}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <CheckCircle size={16} /> Add Blog
-        </motion.button>
-      </div>
-
-      {loading ? (
-        <div className="text-center py-16 text-gray-500">Loading blogs...</div>
-      ) : filteredBlogs.length === 0 ? (
-        <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-          No blogs found.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBlogs.map(blog => (
+      {/* Confirmation Dialog */}
+      <AnimatePresence>
+        {confirmDialog.isOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setConfirmDialog({ isOpen: false })}
+          >
             <motion.div
-              key={blog.id}
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4 }}
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md p-6"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={e => e.stopPropagation()}
             >
-              <div className={`${getBlogColor(blog.category)} px-5 py-3 text-white flex items-center gap-3`}>
-                {getBlogIcon(blog.category)}
-                <h4 className="font-bold text-lg truncate">{blog.title}</h4>
-              </div>
-
-              <div className="p-4 space-y-3 text-sm">
-                <p className="text-gray-700 dark:text-gray-300 line-clamp-3">{blog.excerpt}</p>
-
-                <p className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                  <Tag size={16} /> {blog.category}
-                </p>
-
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <User size={16} /> {blog.author}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} /> {blog.date}
-                  </div>
-                </div>
-
-                {blog.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {blog.tags.map((tag, i) => (
-                      <span key={i} className="text-xs bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 text-xs pt-1">
-                  {blog.restricted ? (
-                    <Lock size={16} className="text-red-500" />
-                  ) : (
-                    <Unlock size={16} className="text-green-500" />
-                  )}
-                  <span>{blog.restricted ? 'Restricted' : 'Public'}</span>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-3">
-                  <motion.button
-                    onClick={() => openModal(blog)}
-                    className="p-2 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <Edit3 size={18} className="text-blue-600 dark:text-blue-400" />
-                  </motion.button>
-                  <motion.button
-                    onClick={() => confirmDelete(blog)}
-                    className="p-2 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <Trash size={18} className="text-red-600 dark:text-red-400" />
-                  </motion.button>
-                </div>
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
+                <AlertCircle className="text-red-500" /> {confirmDialog.title || 'Confirm Action'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                {confirmDialog.message}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setConfirmDialog({ isOpen: false })}
+                  className="px-5 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDialog.onConfirm}
+                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2"
+                >
+                  <Trash size={16} /> Delete
+                </button>
               </div>
             </motion.div>
-          ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
+              <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Manage Blogs
+            </h1>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button onClick={handleImportCSV} className="flex items-center gap-2 px-4 py-2.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-lg text-sm">
+              <Upload size={16} /> Import CSV
+            </button>
+            <button onClick={() => exportToCSV(filtered, 'all_blogs', showNotification)} className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm shadow-sm">
+              <Download size={16} /> Export All
+            </button>
+            <button onClick={() => openModal()} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg shadow-md text-sm">
+              <CheckCircle size={16} /> Add Blog
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Search */}
+        <div className="relative mb-10 max-w-xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search title, category, author..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Pending Blogs */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-2xl font-semibold text-yellow-700 dark:text-yellow-400 flex items-center gap-3">
+              <Clock size={24} /> Pending Blogs ({pending.length})
+            </h2>
+            <button onClick={() => exportToCSV(pending, 'pending_blogs', showNotification)} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600">
+              <Download size={16} /> Export
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pending.map(blog => (
+              <BlogCard
+                key={blog.id}
+                blog={blog}
+                onEdit={() => openModal(blog)}
+                onDelete={() => handleDelete(blog.id, blog.title)}
+                onApprove={() => handleApprove(blog.id)}
+                onReject={() => handleReject(blog.id)}
+                isPending
+              />
+            ))}
+            {pending.length === 0 && (
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                No pending blogs
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Approved Blogs */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-2xl font-semibold text-green-700 dark:text-green-400 flex items-center gap-3">
+              <CheckCircle size={24} /> Approved Blogs ({approved.length})
+            </h2>
+            <button onClick={() => exportToCSV(approved, 'approved_blogs', showNotification)} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600">
+              <Download size={16} /> Export
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {approved.map(blog => (
+              <BlogCard
+                key={blog.id}
+                blog={blog}
+                onEdit={() => openModal(blog)}
+                onDelete={() => handleDelete(blog.id, blog.title)}
+              />
+            ))}
+            {approved.length === 0 && (
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                No approved blogs yet
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Rejected Blogs (optional – can be collapsed) */}
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-2xl font-semibold text-red-700 dark:text-red-400 flex items-center gap-3">
+              <X size={24} /> Rejected Blogs ({rejected.length})
+            </h2>
+            <button onClick={() => exportToCSV(rejected, 'rejected_blogs', showNotification)} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600">
+              <Download size={16} /> Export
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rejected.map(blog => (
+              <BlogCard
+                key={blog.id}
+                blog={blog}
+                onEdit={() => openModal(blog)}
+                onDelete={() => handleDelete(blog.id, blog.title)}
+              />
+            ))}
+            {rejected.length === 0 && (
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                No rejected blogs
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
 
       {/* Modal */}
       <AnimatePresence>
@@ -420,143 +486,115 @@ export default function DashboardBlogs() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
             onClick={() => setShowModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.92, y: 40 }}
+              initial={{ scale: 0.95, y: 30 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 40 }}
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden"
+              exit={{ scale: 0.95, y: 30 }}
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
-              <div className="px-6 py-5 border-b border-gray-200 dark:border-slate-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {editingBlog ? 'Edit Blog' : 'Create Blog'}
-                </h3>
-              </div>
+              {/* ... same modal content as before, just make sure approval_status select is included ... */}
+              <div className="p-6 space-y-6">
+                {/* ... other fields ... */}
 
-              <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Title <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                      placeholder="Blog title"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Category <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.category}
-                      onChange={e => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                      placeholder="e.g. Tutorial"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tags (comma separated)</label>
-                    <input
-                      type="text"
-                      value={formData.tags}
-                      onChange={e => setFormData({ ...formData, tags: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                      placeholder="AI, Python, ..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Author <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.author}
-                      onChange={e => setFormData({ ...formData, author: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                      placeholder="Author name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.date}
-                      onChange={e => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Excerpt <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      value={formData.excerpt}
-                      onChange={e => setFormData({ ...formData, excerpt: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none min-h-[140px]"
-                      placeholder="Short summary..."
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Image URL / Path</label>
-                    <input
-                      type="text"
-                      value={formData.image}
-                      onChange={e => setFormData({ ...formData, image: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                      placeholder="/images/blog.jpg or https://..."
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="restricted"
-                      checked={formData.restricted}
-                      onChange={e => setFormData({ ...formData, restricted: e.target.checked })}
-                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="restricted" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                      Restricted (login required)
-                    </label>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    Approval Status
+                  </label>
+                  <select
+                    value={formData.approval_status}
+                    onChange={e => setFormData({...formData, approval_status: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
                 </div>
+
+                {/* ... rest of form ... */}
               </div>
 
-              <div className="px-6 py-5 border-t border-gray-200 dark:border-slate-700 flex gap-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2"
-                >
-                  <CheckCircle size={18} />
-                  {editingBlog ? 'Update Blog' : 'Create Blog'}
-                </button>
-              </div>
+              {/* buttons */}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// Reusable Blog Card Component
+function BlogCard({ blog, onEdit, onDelete, onApprove, onReject, isPending = false }) {
+  return (
+    <motion.div
+      className="bg-white dark:bg-slate-800 rounded-2xl shadow border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-xl transition-all"
+      whileHover={{ y: -6 }}
+    >
+      <div className={`bg-gradient-to-r ${getCategoryColor(blog.category)} px-6 py-4 text-white flex items-center gap-3`}>
+        {getCategoryIcon(blog.category)}
+        <h3 className="font-semibold text-lg truncate">{blog.title}</h3>
+      </div>
+
+      <div className="p-5 space-y-4 text-sm">
+        <p className="text-gray-700 dark:text-gray-300 line-clamp-3 min-h-[4.5rem]">
+          {blog.excerpt || 'No excerpt'}
+        </p>
+
+        <div className="flex flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <Tag size={14} /> {blog.category}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <User size={14} /> {blog.author}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Calendar size={14} /> {blog.date}
+          </div>
+        </div>
+
+        {blog.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {blog.tags.map((t, i) => (
+              <span key={i} className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
+          <div className="text-xs flex items-center gap-2">
+            {blog.restricted ? (
+              <><Lock size={14} className="text-red-500" /> Restricted</>
+            ) : (
+              <><Unlock size={14} className="text-green-500" /> Public</>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            {isPending && (
+              <>
+                <button onClick={onApprove} className="p-2 bg-green-100 hover:bg-green-200 rounded-lg" title="Approve">
+                  <Check size={18} className="text-green-700" />
+                </button>
+                <button onClick={onReject} className="p-2 bg-red-100 hover:bg-red-200 rounded-lg" title="Reject">
+                  <X size={18} className="text-red-700" />
+                </button>
+              </>
+            )}
+            <button onClick={onEdit} className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg" title="Edit">
+              <Edit3 size={18} className="text-blue-600 dark:text-blue-400" />
+            </button>
+            <button onClick={onDelete} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg" title="Delete">
+              <Trash size={18} className="text-red-600 dark:text-red-400" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

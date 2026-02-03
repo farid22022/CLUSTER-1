@@ -24,6 +24,9 @@ import Logout from "../Shared/Login/LogoutPage";
 import AdminDetail from "../Pages/Dashboard/Home/AdminDetail";
 import CreateMeeting from "../Pages/Dashboard/Message/CreateMeeting";
 import ErrorPage from "../Shared/ErrorPage/ErrorPage";
+import Signup from "../Shared/Login/Signup";
+import DashboardPosts from "../Pages/Dashboard/Posts/DashboardPosts";
+import Posts from "../Pages/Posts/Posts";
 // import { Logout } from "../Shared/Login/LogoutPage";
 // import EmailMembers from "../Pages/Dashboard/Home/DashboardHome";
 
@@ -37,10 +40,10 @@ export const router = createBrowserRouter([
                 path: '/',
                 element: <Home></Home>
             },
-            // {
-            //     path: '/about',
-            //     element:<AboutUs></AboutUs>
-            // },
+            {
+                path: '/posts',
+                element:<Posts></Posts>
+            },
             {
                 path: '/events',
                 element: <Events></Events>
@@ -76,6 +79,10 @@ export const router = createBrowserRouter([
             {
               path:'/logout',
               element:<Logout />
+            },
+            {
+              path:'/register',
+              element:<Signup />
             }
         ]
     },
@@ -105,6 +112,14 @@ export const router = createBrowserRouter([
             element: (
               <SuperAdminRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']} allowedPages={['home']}>
                 <AdminDetail />
+              </SuperAdminRoute>
+            )
+          },
+          {
+            path: "/dashboard/posts",
+            element: (
+              <SuperAdminRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']} allowedPages={['posts']}>
+                <DashboardPosts />
               </SuperAdminRoute>
             )
           },

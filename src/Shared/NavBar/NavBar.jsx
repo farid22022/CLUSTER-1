@@ -100,6 +100,7 @@ const NavBar = () => {
   // navLinks array (unchanged)
   const navLinks = [
     { path: '/',        label: 'Home' },
+    { path: '/posts',   label: 'Posts' },
     { path: '/events',  label: 'Events' },
     { path: '/projects',label: 'Projects' },
     { path: '/resources',label: 'Resources' },

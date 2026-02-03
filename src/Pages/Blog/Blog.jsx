@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import BlogFilters from './BlogFilters/BlogFilters';
 import BlogPostCard from './BlogPostCard/BlogPostCard';
 import { useEffect } from 'react';
+import BlogSubmissionForm from './BlogSubmissionForm';
 
 const Blog = () => {
     useEffect(() => {
@@ -42,6 +43,7 @@ const Blog = () => {
       </motion.section>
       
       <BlogFilters />
+      {/* <BlogSubmissionForm/> */}
       <BlogPostCard />
     </motion.div>
   );

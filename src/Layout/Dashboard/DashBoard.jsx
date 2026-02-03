@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Home, Bell, MessageSquare, Users, Shield, 
-  LogOut, Menu, ChevronRight, Terminal, 
-  Calendar, Code, FileText, Settings, User,
-  Database, Mail, Briefcase
+  Home, Bell, MessageSquare, Users, 
+  LogOut, Menu,  
+  Calendar, Code, FileText, Settings, 
+  Database, Mail, 
 } from 'lucide-react';
 
-import { getProfile, logout as apiLogout } from '../../api';
+import { getProfile, logout as apiLogout,  } from '../../api';
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -16,10 +16,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+
   const adminMenu = [
     { to: "/dashboard", label: "Overview", icon: Home },
     { to: "/dashboard/meeting", label: "Meetings", icon: Calendar },
     { to: "/dashboard/emails", label: "Email Campaigns", icon: Mail },
+    { to: "/dashboard/posts", label: "Posts", icon: FileText },
     { to: "/dashboard/events", label: "Events", icon: Calendar }, 
     { to: "/dashboard/projects", label: "Projects", icon: Code },
     { to: "/dashboard/blogs", label: "Blog Management", icon: FileText },
