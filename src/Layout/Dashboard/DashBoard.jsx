@@ -20,11 +20,11 @@ const Dashboard = () => {
   const adminMenu = [
     { to: "/dashboard", label: "Overview", icon: Home },
     { to: "/dashboard/meeting", label: "Meetings", icon: Calendar },
-    { to: "/dashboard/emails", label: "Email Campaigns", icon: Mail },
+    { to: "/dashboard/emails", label: "Email ", icon: Mail },
     { to: "/dashboard/posts", label: "Posts", icon: FileText },
     { to: "/dashboard/events", label: "Events", icon: Calendar }, 
     { to: "/dashboard/projects", label: "Projects", icon: Code },
-    { to: "/dashboard/blogs", label: "Blog Management", icon: FileText },
+    { to: "/dashboard/blogs", label: "Blogs ", icon: FileText },
     { to: "/dashboard/resources", label: "Resources", icon: Database },
     { to: "/dashboard/alumni", label: "Alumni", icon: Users },
     { to: "/dashboard/contacts", label: "Contacts", icon: MessageSquare },

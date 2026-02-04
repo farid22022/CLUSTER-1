@@ -1,314 +1,17 @@
-// import { motion, AnimatePresence } from 'framer-motion';
-// import { FiX, FiSend, FiUser, FiCode,  FiBookOpen, FiGitBranch, FiGlobe, FiChevronDown } from 'react-icons/fi';
-// import { useState } from 'react';
-// import PropTypes from 'prop-types';
-// // import axios from 'axios';
-// import { createProject } from '../../../api';
-
-// const SubmissionForm = ({ onClose }) => {
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [formData, setFormData] = useState({
-//     title: '',
-//     description: '',
-//     techStack: '',
-//     team: '',
-//     github: '',
-//     demo: '',
-//     domain: '',
-//     status: 'ongoing'
-//   });
-//   const [error, setError] = useState(null);
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData(prev => ({ ...prev, [name]: value }));
-//   };
-
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   setIsSubmitting(true);
-//   setError(null);
-
-//   try {
-//     const token = localStorage.getItem('access_token');
-    
-//     if (!token) {
-//       throw new Error('You must be logged in to submit a project.');
-//     }
-
-//     // Transform data if needed
-//     const projectData = {
-//       ...formData,
-//       // Ensure techStack is a string if your backend expects it
-//       techStack: Array.isArray(formData.techStack) 
-//         ? formData.techStack.join(', ') 
-//         : formData.techStack,
-//       // Ensure team is a string if your backend expects it
-//       team: Array.isArray(formData.team) 
-//         ? formData.team.join(', ') 
-//         : formData.team,
-//     };
-
-//     const response = await createProject(projectData);
-    
-//     console.log('Project submitted successfully:', response.data);
-//     setIsSubmitting(false);
-    
-//     // Call success callback if provided
-//     // eslint-disable-next-line no-undef
-//     if (onSuccess) {
-//       // eslint-disable-next-line no-undef
-//       onSuccess();
-//     }
-    
-//     onClose();
-//   } catch (err) {
-//     console.error('Error submitting project:', err);
-//     setError(err.response?.data?.message || err.message || 'Failed to submit project. Please try again.');
-//     setIsSubmitting(false);
-//   }
-// };
-
-//   const domains = ['AI/ML', 'Web Development', 'Mobile Apps', 'IoT', 'chain', 'Data Science', 'Cybersecurity', 'Cloud Computing'];
-
-//   return (
-//     <AnimatePresence>
-//       <motion.div
-//         className="fixed inset-0 z-50 flex items-center justify-center p-4"
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         exit={{ opacity: 0 }}
-//       >
-//         {/* Backdrop */}
-//         <motion.div 
-//           className="absolute inset-0 bg-black bg-opacity-60"
-//           onClick={onClose}
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           exit={{ opacity: 0 }}
-//         />
-        
-//         <motion.div
-//           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto z-10 overflow-hidden"
-//           initial={{ scale: 0.9, y: 50 }}
-//           animate={{ scale: 1, y: 0 }}
-//           exit={{ scale: 0.9, opacity: 0 }}
-//           transition={{ type: "spring", damping: 25 }}
-//         >
-//           {/* Form header */}
-//           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 relative">
-//             <button
-//               onClick={onClose}
-//               className="absolute top-4 right-4 text-white hover:text-gray-200 p-1"
-//             >
-//               <FiX size={24} />
-//             </button>
-            
-//             <h3 className="text-2xl font-bold text-white mb-1">
-//               Submit Your Project
-//             </h3>
-//             <p className="text-blue-100">Share your innovation with the CLUSTER community</p>
-//           </div>
-          
-//           {/* Form body */}
-//           <div className="p-6 max-h-[80vh] overflow-y-auto">
-//             <form onSubmit={handleSubmit} className="space-y-4">
-//               <div>
-//                 <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                   <FiBookOpen className="mr-2 text-blue-500" />
-//                   Project Title
-//                 </label>
-//                 <input
-//                   type="text"
-//                   name="title"
-//                   value={formData.title}
-//                   onChange={handleChange}
-//                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                   placeholder="Enter project title"
-//                   required
-//                 />
-//               </div>
-              
-//               <div>
-//                 <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                   <FiBookOpen className="mr-2 text-blue-500" />
-//                   Description
-//                 </label>
-//                 <textarea
-//                   name="description"
-//                   value={formData.description}
-//                   onChange={handleChange}
-//                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                   placeholder="Describe your project in detail"
-//                   rows="4"
-//                   required
-//                 ></textarea>
-//               </div>
-              
-//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                     <FiCode className="mr-2 text-blue-500" />
-//                     Tech Stack
-//                   </label>
-//                   <input
-//                     type="text"
-//                     name="techStack"
-//                     value={formData.techStack}
-//                     onChange={handleChange}
-//                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                     placeholder="React, Node.js, MongoDB"
-//                     required
-//                   />
-//                 </div>
-                
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                     <FiUser className="mr-2 text-blue-500" />
-//                     Team Members
-//                   </label>
-//                   <input
-//                     type="text"
-//                     name="team"
-//                     value={formData.team}
-//                     onChange={handleChange}
-//                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                     placeholder="Names separated by commas"
-//                     required
-//                   />
-//                 </div>
-//               </div>
-              
-//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium">
-//                     Project Domain
-//                   </label>
-//                   <div className="relative">
-//                     <select
-//                       name="domain"
-//                       value={formData.domain}
-//                       onChange={handleChange}
-//                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer pr-10"
-//                       required
-//                     >
-//                       <option value="">Select a domain</option>
-//                       {domains.map(domain => (
-//                         <option key={domain} value={domain}>{domain}</option>
-//                       ))}
-//                     </select>
-//                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-//                       <FiChevronDown className="text-gray-400" />
-//                     </div>
-//                   </div>
-//                 </div>
-                
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium">
-//                     Project Status
-//                   </label>
-//                   <div className="flex gap-4">
-//                     <label className="flex items-center">
-//                       <input
-//                         type="radio"
-//                         name="status"
-//                         value="ongoing"
-//                         checked={formData.status === 'ongoing'}
-//                         onChange={handleChange}
-//                         className="text-blue-600 focus:ring-blue-500"
-//                       />
-//                       <span className="ml-2">Ongoing</span>
-//                     </label>
-//                     <label className="flex items-center">
-//                       <input
-//                         type="radio"
-//                         name="status"
-//                         value="completed"
-//                         checked={formData.status === 'completed'}
-//                         onChange={handleChange}
-//                         className="text-blue-600 focus:ring-blue-500"
-//                       />
-//                       <span className="ml-2">Completed</span>
-//                     </label>
-//                   </div>
-//                 </div>
-//               </div>
-              
-//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                     <FiGitBranch className="mr-2 text-blue-500" />
-//                     GitHub Link (Optional)
-//                   </label>
-//                   <input
-//                     type="url"
-//                     name="github"
-//                     value={formData.github}
-//                     onChange={handleChange}
-//                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                     placeholder="https://github.com/..."
-//                   />
-//                 </div>
-                
-//                 <div>
-//                   <label className=" text-gray-700 mb-2 font-medium flex items-center">
-//                     <FiGlobe className="mr-2 text-blue-500" />
-//                     Demo Link (Optional)
-//                   </label>
-//                   <input
-//                     type="url"
-//                     name="demo"
-//                     value={formData.demo}
-//                     onChange={handleChange}
-//                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-//                     placeholder="https://demo..."
-//                   />
-//                 </div>
-//               </div>
-              
-//               <div className="pt-4">
-//                 <motion.button
-//                   type="submit"
-//                   className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium rounded-lg shadow-md flex items-center justify-center"
-//                   whileHover={{ scale: 1.02 }}
-//                   whileTap={{ scale: 0.98 }}
-//                   disabled={isSubmitting}
-//                 >
-//                   {isSubmitting ? (
-//                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-//                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-//                     </svg>
-//                   ) : (
-//                     <>
-//                       <FiSend className="mr-2" />
-//                       Submit Project
-//                     </>
-//                   )}
-//                 </motion.button>
-//               </div>
-//             </form>
-//           </div>
-//         </motion.div>
-//       </motion.div>
-//     </AnimatePresence>
-//   );
-// };
-// SubmissionForm.propTypes = {
-//   onClose: PropTypes.func.isRequired,
-// };
-
-// export default SubmissionForm;
 
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiX, FiSend, FiUser, FiCode,
-  FiBookOpen, FiGitBranch, FiGlobe, FiChevronDown
+  FiX, FiSend, FiBookOpen, FiImage, FiVideo, FiChevronDown
 } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import { createProject } from '../../../api';
+
+// Rich text + Bangla support
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import "@fontsource/noto-sans-bengali";
 
 const SubmissionForm = ({ onClose, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -320,13 +23,21 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     techStack: '',
     team: '',
     github: '',
-    demo: '',
+    demoLink: '',           // user can also enter manual demo link
     domain: '',
     status: 'Ongoing',
     year: new Date().getFullYear().toString(),
     studentId: '',
-    image: ''
   });
+
+  const [images, setImages] = useState([]);   // multiple previews, but we take first one for backend
+  const [videoUrl, setVideoUrl] = useState(null);  // single video secure_url
+
+  const imageWidgetRef = useRef(null);
+  const videoWidgetRef = useRef(null);
+
+  const cloudName = "dvpbeekmy";          // ← confirm this is your actual cloud name
+  const uploadPreset = "project_submit"; // ← must exist and be UNSIGNED in dashboard
 
   const domains = [
     'AI/ML', 'Web Development', 'Mobile Apps',
@@ -334,9 +45,95 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     'Cybersecurity', 'Cloud Computing'
   ];
 
+  useEffect(() => {
+    if (!window.cloudinary) {
+      console.error("Cloudinary widget script not loaded. Add <script src='https://upload-widget.cloudinary.com/global/all.js' type='text/javascript'></script> to index.html");
+      return;
+    }
+
+    // Shared widget config (works for both image & video with one preset)
+    const widgetConfig = {
+      cloudName,
+      uploadPreset,
+      sources: ["local", "url", "camera", "dropbox", "google_drive"],
+      folder: "projects", // optional
+      styles: {
+        palette: {
+          window: "#FFFFFF",
+          sourceBg: "#f4f4f5",
+          windowBorder: "#90a0b3",
+          tabIcon: "#000000",
+          inactiveTabIcon: "#555a5f",
+          menuIcons: "#555a5f",
+          link: "#37474F",
+          action: "#339933",
+          inProgress: "#0433ff",
+          complete: "#339933",
+          error: "#cc0000",
+          textDark: "#000000",
+          textLight: "#fcfffd"
+        }
+      }
+    };
+
+    // Image widget - multiple
+    imageWidgetRef.current = window.cloudinary.createUploadWidget(
+      {
+        ...widgetConfig,
+        multiple: true,
+        maxFiles: 8,
+        resourceType: "image",
+        clientAllowedFormats: ["png", "jpg", "jpeg", "webp", "gif"],
+      },
+      (error, result) => {
+        if (!error && result?.event === "success") {
+          setImages(prev => [
+            ...prev,
+            {
+              url: result.info.secure_url,
+              thumbnail: result.info.thumbnail_url || result.info.secure_url,
+            }
+          ]);
+        }
+      }
+    );
+
+    // Video widget - single
+    videoWidgetRef.current = window.cloudinary.createUploadWidget(
+      {
+        ...widgetConfig,
+        multiple: false,
+        resourceType: "video",
+        clientAllowedFormats: ["mp4", "mov", "webm"],
+        maxFileSize: 150 * 1024 * 1024, // 150MB example
+      },
+      (error, result) => {
+        if (!error && result?.event === "success") {
+          setVideoUrl(result.info.secure_url);
+        }
+      }
+    );
+
+    return () => {
+      imageWidgetRef.current?.destroy();
+      videoWidgetRef.current?.destroy();
+    };
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDescriptionChange = (value) => {
+    setFormData(prev => ({ ...prev, description: value }));
+  };
+
+  const openImageUpload = () => imageWidgetRef.current?.open();
+  const openVideoUpload = () => videoWidgetRef.current?.open();
+
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -344,26 +141,25 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     setIsSubmitting(true);
     setError(null);
 
+    if (images.length === 0) {
+      setError("Please upload at least one project image.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const payload = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        tech_stack: formData.techStack
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean),
-        team: formData.team
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean),
-        github: formData.github || null,
-        demo: formData.demo || null,
+        tech_stack: formData.techStack.split(',').map(s => s.trim()).filter(Boolean),
+        team: formData.team.split(',').map(s => s.trim()).filter(Boolean),
+        github: formData.github?.trim() || null,
+        demo: videoUrl || formData.demoLink?.trim() || null,  // video URL has priority over manual link
         domain: formData.domain || null,
         status: formData.status,
         year: formData.year,
         student_id: formData.studentId.trim(),
-        image: formData.image || null
-        // approval_status handled server-side
+        image: images[0]?.url || "",   // send first uploaded image (or change logic if needed)
       };
 
       await createProject(payload);
@@ -379,16 +175,22 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
       onSuccess?.();
       onClose();
     } catch (err) {
-      const msg =
-        err.response?.data?.detail ||
-        err.message ||
-        'Failed to submit project';
-
+      const msg = err.response?.data?.detail || err.message || 'Failed to submit project.';
       setError(msg);
       Swal.fire('Error', msg, 'error');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link'],
+      ['clean']
+    ],
   };
 
   return (
@@ -399,130 +201,209 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        {/* Backdrop */}
-        <motion.div
-          className="absolute inset-0 bg-black bg-opacity-60"
-          onClick={onClose}
-        />
+        <motion.div className="absolute inset-0 bg-black bg-opacity-60" onClick={onClose} />
 
         <motion.div
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 overflow-hidden"
+          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 overflow-hidden"
           initial={{ scale: 0.9, y: 40 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0 }}
         >
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 relative">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-white"
-            >
-              <FiX size={22} />
+            <button onClick={onClose} className="absolute top-4 right-4 text-white">
+              <FiX size={24} />
             </button>
             <h3 className="text-2xl font-bold text-white">Submit Your Project</h3>
-            <p className="text-blue-100">CLUSTER Project Submission</p>
+            <p className="text-blue-100 mt-1">CLUSTER Project Submission</p>
           </div>
 
-          {/* Body */}
           <div className="p-6 max-h-[80vh] overflow-y-auto">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
 
               {/* Title */}
               <div>
-                <label className="flex items-center font-medium text-gray-700">
-                  <FiBookOpen className="mr-2 text-blue-500" />
-                  Project Title
+                <label className="flex items-center font-medium text-gray-700 mb-1">
+                  <FiBookOpen className="mr-2 text-blue-600" />
+                  Project Title <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
-                  className="w-full mt-1 px-4 py-3 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. Smart Farming IoT System"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="font-medium text-gray-700">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                  className="w-full mt-1 px-4 py-3 border rounded-lg"
-                />
-              </div>
-
-              {/* Tech + Team */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <input
-                  name="techStack"
-                  placeholder="Tech Stack (comma separated)"
-                  value={formData.techStack}
-                  onChange={handleChange}
-                  required
-                  className="px-4 py-3 border rounded-lg"
-                />
-                <input
-                  name="team"
-                  placeholder="Team Members"
-                  value={formData.team}
-                  onChange={handleChange}
-                  required
-                  className="px-4 py-3 border rounded-lg"
-                />
-              </div>
-
-              {/* Student ID */}
-              <div>
-                <label className="font-medium text-gray-700">
-                  Student ID <span className="text-red-500">*</span>
+                <label className="font-medium text-gray-700 mb-1 block">
+                  Description <span className="text-red-500">*</span>
                 </label>
-                <input
-                  name="studentId"
-                  value={formData.studentId}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. 2002010001"
-                  className="w-full mt-1 px-4 py-3 border rounded-lg"
-                />
+                <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.description}
+                    onChange={handleDescriptionChange}
+                    modules={quillModules}
+                    className="min-h-[180px]"
+                    placeholder="Describe your project in detail (Bangla supported)..."
+                  />
+                </div>
               </div>
 
-              {/* Domain */}
-              <div className="relative">
-                <select
-                  name="domain"
-                  value={formData.domain}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border rounded-lg appearance-none"
+              {/* Tech Stack + Team */}
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="font-medium text-gray-700 mb-1 block">Tech Stack</label>
+                  <input
+                    name="techStack"
+                    placeholder="Python, Django, React, Arduino"
+                    value={formData.techStack}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="font-medium text-gray-700 mb-1 block">Team Members</label>
+                  <input
+                    name="team"
+                    placeholder="Azmain Enqauid, Rifat, Sumaiya"
+                    value={formData.team}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Student ID + Domain */}
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="font-medium text-gray-700 mb-1 block">
+                    Student ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g. 220222"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label className="font-medium text-gray-700 mb-1 block">
+                    Domain <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="domain"
+                    value={formData.domain}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white"
+                  >
+                    <option value="">Select Domain</option>
+                    {domains.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                  <FiChevronDown className="absolute right-4 top-11 text-gray-500 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* GitHub + Manual Demo Link */}
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="font-medium text-gray-700 mb-1 block">GitHub Link</label>
+                  <input
+                    name="github"
+                    placeholder="https://github.com/username/repo"
+                    value={formData.github}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="font-medium text-gray-700 mb-1 block">
+                    Manual Demo / Video Link (optional)
+                  </label>
+                  <input
+                    name="demoLink"
+                    placeholder="https://youtube.com/... or external link"
+                    value={formData.demoLink}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Video uploaded below will override this field
+                  </p>
+                </div>
+              </div>
+
+              {/* Images */}
+              <div>
+                <label className="font-medium text-gray-700 mb-2 block flex items-center">
+                  <FiImage className="mr-2 text-blue-600" />
+                  Project Images (first one will be used) <span className="text-red-500 ml-1">*</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={openImageUpload}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
-                  <option value="">Select Domain</option>
-                  {domains.map(d => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-                <FiChevronDown className="absolute right-3 top-3 text-gray-400" />
+                  Upload Images
+                </button>
+
+                {images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={img.thumbnail}
+                          alt={`preview ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100"
+                        >
+                          <FiX size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Links */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <input
-                  name="github"
-                  placeholder="GitHub Link"
-                  value={formData.github}
-                  onChange={handleChange}
-                  className="px-4 py-3 border rounded-lg"
-                />
-                <input
-                  name="demo"
-                  placeholder="Demo Link"
-                  value={formData.demo}
-                  onChange={handleChange}
-                  className="px-4 py-3 border rounded-lg"
-                />
+              {/* Video → stored in demo */}
+              <div>
+                <label className="font-medium text-gray-700 mb-2 block flex items-center">
+                  <FiVideo className="mr-2 text-purple-600" />
+                  Project Demo Video (optional – saved to demo field)
+                </label>
+
+                <button
+                  type="button"
+                  onClick={openVideoUpload}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
+                >
+                  Upload Video
+                </button>
+
+                {videoUrl && (
+                  <div className="mt-4">
+                    <video
+                      src={videoUrl}
+                      controls
+                      className="w-full max-h-64 rounded-lg border"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">Video ready – will be sent in demo field</p>
+                  </div>
+                )}
               </div>
 
               {/* Submit */}
@@ -531,16 +412,13 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg flex justify-center items-center"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg font-medium flex justify-center items-center disabled:opacity-60"
               >
                 <FiSend className="mr-2" />
                 {isSubmitting ? 'Submitting...' : 'Submit Project'}
               </motion.button>
 
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
-
+              {error && <p className="text-red-600 text-center font-medium mt-2">{error}</p>}
             </form>
           </div>
         </motion.div>

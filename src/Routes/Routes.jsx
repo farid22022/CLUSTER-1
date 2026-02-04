@@ -5,7 +5,7 @@ import Home from "../Pages/Home/Home";
 import { createBrowserRouter } from "react-router-dom";
 import Projects from "../Pages/Projects/Projects";
 import Resources from "../Pages/Resources/Resources";
-import Blog from "../Pages/Blog/Blog";
+import Blog from "../Pages/Blog/BlogsPage";
 import Alumni from "../Pages/Alumni/Alumni";
 import Contact from "../Pages/Contact/Contact";
 import Profile from "../Shared/Profile/Profile";
@@ -27,8 +27,6 @@ import ErrorPage from "../Shared/ErrorPage/ErrorPage";
 import Signup from "../Shared/Login/Signup";
 import DashboardPosts from "../Pages/Dashboard/Posts/DashboardPosts";
 import Posts from "../Pages/Posts/Posts";
-// import { Logout } from "../Shared/Login/LogoutPage";
-// import EmailMembers from "../Pages/Dashboard/Home/DashboardHome";
 
 export const router = createBrowserRouter([
     {

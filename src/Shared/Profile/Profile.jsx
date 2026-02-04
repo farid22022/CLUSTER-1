@@ -1,2023 +1,645 @@
-import { useState, useRef,} from 'react';
-import PropTypes from 'prop-types';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { CheckCircle, XCircle, AlertCircle, X, Upload, User, Mail, Phone, GraduationCap,  MapPin, Award, Briefcase, Users, ChevronDown } from 'lucide-react';
-
-const disciplines = [
-  { code: 'ARCH', name: 'Architecture', number: '01', color: '#FF6B6B' },
-  { code: 'CSE', name: 'Computer Science and Engineering', number: '02', color: '#4ECDC4' },
-  { code: 'ECE', name: 'Electronics and Communication Engineering', number: '03', color: '#45B7D1' },
-  { code: 'ES', name: 'Environmental Science', number: '04', color: '#96CEB4' },
-  { code: 'FMRT', name: 'Fisheries and Marine Resource Technology', number: '05', color: '#FFEAA7' },
-  { code: 'BGE', name: 'Biotechnology and Genetic Engineering', number: '06', color: '#DDA0DD' },
-  { code: 'STAT', name: 'Statistics', number: '07', color: '#98D8C8' },
-  { code: 'MATH', name: 'Mathematics', number: '08', color: '#F7DC6F' },
-  { code: 'ENG', name: 'English', number: '09', color: '#BB8FCE' },
-  { code: 'URP', name: 'Urban and Rural Planning', number: '10', color: '#85C1E9' },
-  { code: 'SOC', name: 'Sociology', number: '11', color: '#F8C471' },
-  { code: 'ECO', name: 'Economics', number: '12', color: '#82E0AA' },
-  { code: 'DS', name: 'Development Studies', number: '13', color: '#F1948A' },
-  { code: 'LAW', name: 'Law', number: '14', color: '#85929E' },
-  { code: 'PHY', name: 'Physics', number: '15', color: '#AED6F1' },
-  { code: 'CHEM', name: 'Chemistry', number: '16', color: '#A9DFBF' },
-  { code: 'BAN', name: 'Bangla', number: '17', color: '#F9E79F' },
-  { code: 'BAD', name: 'Business Administration', number: '18', color: '#D7BDE2' },
-  { code: 'EDU', name: 'Education', number: '19', color: '#A3E4D7' },
-  { code: 'FWT', name: 'Forestry and Wood Technology', number: '20', color: '#D5A6BD' },
-  { code: 'AGT', name: 'Agrotechnology', number: '21', color: '#F4D03F' },
-  { code: 'SWE', name: 'Soil, Water and Environment', number: '22', color: '#A9CCE3' },
-  { code: 'PAD', name: 'Public Administration', number: '23', color: '#F5B7B1' },
-  { code: 'HRM', name: 'Human Resource Management', number: '24', color: '#D2B4DE' },
-  { code: 'HIS', name: 'History and Civilization', number: '25', color: '#AEB6BF' },
-  { code: 'MCJ', name: 'Mass Communication and Journalism', number: '26', color: '#F8D7DA' },
-  { code: 'BME', name: 'Biomedical Engineering', number: '27', color: '#B3E5FC' },
-  { code: 'PHAR', name: 'Pharmacy', number: '28', color: '#C8E6C9' },
-  { code: 'IES', name: 'Institute of Environmental Studies', number: '29', color: '#DCEDC1' },
-];
-
-const Notification = ({ notification, onClose }) => {
-  const icons = {
-    success: CheckCircle,
-    error: XCircle,
-    warning: AlertCircle,
-    info: AlertCircle,
-  };
-
-  const colors = {
-    success: 'bg-green-50 border-green-200 text-green-800',
-    error: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
-  };
-
-  const Icon = icons[notification.type];
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: -50, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -50, scale: 0.95 }}
-      className={`p-4 rounded-xl border-2 shadow-lg backdrop-blur-sm ${colors[notification.type]} mb-3`}
-      style={{
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      }}
-    >
-      <div className="flex items-start">
-        <Icon className="w-5 h-5 mt-0.5 mr-3 flex-shrink-0" />
-        <div className="flex-1">
-          <p className="font-medium">{notification.title}</p>
-          {notification.message && (
-            <p className="text-sm mt-1 opacity-90">{notification.message}</p>
-          )}
-        </div>
-        <button
-          onClick={() => onClose(notification.id)}
-          className="ml-3 p-1 rounded-full hover:bg-black hover:bg-opacity-10 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </motion.div>
-  );
-};
-
-Notification.propTypes = {
-  notification: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    type: PropTypes.oneOf(['success', 'error', 'warning', 'info']).isRequired,
-    title: PropTypes.string.isRequired,
-    message: PropTypes.string,
-  }).isRequired,
-  onClose: PropTypes.func.isRequired,
-};
-
-
-// Notification System Hook
-const useNotifications = () => {
-  const [notifications, setNotifications] = useState([]);
-
-  const addNotification = (notification) => {
-    const id = Date.now();
-    const newNotification = { ...notification, id };
-    setNotifications(prev => [...prev, newNotification]);
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      removeNotification(id);
-    }, 5000);
-
-    return id;
-  };
-
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  return { notifications, addNotification, removeNotification };
-};
+import  { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { getProfile, updateProfile } from '../../api';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  Calendar,
+  GraduationCap,
+  Shield,
+  CheckCircle,
+  Edit2,
+  Save,
+  X,
+  Camera,
+  Briefcase,
+  Globe,
+  Users
+} from 'lucide-react';
 
 const Profile = () => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [formData, setFormData] = useState({
-    studentId: '',
-    profileImage: '',
-    email: '',
-    phone: '',
-    bio: '',
-    skills: '',
-    interests: '',
-  });
-  const fileInputRef = useRef(null);
-  const { notifications, addNotification, removeNotification } = useNotifications();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Scroll animations
-  const { scrollYProgress } = useScroll();
-  const yTransform = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const opacityTransform = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-  // ImageBB API Key (should be stored in environment variables in production)
-  const IMAGEBB_API_KEY = '757ec57b5f8a618a06dabaafb680a399';
-
-  // 3D Animation variants
-  const card3DVariants = {
-    rest: { rotateX: 0, rotateY: 0, scale: 1 },
-    hover: { 
-      rotateX: 5, 
-      rotateY: 10, 
-      scale: 1.05,
-      transition: { duration: 0.3, ease: 'easeOut' }
-    },
-  };
-
-  const floating3DVariants = {
-    initial: { y: 0, rotateX: 0, rotateY: 0 },
-    animate: {
-      y: [-10, 10, -10],
-      rotateX: [-5, 5, -5],
-      rotateY: [-3, 3, -3],
-      transition: {
-        duration: 6,
-        repeat: Infinity,
-        repeatType: 'reverse',
-        ease: 'easeInOut',
-      },
-    },
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid File Format',
-        message: 'Please upload a JPEG, PNG, or WebP image'
-      });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      addNotification({
-        type: 'error',
-        title: 'File Too Large',
-        message: 'Image size must be less than 5MB'
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    addNotification({
-      type: 'info',
-      title: 'Uploading Image',
-      message: 'Please wait while we upload your profile picture...'
-    });
-
-    const uploadData = new FormData();
-    uploadData.append('image', file);
-
+  const fetchProfile = async () => {
     try {
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${IMAGEBB_API_KEY}`,
-        {
-          method: 'POST',
-          body: uploadData,
-        }
-      );
-      const data = await response.json();
-      
-      if (data.success) {
-        setFormData((prev) => ({ ...prev, profileImage: data.data.url }));
-        addNotification({
-          type: 'success',
-          title: 'Image Uploaded Successfully',
-          message: 'Your profile picture has been uploaded and is ready to use!'
-        });
-      } else {
-        throw new Error('Upload failed');
-      }
+      setLoading(true);
+      const { data } = await getProfile();
+      setProfile(data);
+      setEditedProfile(data);
     } catch (err) {
-      addNotification({
-        type: 'error',
-        title: 'Upload Failed',
-        message: 'Failed to upload image. Please try again or use a different image.',err
-      });
+      console.error('Failed to fetch profile:', err);
+      setError('Unable to load profile. Please try again.');
     } finally {
-      setIsUploading(false);
+      setLoading(false);
     }
   };
 
-  const validateAndSubmit = (e) => {
-    e.preventDefault();
-
-    // Validate student ID format (6 digits: YYDDNN)
-    const idRegex = /^\d{6}$/;
-    if (!idRegex.test(formData.studentId)) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid Student ID',
-        message: 'Student ID must be a 6-digit number (e.g., 220222)'
-      });
-      return;
+  const handleEditToggle = () => {
+    if (isEditing) {
+      setEditedProfile(profile); // Reset changes
+      setNewPassword('');
+      setConfirmPassword('');
     }
+    setIsEditing(!isEditing);
+  };
 
-    // Parse student ID
-    const year = formData.studentId.slice(0, 2);
-    const disciplineCode = formData.studentId.slice(2, 4);
-    const roll = formData.studentId.slice(4, 6);
+  const handleInputChange = (field, value) => {
+    setEditedProfile(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-    // Validate discipline code
-    const discipline = disciplines.find((d) => d.number === disciplineCode);
-    if (!discipline) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid Discipline Code',
-        message: 'The discipline code in your student ID is not valid'
-      });
-      return;
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      
+      // Prepare update data
+      const updateData = { ...editedProfile };
+      
+      // Only include password if both fields are filled and match
+      if (newPassword && confirmPassword && newPassword === confirmPassword) {
+        updateData.password = newPassword;
+      } else if (newPassword || confirmPassword) {
+        showNotification('error', 'Passwords do not match');
+        setSaving(false);
+        return;
+      }
+      
+      await updateProfile(updateData);
+      setProfile(editedProfile);
+      setIsEditing(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      showNotification('success', 'Profile updated successfully!');
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+      showNotification('error', 'Failed to update profile. Please try again.');
+    } finally {
+      setSaving(false);
     }
+  };
 
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid Email',
-        message: 'Please enter a valid email address'
-      });
-      return;
-    }
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
-    // Validate phone
-    const phoneRegex = /^\+8801[3-9]\d{8}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid Phone Number',
-        message: 'Please enter a valid Bangladeshi phone number (e.g., +88017XXXXXXXX)'
-      });
-      return;
-    }
-
-    // Validate profile image
-    if (!formData.profileImage) {
-      addNotification({
-        type: 'warning',
-        title: 'Profile Image Required',
-        message: 'Please upload a profile image to complete your profile'
-      });
-      return;
-    }
-
-    // Set profile data
-    setProfileData({
-      year: `20${year}`,
-      discipline: discipline.name,
-      disciplineColor: discipline.color,
-      roll,
-      profileImage: formData.profileImage,
-      email: formData.email,
-      phone: formData.phone,
-      bio: formData.bio,
-      skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
-      interests: formData.interests.split(',').map(interest => interest.trim()).filter(Boolean),
-    });
-
-    setIsFormOpen(false);
-    setFormData({ 
-      studentId: '', 
-      profileImage: '', 
-      email: '', 
-      phone: '', 
-      bio: '', 
-      skills: '', 
-      interests: '' 
-    });
-    if (fileInputRef.current) fileInputRef.current.value = '';
-
-    addNotification({
-      type: 'success',
-      title: 'Profile Created Successfully!',
-      message: 'Your KU profile has been created and is now ready to share with the community.'
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getRoleColor = (role) => {
+    switch(role) {
+      case 'STUDENT': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'ADMIN': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg font-semibold text-gray-800">Loading Profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <X className="w-10 h-10 text-red-600" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">Error Loading Profile</h3>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={fetchProfile}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative min-h-screen font-sans bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-hidden">
-      {/* Notification Container */}
-      <div className="fixed top-4 right-4 z-50 w-96 max-w-full">
-        <AnimatePresence>
-          {notifications.map((notification) => (
-            <Notification
-              key={notification.id}
-              notification={notification}
-              onClose={removeNotification}
-            />
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* 3D Floating Background Elements */}
-      <div className="absolute inset-0 -z-10">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${15 + i * 12}%`,
-              top: `${10 + (i % 3) * 25}%`,
-              perspective: '1000px',
-            }}
-            variants={floating3DVariants}
-            initial="initial"
-            animate="animate"
-            transition={{ delay: i * 0.5 }}
-          >
-            <div
-              className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl opacity-20"
-              style={{
-                transform: 'rotateX(45deg) rotateY(45deg)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
-              }}
-            />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Header with 3D effect */}
-      
-
-      {/* Hero Section with 3D elements */}
-      <motion.section
-        className="relative py-24 text-center overflow-hidden"
-        style={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          opacity: opacityTransform,
-        }}
-      >
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-white"
-          >
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-6"
-              style={{ 
-                textShadow: '0 10px 30px rgba(0,0,0,0.3)',
-              }}
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              Build Your Legacy
-            </motion.h1>
-            <motion.p
-              className="text-xl md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              Connect with the prestigious Khulna University community and showcase your professional journey
-            </motion.p>
-            <motion.button
-              onClick={() => setIsFormOpen(true)}
-              className="group relative"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-white text-blue-900 px-12 py-4 rounded-2xl font-bold text-lg shadow-xl">
-                {profileData ? 'Update Profile' : 'Create Your Profile'}
-                <ChevronDown className="inline w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" />
-              </div>
-            </motion.button>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Enhanced Profile Form Modal */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-8">
+      {/* Notification */}
       <AnimatePresence>
-        {isFormOpen && (
+        {notification && (
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-lg border ${
+              notification.type === 'success'
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : 'bg-red-50 border-red-200 text-red-800'
+            }`}
           >
-            <motion.div
-              className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0, rotateX: -10 }}
-              animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-              exit={{ scale: 0.9, opacity: 0, rotateX: -10 }}
-              transition={{ type: 'spring', damping: 20 }}
-              style={{ 
-                boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.5)',
-                transformStyle: 'preserve-3d',
-              }}
-            >
-              <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-8 text-white rounded-t-3xl">
-                <motion.h2 
-                  className="text-3xl font-bold mb-2"
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  Create Your Professional Profile
-                </motion.h2>
-                <motion.p 
-                  className="text-blue-100"
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Join the elite Khulna University professional network
-                </motion.p>
-              </div>
-              
-              <form className="p-8 space-y-6" onSubmit={validateAndSubmit}>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <User className="inline w-4 h-4 mr-2" />
-                      Student ID
-                    </label>
-                    <input
-                      type="text"
-                      name="studentId"
-                      value={formData.studentId}
-                      onChange={handleInputChange}
-                      className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-                      placeholder="e.g., 220222"
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Upload className="inline w-4 h-4 mr-2" />
-                      Profile Image
-                    </label>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageUpload}
-                      accept="image/jpeg,image/png,image/webp"
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
-                    />
-                    {formData.profileImage && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="mt-4 flex justify-center"
-                      >
-                        <img 
-                          src={formData.profileImage} 
-                          alt="Preview" 
-                          className="w-24 h-24 rounded-2xl object-cover shadow-lg border-4 border-blue-100" 
-                        />
-                      </motion.div>
-                    )}
-                    {isUploading && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-2 flex items-center justify-center"
-                      >
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                        <span className="ml-2 text-sm text-blue-600">Uploading...</span>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Mail className="inline w-4 h-4 mr-2" />
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-                      placeholder="your.email@example.com"
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Phone className="inline w-4 h-4 mr-2" />
-                      Phone Number
-                    </label>
-                    <input
-                      type="text"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-                      placeholder="+88017XXXXXXXX"
-                    />
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    <Briefcase className="inline w-4 h-4 mr-2" />
-                    Professional Bio
-                  </label>
-                  <textarea
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all resize-none"
-                    placeholder="Tell us about yourself, your aspirations, and professional journey..."
-                  />
-                </motion.div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Award className="inline w-4 h-4 mr-2" />
-                      Skills (comma-separated)
-                    </label>
-                    <input
-                      type="text"
-                      name="skills"
-                      value={formData.skills}
-                      onChange={handleInputChange}
-                      className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-                      placeholder="JavaScript, Python, React, Leadership"
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 1.0 }}
-                  >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Users className="inline w-4 h-4 mr-2" />
-                      Interests (comma-separated)
-                    </label>
-                    <input
-                      type="text"
-                      name="interests"
-                      value={formData.interests}
-                      onChange={handleInputChange}
-                      className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-                      placeholder="AI, Web Development, Research, Innovation"
-                    />
-                  </motion.div>
-                </div>
-
-                <motion.div 
-                  className="flex justify-end space-x-4 pt-6"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.1 }}
-                >
-                  <motion.button
-                    type="button"
-                    onClick={() => setIsFormOpen(false)}
-                    className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold transition-all"
-                    whileHover={{ scale: 1.05, rotateY: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    type="submit"
-                    disabled={isUploading}
-                    className={`px-8 py-3 rounded-xl text-white font-semibold transition-all ${
-                      isUploading 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg'
-                    }`}
-                    whileHover={{ scale: isUploading ? 1 : 1.05, rotateY: isUploading ? 0 : -5 }}
-                    whileTap={{ scale: isUploading ? 1 : 0.95 }}
-                  >
-                    {isUploading ? 'Processing...' : 'Create Profile 🚀'}
-                  </motion.button>
-                </motion.div>
-              </form>
-            </motion.div>
+            <div className="flex items-center gap-3">
+              {notification.type === 'success' ? (
+                <CheckCircle className="w-5 h-5" />
+              ) : (
+                <X className="w-5 h-5" />
+              )}
+              <span className="font-medium">{notification.message}</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Enhanced Profile Display Section */}
-      <motion.section
-        className="py-20 relative"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-100px' }}
-      >
-        <div className="container mx-auto px-6">
-          <motion.h2
-            className="text-4xl md:text-5xl font-bold mb-16 text-center"
-            style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            Your Professional Identity
-          </motion.h2>
-          
-          {profileData ? (
-            <motion.div
-              className="max-w-4xl mx-auto"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-indigo-600 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+            <div className="flex-1">
               <motion.div
-                className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden"
-                variants={card3DVariants}
-                initial="rest"
-                whileHover="hover"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.25)',
-                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4 mb-6"
               >
-                {/* Profile Header with Discipline Color */}
-                <div 
-                  className="h-32 relative"
-                  style={{
-                    background: `linear-gradient(135deg, ${profileData.disciplineColor}33 0%, ${profileData.disciplineColor}66 100%)`,
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
-                  <motion.div
-                    className="absolute -bottom-16 left-8"
-                    whileHover={{ scale: 1.1, rotateY: 15 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <img
-                      src={profileData.profileImage}
-                      alt="Profile"
-                      className="w-32 h-32 rounded-3xl object-cover shadow-xl border-6 border-white"
-                      style={{
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-                      }}
-                    />
-                  </motion.div>
+                <div className="relative">
+                  <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    {profile.photo ? (
+                      <img
+                        src={profile.photo}
+                        alt={profile.name}
+                        className="w-full h-full rounded-2xl object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl font-bold text-white">
+                        {getInitials(profile.name)}
+                      </span>
+                    )}
+                  </div>
+                  {isEditing && (
+                    <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-colors">
+                      <Camera className="w-5 h-5 text-white" />
+                    </button>
+                  )}
                 </div>
-
-                <div className="pt-20 p-8">
-                  <div className="grid md:grid-cols-2 gap-8">
-                    {/* Left Column - Basic Info */}
-                    <div className="space-y-6">
-                      <motion.div
-                        initial={{ x: -30, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        <h3 className="text-3xl font-bold text-gray-800 mb-2">
-                          Class of {profileData.year}
-                        </h3>
-                        <p className="text-xl text-gray-600 mb-1">
-                          {profileData.discipline}
-                        </p>
-                        <div className="flex items-center text-gray-500">
-                          <GraduationCap className="w-5 h-5 mr-2" />
-                          <span>Roll: {profileData.roll}</span>
-                        </div>
-                      </motion.div>
-
-                      {profileData.bio && (
-                        <motion.div
-                          className="bg-gray-50 rounded-2xl p-6"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.6 }}
-                        >
-                          <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
-                            <Briefcase className="w-4 h-4 mr-2" />
-                            About Me
-                          </h4>
-                          <p className="text-gray-600 leading-relaxed">{profileData.bio}</p>
-                        </motion.div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editedProfile.name || ''}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          className="bg-transparent border-b border-white/50 focus:border-white outline-none text-3xl font-bold w-full md:w-auto"
+                          placeholder="Enter your name"
+                        />
+                      ) : (
+                        profile.name
                       )}
+                    </h1>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getRoleColor(profile?.role)}`}>
+                      {profile?.role_display}
+                    </span>
+                  </div>
+                  <p className="text-indigo-200 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4" />
+                    Student ID: {profile.student_id}
+                  </p>
+                </div>
+              </motion.div>
+
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
+                  <Mail className="w-4 h-4" />
+                  <span className="text-sm">
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        value={editedProfile.email || ''}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className="bg-transparent border-b border-white/50 focus:border-white outline-none text-sm w-48"
+                        placeholder="Enter email"
+                      />
+                    ) : (
+                      profile.email
+                    )}
+                  </span>
+                </div>
+                
+                {profile.phone_number && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
+                    <Phone className="w-4 h-4" />
+                    <span className="text-sm">
+                      {isEditing ? (
+                        <input
+                          type="tel"
+                          value={editedProfile.phone_number || ''}
+                          onChange={(e) => handleInputChange('phone_number', e.target.value)}
+                          className="bg-transparent border-b border-white/50 focus:border-white outline-none text-sm w-36"
+                          placeholder="Enter phone"
+                        />
+                      ) : (
+                        profile.phone_number
+                      )}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-sm">Joined {formatDate(profile.date_joined)}</span>
+                </div>
+                
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
+                  <Shield className="w-4 h-4" />
+                  <span className="text-sm">Status: {profile.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleEditToggle}
+                className={`px-5 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 ${
+                  isEditing
+                    ? 'bg-white/20 text-white hover:bg-white/30'
+                    : 'bg-white text-indigo-700 hover:bg-gray-100'
+                } transition-colors`}
+              >
+                {isEditing ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    Cancel Edit
+                  </>
+                ) : (
+                  <>
+                    <Edit2 className="w-4 h-4" />
+                    Edit Profile
+                  </>
+                )}
+              </motion.button>
+              
+              {isEditing && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-shadow disabled:opacity-70"
+                >
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </>
+                  )}
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Account Information */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
+            >
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-indigo-600" />
+                Account Information
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">User ID</span>
+                  <span className="font-mono font-medium text-gray-900">{profile.id}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Account Status</span>
+                  <span className={`flex items-center gap-2 font-medium ${
+                    profile.is_active ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {profile.is_active ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Active
+                      </>
+                    ) : 'Inactive'}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Member Since</span>
+                  <span className="font-medium">{formatDate(profile.date_joined)}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Role</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(profile.role)}`}>
+                    {profile.role_display}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Assigned Pages */}
+            {profile.assigned_pages && profile.assigned_pages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
+              >
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-indigo-600" />
+                  Assigned Pages
+                </h3>
+                <div className="space-y-2">
+                  {profile.assigned_pages.map((page, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-700">{page}</span>
+                      <Globe className="w-4 h-4 text-gray-400" />
                     </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
 
-                    {/* Right Column - Contact & Skills */}
-                    <div className="space-y-6">
-                      <motion.div
-                        className="space-y-4"
-                        initial={{ x: 30, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                      >
-                        <motion.a
-                          href={`mailto:${profileData.email}`}
-                          className="flex items-center p-4 bg-blue-50 rounded-2xl hover:bg-blue-100 transition-colors group"
-                          whileHover={{ scale: 1.02, x: 5 }}
-                        >
-                          <Mail className="w-5 h-5 text-blue-600 mr-3" />
-                          <span className="text-blue-800 font-medium group-hover:underline">
-                            {profileData.email}
-                          </span>
-                        </motion.a>
-
-                        <motion.div
-                          className="flex items-center p-4 bg-green-50 rounded-2xl"
-                          whileHover={{ scale: 1.02, x: 5 }}
-                        >
-                          <Phone className="w-5 h-5 text-green-600 mr-3" />
-                          <span className="text-green-800 font-medium">
-                            {profileData.phone}
-                          </span>
-                        </motion.div>
-
-                        <motion.div
-                          className="flex items-center p-4 bg-purple-50 rounded-2xl"
-                          whileHover={{ scale: 1.02, x: 5 }}
-                        >
-                          <MapPin className="w-5 h-5 text-purple-600 mr-3" />
-                          <span className="text-purple-800 font-medium">
-                            Khulna University, Bangladesh
-                          </span>
-                        </motion.div>
-                      </motion.div>
-
-                      {/* Skills Section */}
-                      {profileData.skills && profileData.skills.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7 }}
-                        >
-                          <h4 className="font-semibold text-gray-700 mb-4 flex items-center">
-                            <Award className="w-4 h-4 mr-2" />
-                            Skills & Expertise
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {profileData.skills.map((skill, index) => (
-                              <motion.span
-                                key={skill}
-                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl text-sm font-medium shadow-lg"
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.8 + index * 0.1 }}
-                                whileHover={{ scale: 1.1, rotateZ: 5 }}
-                              >
-                                {skill}
-                              </motion.span>
-                            ))}
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+              {/* Profile Details */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Profile Details</h3>
+                
+                <div className="space-y-6">
+                  {/* Personal Information */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <User className="w-5 h-5" />
+                      Personal Information
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedProfile.name || ''}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            placeholder="Enter your full name"
+                          />
+                        ) : (
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl">
+                            <p className="text-gray-900">{profile.name}</p>
                           </div>
-                        </motion.div>
-                      )}
-
-                      {/* Interests Section */}
-                      {profileData.interests && profileData.interests.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.9 }}
-                        >
-                          <h4 className="font-semibold text-gray-700 mb-4 flex items-center">
-                            <Users className="w-4 h-4 mr-2" />
-                            Interests
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {profileData.interests.map((interest, index) => (
-                              <motion.span
-                                key={interest}
-                                className="px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl text-sm font-medium shadow-lg"
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 1.0 + index * 0.1 }}
-                                whileHover={{ scale: 1.1, rotateZ: -5 }}
-                              >
-                                {interest}
-                              </motion.span>
-                            ))}
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Student ID
+                        </label>
+                        <div className="px-4 py-3 bg-gray-50 rounded-xl">
+                          <p className="text-gray-900 font-mono">{profile.student_id}</p>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="email"
+                            value={editedProfile.email || ''}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            placeholder="Enter email address"
+                          />
+                        ) : (
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl">
+                            <p className="text-gray-900">{profile.email}</p>
                           </div>
-                        </motion.div>
-                      )}
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone Number
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="tel"
+                            value={editedProfile.phone_number || ''}
+                            onChange={(e) => handleInputChange('phone_number', e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            placeholder="Enter phone number"
+                          />
+                        ) : (
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl">
+                            <p className="text-gray-900">{profile.phone_number || 'Not provided'}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Update Profile Button */}
-                  <motion.div
-                    className="mt-8 text-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.2 }}
-                  >
-                    <motion.button
-                      onClick={() => setIsFormOpen(true)}
-                      className="group relative"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg">
-                        Update Profile ✨
+                  {/* Password Change Section (Only when editing) */}
+                  {isEditing && (
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <Shield className="w-5 h-5" />
+                        Change Password
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            New Password
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all pr-12"
+                              placeholder="Enter new password"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            >
+                              {showPassword ? (
+                                <Users className="w-5 h-5" />
+                              ) : (
+                                <Users className="w-5 h-5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm Password
+                          </label>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            placeholder="Confirm new password"
+                          />
+                        </div>
                       </div>
-                    </motion.button>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </motion.div>
-          ) : (
-            <motion.div
-              className="text-center py-20"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <motion.div
-                className="w-64 h-64 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center"
-                animate={{ rotateY: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                <GraduationCap className="w-24 h-24 text-blue-600" />
-              </motion.div>
-              <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                Ready to Join the KU Network?
-              </h3>
-              <p className="text-gray-600 text-lg max-w-md mx-auto">
-                Create your professional profile and connect with fellow alumni, students, and faculty members.
-              </p>
-            </motion.div>
-          )}
-        </div>
-      </motion.section>
+                      <p className="text-sm text-gray-500 mt-3">
+                        Leave blank if you don&apos;t want to change your password
+                      </p>
+                    </div>
+                  )}
 
-      {/* Enhanced Footer */}
-      <motion.footer
-        className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white py-12 relative overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-      >
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            className="text-center"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <motion.div
-              className="flex items-center justify-center mb-6"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                <GraduationCap className="w-6 h-6" />
+                  {/* Account Status */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" />
+                      Account Status
+                    </h4>
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-gray-700">Your account is currently</p>
+                          <p className={`text-lg font-bold ${
+                            profile.is_active ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {profile.is_active ? 'Active' : 'Inactive'}
+                          </p>
+                        </div>
+                        <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                          profile.is_active 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {profile.is_active ? '✓ Verified' : '✗ Not Active'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Member Since */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      Membership Details
+                    </h4>
+                    <div className="p-4 bg-indigo-50 rounded-xl">
+                      <p className="text-gray-700 mb-2">You joined CLUSTER on</p>
+                      <p className="text-xl font-bold text-indigo-700">
+                        {formatDate(profile.date_joined)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold">Khulna University</h3>
-                <p className="text-blue-200">Excellence in Education Since 1991</p>
+
+              {/* Action Buttons */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div className="flex justify-end gap-4">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={handleEditToggle}
+                        className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow disabled:opacity-70 flex items-center gap-2"
+                      >
+                        {saving ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-5 h-5" />
+                            Save All Changes
+                          </>
+                        )}
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleEditToggle}
+                      className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center gap-2"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                      Edit Profile Information
+                    </button>
+                  )}
+                </div>
               </div>
-            </motion.div>
-            
-            <div className="flex justify-center space-x-8 mb-8">
-              <motion.a
-                href="https://ku.ac.bd"
-                className="text-blue-300 hover:text-white transition-colors font-medium"
-                whileHover={{ scale: 1.1, y: -2 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Official Website
-              </motion.a>
-              <motion.a
-                href="https://ku.ac.bd/discipline/cse"
-                className="text-blue-300 hover:text-white transition-colors font-medium"
-                whileHover={{ scale: 1.1, y: -2 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                CSE Discipline
-              </motion.a>
-              <motion.a
-                href="https://ku.ac.bd/academics"
-                className="text-blue-300 hover:text-white transition-colors font-medium"
-                whileHover={{ scale: 1.1, y: -2 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Academics
-              </motion.a>
             </div>
-            
-            <motion.p
-              className="text-gray-300 text-sm"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              © {new Date().getFullYear()} Khulna University Professional Network. 
-              Empowering minds, building futures. 🎓
-            </motion.p>
-          </motion.div>
+          </div>
         </div>
-      </motion.footer>
+      </div>
     </div>
   );
 };
 
 export default Profile;
-// import { useState, useRef, useContext, useEffect } from 'react';
-// import { AuthContext } from '../../providers/AuthProvider';
-// import PropTypes from 'prop-types';
-// import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-// import { CheckCircle, XCircle, AlertCircle, X, Upload, User, Mail, Phone, GraduationCap, MapPin, Award, Briefcase, Users, ChevronDown } from 'lucide-react';
-// import axios from 'axios';
-
-// const disciplines = [
-//   { code: 'ARCH', name: 'Architecture', number: '01', color: '#FF6B6B' },
-//   { code: 'CSE', name: 'Computer Science and Engineering', number: '02', color: '#4ECDC4' },
-//   { code: 'ECE', name: 'Electronics and Communication Engineering', number: '03', color: '#45B7D1' },
-//   { code: 'ES', name: 'Environmental Science', number: '04', color: '#96CEB4' },
-//   { code: 'FMRT', name: 'Fisheries and Marine Resource Technology', number: '05', color: '#FFEAA7' },
-//   { code: 'BGE', name: 'Biotechnology and Genetic Engineering', number: '06', color: '#DDA0DD' },
-//   { code: 'STAT', name: 'Statistics', number: '07', color: '#98D8C8' },
-//   { code: 'MATH', name: 'Mathematics', number: '08', color: '#F7DC6F' },
-//   { code: 'ENG', name: 'English', number: '09', color: '#BB8FCE' },
-//   { code: 'URP', name: 'Urban and Rural Planning', number: '10', color: '#85C1E9' },
-//   { code: 'SOC', name: 'Sociology', number: '11', color: '#F8C471' },
-//   { code: 'ECO', name: 'Economics', number: '12', color: '#82E0AA' },
-//   { code: 'DS', name: 'Development Studies', number: '13', color: '#F1948A' },
-//   { code: 'LAW', name: 'Law', number: '14', color: '#85929E' },
-//   { code: 'PHY', name: 'Physics', number: '15', color: '#AED6F1' },
-//   { code: 'CHEM', name: 'Chemistry', number: '16', color: '#A9DFBF' },
-//   { code: 'BAN', name: 'Bangla', number: '17', color: '#F9E79F' },
-//   { code: 'BAD', name: 'Business Administration', number: '18', color: '#D7BDE2' },
-//   { code: 'EDU', name: 'Education', number: '19', color: '#A3E4D7' },
-//   { code: 'FWT', name: 'Forestry and Wood Technology', number: '20', color: '#D5A6BD' },
-//   { code: 'AGT', name: 'Agrotechnology', number: '21', color: '#F4D03F' },
-//   { code: 'SWE', name: 'Soil, Water and Environment', number: '22', color: '#A9CCE3' },
-//   { code: 'PAD', name: 'Public Administration', number: '23', color: '#F5B7B1' },
-//   { code: 'HRM', name: 'Human Resource Management', number: '24', color: '#D2B4DE' },
-//   { code: 'HIS', name: 'History and Civilization', number: '25', color: '#AEB6BF' },
-//   { code: 'MCJ', name: 'Mass Communication and Journalism', number: '26', color: '#F8D7DA' },
-//   { code: 'BME', name: 'Biomedical Engineering', number: '27', color: '#B3E5FC' },
-//   { code: 'PHAR', name: 'Pharmacy', number: '28', color: '#C8E6C9' },
-//   { code: 'IES', name: 'Institute of Environmental Studies', number: '29', color: '#DCEDC1' },
-// ];
-
-// const Notification = ({ notification, onClose }) => {
-//   const icons = {
-//     success: CheckCircle,
-//     error: XCircle,
-//     warning: AlertCircle,
-//     info: AlertCircle,
-//   };
-
-//   const colors = {
-//     success: 'bg-green-50 border-green-200 text-green-800',
-//     error: 'bg-red-50 border-red-200 text-red-800',
-//     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-//     info: 'bg-blue-50 border-blue-200 text-blue-800',
-//   };
-
-//   const Icon = icons[notification.type];
-
-//   return (
-//     <motion.div
-//       layout
-//       initial={{ opacity: 0, y: -50, scale: 0.95 }}
-//       animate={{ opacity: 1, y: 0, scale: 1 }}
-//       exit={{ opacity: 0, y: -50, scale: 0.95 }}
-//       className={`p-4 rounded-xl border-2 shadow-lg backdrop-blur-sm ${colors[notification.type]} mb-3`}
-//       style={{
-//         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-//       }}
-//     >
-//       <div className="flex items-start">
-//         <Icon className="w-5 h-5 mt-0.5 mr-3 flex-shrink-0" />
-//         <div className="flex-1">
-//           <p className="font-medium">{notification.title}</p>
-//           {notification.message && (
-//             <p className="text-sm mt-1 opacity-90">{notification.message}</p>
-//           )}
-//         </div>
-//         <button
-//           onClick={() => onClose(notification.id)}
-//           className="ml-3 p-1 rounded-full hover:bg-black hover:bg-opacity-10 transition-colors"
-//         >
-//           <X className="w-4 h-4" />
-//         </button>
-//       </div>
-//     </motion.div>
-//   );
-// };
-
-// Notification.propTypes = {
-//   notification: PropTypes.shape({
-//     id: PropTypes.number.isRequired,
-//     type: PropTypes.oneOf(['success', 'error', 'warning', 'info']).isRequired,
-//     title: PropTypes.string.isRequired,
-//     message: PropTypes.string,
-//   }).isRequired,
-//   onClose: PropTypes.func.isRequired,
-// };
-
-// const useNotifications = () => {
-//   const [notifications, setNotifications] = useState([]);
-
-//   const addNotification = (notification) => {
-//     const id = Date.now();
-//     const newNotification = { ...notification, id };
-//     setNotifications(prev => [...prev, newNotification]);
-
-//     setTimeout(() => {
-//       removeNotification(id);
-//     }, 5000);
-
-//     return id;
-//   };
-
-//   const removeNotification = (id) => {
-//     setNotifications(prev => prev.filter(n => n.id !== id));
-//   };
-
-//   return { notifications, addNotification, removeNotification };
-// };
-
-// const Profile = () => {
-//   const [isFormOpen, setIsFormOpen] = useState(false);
-//   const [isUploading, setIsUploading] = useState(false);
-//   const [formData, setFormData] = useState({
-//     studentId: '',
-//     profileImage: '',
-//     email: '',
-//     phone: '',
-//     bio: '',
-//     skills: '',
-//     interests: '',
-//   });
-//   const fileInputRef = useRef(null);
-//   const { notifications, addNotification, removeNotification } = useNotifications();
-//   const { user,  saveUserProfile, updateUserProfile, updateUserProfileData } = useContext(AuthContext);
-
-//   // Scroll animations
-//   const { scrollYProgress } = useScroll();
-//   const yTransform = useTransform(scrollYProgress, [0, 1], [0, -100]);
-//   const opacityTransform = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-//   // ImageBB API Key
-//   const IMAGEBB_API_KEY = '757ec57b5f8a618a06dabaafb680a399';
-
-//   // 3D Animation variants
-//   const card3DVariants = {
-//     rest: { rotateX: 0, rotateY: 0, scale: 1 },
-//     hover: { 
-//       rotateX: 5, 
-//       rotateY: 10, 
-//       scale: 1.05,
-//       transition: { duration: 0.3, ease: 'easeOut' }
-//     },
-//   };
-
-//   const floating3DVariants = {
-//     initial: { y: 0, rotateX: 0, rotateY: 0 },
-//     animate: {
-//       y: [-10, 10, -10],
-//       rotateX: [-5, 5, -5],
-//       rotateY: [-3, 3, -3],
-//       transition: {
-//         duration: 6,
-//         repeat: Infinity,
-//         repeatType: 'reverse',
-//         ease: 'easeInOut',
-//       },
-//     },
-//   };
-
-//   useEffect(() => {
-//     if (user && user.email) {
-//       setFormData(prev => ({
-//         ...prev,
-//         email: user.email,
-//         profileImage: user.photoURL || '',
-//       }));
-//     }
-//   }, [user]);
-
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleImageUpload = async (e) => {
-//     const file = e.target.files[0];
-//     if (!file) return;
-
-//     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-//       addNotification({
-//         type: 'error',
-//         title: 'Invalid File Format',
-//         message: 'Please upload a JPEG, PNG, or WebP image'
-//       });
-//       return;
-//     }
-
-//     if (file.size > 5 * 1024 * 1024) {
-//       addNotification({
-//         type: 'error',
-//         title: 'File Too Large',
-//         message: 'Image size must be less than 5MB'
-//       });
-//       return;
-//     }
-
-//     setIsUploading(true);
-//     addNotification({
-//       type: 'info',
-//       title: 'Uploading Image',
-//       message: 'Please wait while we upload your profile picture...'
-//     });
-
-//     const uploadData = new FormData();
-//     uploadData.append('image', file);
-
-//     try {
-//       const response = await fetch(
-//         `https://api.imgbb.com/1/upload?key=${IMAGEBB_API_KEY}`,
-//         {
-//           method: 'POST',
-//           body: uploadData,
-//         }
-//       );
-//       const data = await response.json();
-      
-//       if (data.success) {
-//         setFormData((prev) => ({ ...prev, profileImage: data.data.url }));
-//         addNotification({
-//           type: 'success',
-//           title: 'Image Uploaded Successfully',
-//           message: 'Your profile picture has been uploaded and is ready to use!'
-//         });
-//       } else {
-//         throw new Error('Upload failed');
-//       }
-//     } catch (err) {
-//       addNotification({
-//         type: 'error',
-//         title: 'Upload Failed',
-//         message: 'Failed to upload image. Please try again or use a different image.'
-//       });
-//     } finally {
-//       setIsUploading(false);
-//     }
-//   };
-
-
-// const validateAndSubmit = async (e) => {
-//     e.preventDefault();
-
-//     // Validate student ID format (6 digits: YYDDNN)
-//     const idRegex = /^\d{6}$/;
-//     if (!idRegex.test(formData.studentId)) {
-//         addNotification({
-//             type: 'error',
-//             title: 'Invalid Student ID',
-//             message: 'Student ID must be a 6-digit number (e.g., 220222)'
-//         });
-//         return;
-//     }
-
-//     // Parse student ID
-//     const year = formData.studentId.slice(0, 2);
-//     const disciplineCode = formData.studentId.slice(2, 4);
-//     const roll = formData.studentId.slice(4, 6);
-
-//     // Validate discipline code
-//     const discipline = disciplines.find((d) => d.number === disciplineCode);
-//     if (!discipline) {
-//         addNotification({
-//             type: 'error',
-//             title: 'Invalid Discipline Code',
-//             message: 'The discipline code in your student ID is not valid'
-//         });
-//         return;
-//     }
-
-//     // Validate email
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(formData.email)) {
-//         addNotification({
-//             type: 'error',
-//             title: 'Invalid Email',
-//             message: 'Please enter a valid email address'
-//         });
-//         return;
-//     }
-
-//     // Validate phone
-//     const phoneRegex = /^\+8801[3-9]\d{8}$/;
-//     if (!phoneRegex.test(formData.phone)) {
-//         addNotification({
-//             type: 'error',
-//             title: 'Invalid Phone Number',
-//             message: 'Please enter a valid Bangladeshi phone number (e.g., +88017XXXXXXXX)'
-//         });
-//         return;
-//     }
-
-//     // Validate profile image
-//     if (!formData.profileImage) {
-//         addNotification({
-//             type: 'warning',
-//             title: 'Profile Image Required',
-//             message: 'Please upload a profile image to complete your profile'
-//         });
-//         return;
-//     }
-
-    
-
-//     try {
-//         // Prepare profile data
-//         const profileData = {
-//             email: formData.email,
-//             studentId: formData.studentId,
-//             profileImage: formData.profileImage,
-//             phone: formData.phone,
-//             bio: formData.bio,
-//             skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
-//             interests: formData.interests.split(',').map(interest => interest.trim()).filter(Boolean),
-//             year: `20${year}`,
-//             discipline: discipline.name,
-//             disciplineCode: discipline.code,
-//             disciplineColor: discipline.color,
-//             roll,
-//             createdAt: new Date().toISOString(),
-//             updatedAt: new Date().toISOString()
-//         };
-
-//         // First save to database
-//         // await saveUserProfile(profileData);
-
-//         axios.post('http://localhost:5000/users', profileData)
-//             .then(response => {
-//                 console.log('Profile created successfully:', response.data);
-//             })
-//             .catch(error => {
-//                 console.error('Error creating profile:', error,1438);
-//             });
-
-//         // Then update Firebase profile (only if user is authenticated)
-//         // if (user) {
-//         //     await updateUserProfile(`${discipline.code}-${roll}`, formData.profileImage);
-//         // }
-
-//         // Reset form
-//         setFormData({ 
-//             studentId: '', 
-//             profileImage: '', 
-//             email: user?.email || '', 
-//             phone: '', 
-//             bio: '', 
-//             skills: '', 
-//             interests: '' 
-//         });
-//         if (fileInputRef.current) fileInputRef.current.value = '';
-//         setIsFormOpen(false);
-
-//         addNotification({
-//             type: 'success',
-//             title: 'Profile Created Successfully!',
-//             message: 'Your KU profile has been created and is now ready to share with the community.'
-//         });
-//     } catch (error) {
-//         console.error('Error saving profile:', error);
-//         addNotification({
-//             type: 'error',
-//             title: 'Profile Creation Failed',
-//             message: 'There was an error saving your profile. Please try again.'
-//         });
-//     }
-// };
-//   return (
-//     <div className="relative min-h-screen font-sans bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-hidden">
-//       {/* Notification Container */}
-//       <div className="fixed top-4 right-4 z-50 w-96 max-w-full">
-//         <AnimatePresence>
-//           {notifications.map((notification) => (
-//             <Notification
-//               key={notification.id}
-//               notification={notification}
-//               onClose={removeNotification}
-//             />
-//           ))}
-//         </AnimatePresence>
-//       </div>
-
-//       {/* 3D Floating Background Elements */}
-//       <div className="absolute inset-0 -z-10">
-//         {[...Array(8)].map((_, i) => (
-//           <motion.div
-//             key={i}
-//             className="absolute"
-//             style={{
-//               left: `${15 + i * 12}%`,
-//               top: `${10 + (i % 3) * 25}%`,
-//               perspective: '1000px',
-//             }}
-//             variants={floating3DVariants}
-//             initial="initial"
-//             animate="animate"
-//             transition={{ delay: i * 0.5 }}
-//           >
-//             <div
-//               className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl opacity-20"
-//               style={{
-//                 transform: 'rotateX(45deg) rotateY(45deg)',
-//                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
-//               }}
-//             />
-//           </motion.div>
-//         ))}
-//       </div>
-
-//       {/* Hero Section with 3D elements */}
-//       <motion.section
-//         className="relative py-24 text-center overflow-hidden"
-//         style={{ 
-//           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-//           opacity: opacityTransform,
-//         }}
-//       >
-//         <div className="container mx-auto px-6 relative z-10">
-//           <motion.div
-//             initial={{ opacity: 0, y: 50 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.8, delay: 0.2 }}
-//             className="text-white"
-//           >
-//             <motion.h1
-//               className="text-5xl md:text-7xl font-bold mb-6"
-//               style={{ 
-//                 textShadow: '0 10px 30px rgba(0,0,0,0.3)',
-//               }}
-//               whileHover={{ scale: 1.05 }}
-//               transition={{ type: 'spring', stiffness: 300 }}
-//             >
-//               Build Your Legacy
-//             </motion.h1>
-//             <motion.p
-//               className="text-xl md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed"
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               transition={{ delay: 0.5 }}
-//             >
-//               Connect with the prestigious Khulna University community and showcase your professional journey
-//             </motion.p>
-//             <motion.button
-//               onClick={() => setIsFormOpen(true)}
-//               className="group relative"
-//               whileHover={{ scale: 1.05 }}
-//               whileTap={{ scale: 0.95 }}
-//             >
-//               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
-//               <div className="relative bg-white text-blue-900 px-12 py-4 rounded-2xl font-bold text-lg shadow-xl">
-//                 {user ? 'Update Profile' : 'Create Your Profile'}
-//                 <ChevronDown className="inline w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" />
-//               </div>
-//             </motion.button>
-//           </motion.div>
-//         </div>
-//       </motion.section>
-
-//       {/* Enhanced Profile Form Modal */}
-//       <AnimatePresence>
-//         {isFormOpen && (
-//           <motion.div
-//             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//           >
-//             <motion.div
-//               className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-//               initial={{ scale: 0.9, opacity: 0, rotateX: -10 }}
-//               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-//               exit={{ scale: 0.9, opacity: 0, rotateX: -10 }}
-//               transition={{ type: 'spring', damping: 20 }}
-//               style={{ 
-//                 boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.5)',
-//                 transformStyle: 'preserve-3d',
-//               }}
-//             >
-//               <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-8 text-white rounded-t-3xl">
-//                 <motion.h2 
-//                   className="text-3xl font-bold mb-2"
-//                   initial={{ y: -20, opacity: 0 }}
-//                   animate={{ y: 0, opacity: 1 }}
-//                   transition={{ delay: 0.2 }}
-//                 >
-//                   {user ? 'Update Your Profile' : 'Create Your Professional Profile'}
-//                 </motion.h2>
-//                 <motion.p 
-//                   className="text-blue-100"
-//                   initial={{ y: -20, opacity: 0 }}
-//                   animate={{ y: 0, opacity: 1 }}
-//                   transition={{ delay: 0.3 }}
-//                 >
-//                   Join the elite Khulna University professional network
-//                 </motion.p>
-//               </div>
-              
-//               <form className="p-8 space-y-6" onSubmit={validateAndSubmit}>
-//                 <div className="grid md:grid-cols-2 gap-6">
-//                   <motion.div
-//                     initial={{ x: -20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 0.4 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <User className="inline w-4 h-4 mr-2" />
-//                       Student ID
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="studentId"
-//                       value={formData.studentId}
-//                       onChange={handleInputChange}
-//                       className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-//                       placeholder="e.g., 220222"
-//                       required
-//                     />
-//                   </motion.div>
-
-//                   <motion.div
-//                     initial={{ x: 20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 0.5 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <Upload className="inline w-4 h-4 mr-2" />
-//                       Profile Image
-//                     </label>
-//                     <input
-//                       type="file"
-//                       ref={fileInputRef}
-//                       onChange={handleImageUpload}
-//                       accept="image/jpeg,image/png,image/webp"
-//                       className="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
-//                       required={!formData.profileImage}
-//                     />
-//                     {formData.profileImage && (
-//                       <motion.div
-//                         initial={{ scale: 0 }}
-//                         animate={{ scale: 1 }}
-//                         className="mt-4 flex justify-center"
-//                       >
-//                         <img 
-//                           src={formData.profileImage} 
-//                           alt="Preview" 
-//                           className="w-24 h-24 rounded-2xl object-cover shadow-lg border-4 border-blue-100" 
-//                         />
-//                       </motion.div>
-//                     )}
-//                     {isUploading && (
-//                       <motion.div
-//                         initial={{ opacity: 0 }}
-//                         animate={{ opacity: 1 }}
-//                         className="mt-2 flex items-center justify-center"
-//                       >
-//                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-//                         <span className="ml-2 text-sm text-blue-600">Uploading...</span>
-//                       </motion.div>
-//                     )}
-//                   </motion.div>
-//                 </div>
-
-//                 <div className="grid md:grid-cols-2 gap-6">
-//                   <motion.div
-//                     initial={{ x: -20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 0.6 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <Mail className="inline w-4 h-4 mr-2" />
-//                       Email Address
-//                     </label>
-//                     <input
-//                       type="email"
-//                       name="email"
-//                       value={formData.email}
-//                       onChange={handleInputChange}
-//                       className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-//                       placeholder="your.email@example.com"
-//                       required
-//                     />
-//                   </motion.div>
-
-//                   <motion.div
-//                     initial={{ x: 20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 0.7 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <Phone className="inline w-4 h-4 mr-2" />
-//                       Phone Number
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="phone"
-//                       value={formData.phone}
-//                       onChange={handleInputChange}
-//                       className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-//                       placeholder="+88017XXXXXXXX"
-//                       required
-//                     />
-//                   </motion.div>
-//                 </div>
-
-//                 <motion.div
-//                   initial={{ y: 20, opacity: 0 }}
-//                   animate={{ y: 0, opacity: 1 }}
-//                   transition={{ delay: 0.8 }}
-//                 >
-//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                     <Briefcase className="inline w-4 h-4 mr-2" />
-//                     Professional Bio
-//                   </label>
-//                   <textarea
-//                     name="bio"
-//                     value={formData.bio}
-//                     onChange={handleInputChange}
-//                     rows={3}
-//                     className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all resize-none"
-//                     placeholder="Tell us about yourself, your aspirations, and professional journey..."
-//                   />
-//                 </motion.div>
-
-//                 <div className="grid md:grid-cols-2 gap-6">
-//                   <motion.div
-//                     initial={{ x: -20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 0.9 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <Award className="inline w-4 h-4 mr-2" />
-//                       Skills (comma-separated)
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="skills"
-//                       value={formData.skills}
-//                       onChange={handleInputChange}
-//                       className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-//                       placeholder="JavaScript, Python, React, Leadership"
-//                     />
-//                   </motion.div>
-
-//                   <motion.div
-//                     initial={{ x: 20, opacity: 0 }}
-//                     animate={{ x: 0, opacity: 1 }}
-//                     transition={{ delay: 1.0 }}
-//                   >
-//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-//                       <Users className="inline w-4 h-4 mr-2" />
-//                       Interests (comma-separated)
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="interests"
-//                       value={formData.interests}
-//                       onChange={handleInputChange}
-//                       className="block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 py-3 px-4 transition-all"
-//                       placeholder="AI, Web Development, Research, Innovation"
-//                     />
-//                   </motion.div>
-//                 </div>
-
-//                 <motion.div 
-//                   className="flex justify-end space-x-4 pt-6"
-//                   initial={{ y: 20, opacity: 0 }}
-//                   animate={{ y: 0, opacity: 1 }}
-//                   transition={{ delay: 1.1 }}
-//                 >
-//                   <motion.button
-//                     type="button"
-//                     onClick={() => setIsFormOpen(false)}
-//                     className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold transition-all"
-//                     whileHover={{ scale: 1.05, rotateY: 5 }}
-//                     whileTap={{ scale: 0.95 }}
-//                   >
-//                     Cancel
-//                   </motion.button>
-//                   <motion.button
-//                     type="submit"
-//                     disabled={isUploading}
-//                     className={`px-8 py-3 rounded-xl text-white font-semibold transition-all ${
-//                       isUploading 
-//                         ? 'bg-gray-400 cursor-not-allowed' 
-//                         : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg'
-//                     }`}
-//                     whileHover={{ scale: isUploading ? 1 : 1.05, rotateY: isUploading ? 0 : -5 }}
-//                     whileTap={{ scale: isUploading ? 1 : 0.95 }}
-//                   >
-//                     {isUploading ? 'Processing...' : (user ? 'Update Profile' : 'Create Profile 🚀')}
-//                   </motion.button>
-//                 </motion.div>
-//               </form>
-//             </motion.div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-
-//       {/* Enhanced Profile Display Section */}
-//       <motion.section
-//         className="py-20 relative"
-//         initial={{ opacity: 0 }}
-//         whileInView={{ opacity: 1 }}
-//         viewport={{ once: true, margin: '-100px' }}
-//       >
-//         <div className="container mx-auto px-6">
-//           <motion.h2
-//             className="text-4xl md:text-5xl font-bold mb-16 text-center"
-//             style={{
-//               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-//               WebkitBackgroundClip: 'text',
-//               WebkitTextFillColor: 'transparent',
-//             }}
-//             initial={{ y: 50, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1 }}
-//             transition={{ duration: 0.8 }}
-//             viewport={{ once: true }}
-//           >
-//             Your Professional Identity
-//           </motion.h2>
-          
-//           {user ? (
-//             <motion.div
-//               className="max-w-4xl mx-auto"
-//               initial={{ opacity: 0, y: 50 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.8, delay: 0.2 }}
-//             >
-//               <motion.div
-//                 className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden"
-//                 variants={card3DVariants}
-//                 initial="rest"
-//                 whileHover="hover"
-//                 style={{
-//                   transformStyle: 'preserve-3d',
-//                   boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.25)',
-//                 }}
-//               >
-//                 {/* Profile Header with Discipline Color */}
-//                 <div 
-//                   className="h-32 relative"
-//                   style={{
-//                     background: `linear-gradient(135deg, ${user.disciplineColor}33 0%, ${user.disciplineColor}66 100%)`,
-//                   }}
-//                 >
-//                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
-//                   <motion.div
-//                     className="absolute -bottom-16 left-8"
-//                     whileHover={{ scale: 1.1, rotateY: 15 }}
-//                     transition={{ type: 'spring', stiffness: 300 }}
-//                   >
-//                     <img 
-//                       src={user.profileImage || user.photoURL || '/default-profile.png'} 
-//                       alt="Profile" 
-//                       className="w-32 h-32 rounded-3xl object-cover shadow-xl border-4 border-white" 
-//                       style={{
-//                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-//                       }}
-//                     />
-//                   </motion.div>
-//                 </div>
-
-//                 <div className="pt-20 p-8">
-//                   <div className="grid md:grid-cols-2 gap-8">
-//                     {/* Left Column - Basic Info */}
-//                     <div className="space-y-6">
-//                       <motion.div
-//                         initial={{ x: -30, opacity: 0 }}
-//                         animate={{ x: 0, opacity: 1 }}
-//                         transition={{ delay: 0.4 }}
-//                       >
-//                         <h3 className="text-3xl font-bold text-gray-800 mb-2">
-//                           {user.displayName || `${user.disciplineCode}-${user.roll}`}
-//                         </h3>
-//                         <p className="text-xl text-gray-600 mb-1">
-//                           Class of {user.year}
-//                         </p>
-//                         <p className="text-xl text-gray-600 mb-1">
-//                           {user.discipline}
-//                         </p>
-//                         <div className="flex items-center text-gray-500">
-//                           <GraduationCap className="w-5 h-5 mr-2" />
-//                           <span>Roll: {user.roll}</span>
-//                         </div>
-//                       </motion.div>
-
-//                       {user.bio && (
-//                         <motion.div
-//                           className="bg-gray-50 rounded-2xl p-6"
-//                           initial={{ opacity: 0, scale: 0.95 }}
-//                           animate={{ opacity: 1, scale: 1 }}
-//                           transition={{ delay: 0.6 }}
-//                         >
-//                           <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
-//                             <Briefcase className="w-4 h-4 mr-2" />
-//                             About Me
-//                           </h4>
-//                           <p className="text-gray-600 leading-relaxed">{user.bio}</p>
-//                         </motion.div>
-//                       )}
-//                     </div>
-
-//                     {/* Right Column - Contact & Skills */}
-//                     <div className="space-y-6">
-//                       <motion.div
-//                         className="space-y-4"
-//                         initial={{ x: 30, opacity: 0 }}
-//                         animate={{ x: 0, opacity: 1 }}
-//                         transition={{ delay: 0.5 }}
-//                       >
-//                         <motion.a
-//                           href={`mailto:${user.email}`}
-//                           className="flex items-center p-4 bg-blue-50 rounded-2xl hover:bg-blue-100 transition-colors group"
-//                           whileHover={{ scale: 1.02, x: 5 }}
-//                         >
-//                           <Mail className="w-5 h-5 text-blue-600 mr-3" />
-//                           <span className="text-blue-800 font-medium group-hover:underline">
-//                             {user.email}
-//                           </span>
-//                         </motion.a>
-
-//                         {user.phone && (
-//                           <motion.div
-//                             className="flex items-center p-4 bg-green-50 rounded-2xl"
-//                             whileHover={{ scale: 1.02, x: 5 }}
-//                           >
-//                             <Phone className="w-5 h-5 text-green-600 mr-3" />
-//                             <span className="text-green-800 font-medium">
-//                               {user.phone}
-//                             </span>
-//                           </motion.div>
-//                         )}
-
-//                         <motion.div
-//                           className="flex items-center p-4 bg-purple-50 rounded-2xl"
-//                           whileHover={{ scale: 1.02, x: 5 }}
-//                         >
-//                           <MapPin className="w-5 h-5 text-purple-600 mr-3" />
-//                           <span className="text-purple-800 font-medium">
-//                             Khulna University, Bangladesh
-//                           </span>
-//                         </motion.div>
-//                       </motion.div>
-
-//                       {/* Skills Section */}
-//                       {user.skills && user.skills.length > 0 && (
-//                         <motion.div
-//                           initial={{ opacity: 0, y: 20 }}
-//                           animate={{ opacity: 1, y: 0 }}
-//                           transition={{ delay: 0.7 }}
-//                         >
-//                           <h4 className="font-semibold text-gray-700 mb-4 flex items-center">
-//                             <Award className="w-4 h-4 mr-2" />
-//                             Skills & Expertise
-//                           </h4>
-//                           <div className="flex flex-wrap gap-2">
-//                             {user.skills.map((skill, index) => (
-//                               <motion.span
-//                                 key={skill}
-//                                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl text-sm font-medium shadow-lg"
-//                                 initial={{ opacity: 0, scale: 0 }}
-//                                 animate={{ opacity: 1, scale: 1 }}
-//                                 transition={{ delay: 0.8 + index * 0.1 }}
-//                                 whileHover={{ scale: 1.1, rotateZ: 5 }}
-//                               >
-//                                 {skill}
-//                               </motion.span>
-//                             ))}
-//                           </div>
-//                         </motion.div>
-//                       )}
-
-//                       {/* Interests Section */}
-//                       {user.interests && user.interests.length > 0 && (
-//                         <motion.div
-//                           initial={{ opacity: 0, y: 20 }}
-//                           animate={{ opacity: 1, y: 0 }}
-//                           transition={{ delay: 0.9 }}
-//                         >
-//                           <h4 className="font-semibold text-gray-700 mb-4 flex items-center">
-//                             <Users className="w-4 h-4 mr-2" />
-//                             Interests
-//                           </h4>
-//                           <div className="flex flex-wrap gap-2">
-//                             {user.interests.map((interest, index) => (
-//                               <motion.span
-//                                 key={interest}
-//                                 className="px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl text-sm font-medium shadow-lg"
-//                                 initial={{ opacity: 0, scale: 0 }}
-//                                 animate={{ opacity: 1, scale: 1 }}
-//                                 transition={{ delay: 1.0 + index * 0.1 }}
-//                                 whileHover={{ scale: 1.1, rotateZ: -5 }}
-//                               >
-//                                 {interest}
-//                               </motion.span>
-//                             ))}
-//                           </div>
-//                         </motion.div>
-//                       )}
-//                     </div>
-//                   </div>
-
-//                   {/* Update Profile Button */}
-//                   <motion.div
-//                     className="mt-8 text-center"
-//                     initial={{ opacity: 0 }}
-//                     animate={{ opacity: 1 }}
-//                     transition={{ delay: 1.2 }}
-//                   >
-//                     <motion.button
-//                       onClick={() => setIsFormOpen(true)}
-//                       className="group relative"
-//                       whileHover={{ scale: 1.05 }}
-//                       whileTap={{ scale: 0.95 }}
-//                     >
-//                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
-//                       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg">
-//                         Update Profile ✨
-//                       </div>
-//                     </motion.button>
-//                   </motion.div>
-//                 </div>
-//               </motion.div>
-//             </motion.div>
-//           ) : (
-//             <motion.div
-//               className="text-center py-20"
-//               initial={{ opacity: 0, y: 30 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.8 }}
-//             >
-//               <motion.div
-//                 className="w-64 h-64 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center"
-//                 animate={{ rotateY: [0, 360] }}
-//                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-//                 style={{ transformStyle: 'preserve-3d' }}
-//               >
-//                 <GraduationCap className="w-24 h-24 text-blue-600" />
-//               </motion.div>
-//               <h3 className="text-2xl font-bold text-gray-700 mb-4">
-//                 Ready to Join the KU Network?
-//               </h3>
-//               <p className="text-gray-600 text-lg max-w-md mx-auto">
-//                 Create your professional profile and connect with fellow alumni, students, and faculty members.
-//               </p>
-//               <button
-//                 onClick={() => setIsFormOpen(true)}
-//                 className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-//               >
-//                 Create Your Profile
-//               </button>
-//             </motion.div>
-//           )}
-//         </div>
-//       </motion.section>
-
-//       {/* Enhanced Footer */}
-//       <motion.footer
-//         className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white py-12 relative overflow-hidden"
-//         initial={{ opacity: 0 }}
-//         whileInView={{ opacity: 1 }}
-//         viewport={{ once: true }}
-//       >
-//         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-//         <div className="container mx-auto px-6 relative z-10">
-//           <motion.div
-//             className="text-center"
-//             initial={{ y: 30, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1 }}
-//             transition={{ duration: 0.8 }}
-//           >
-//             <motion.div
-//               className="flex items-center justify-center mb-6"
-//               whileHover={{ scale: 1.1 }}
-//               transition={{ type: 'spring', stiffness: 300 }}
-//             >
-//               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-//                 <GraduationCap className="w-6 h-6" />
-//               </div>
-//               <div>
-//                 <h3 className="text-2xl font-bold">Khulna University</h3>
-//                 <p className="text-blue-200">Excellence in Education Since 1991</p>
-//               </div>
-//             </motion.div>
-            
-//             <div className="flex justify-center space-x-8 mb-8">
-//               <motion.a
-//                 href="https://ku.ac.bd"
-//                 className="text-blue-300 hover:text-white transition-colors font-medium"
-//                 whileHover={{ scale: 1.1, y: -2 }}
-//                 target="_blank"
-//                 rel="noopener noreferrer"
-//               >
-//                 Official Website
-//               </motion.a>
-//               <motion.a
-//                 href="https://ku.ac.bd/discipline/cse"
-//                 className="text-blue-300 hover:text-white transition-colors font-medium"
-//                 whileHover={{ scale: 1.1, y: -2 }}
-//                 target="_blank"
-//                 rel="noopener noreferrer"
-//               >
-//                 CSE Discipline
-//               </motion.a>
-//               <motion.a
-//                 href="https://ku.ac.bd/academics"
-//                 className="text-blue-300 hover:text-white transition-colors font-medium"
-//                 whileHover={{ scale: 1.1, y: -2 }}
-//                 target="_blank"
-//                 rel="noopener noreferrer"
-//               >
-//                 Academics
-//               </motion.a>
-//             </div>
-            
-//             <motion.p
-//               className="text-gray-300 text-sm"
-//               initial={{ opacity: 0 }}
-//               whileInView={{ opacity: 1 }}
-//               transition={{ delay: 0.3 }}
-//             >
-//               © {new Date().getFullYear()} Khulna University Professional Network. 
-//               Empowering minds, building futures. 🎓
-//             </motion.p>
-//           </motion.div>
-//         </div>
-//       </motion.footer>
-//     </div>
-//   );
-// };
-
-// export default Profile;

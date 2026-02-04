@@ -40,7 +40,7 @@ export default function DashboardPosts() {
       const { data } = await getPosts();
       setPosts(data);
     } catch (err) {
-      Swal.fire('Error', 'Failed to load posts', 'error');
+      Swal.fire('Error', 'Failed to load posts', 'error',err);
     } finally {
       setLoading(false);
     }

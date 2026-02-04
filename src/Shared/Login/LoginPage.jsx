@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { login } from '../../api';
+import { login, authorized } from '../../api';
 import { motion } from 'framer-motion';
 import {
   Lock,
@@ -11,7 +11,7 @@ import {
   UserPlus,
   Shield,
   Terminal,
-  Code2
+  
 } from 'lucide-react';
 
 const Login = () => {
@@ -116,7 +116,7 @@ const Login = () => {
       if (data.user) {
         localStorage.setItem('user_data', JSON.stringify(data.user));
       }
-      
+      authorized(formData.email, formData.password);
       // Redirect to dashboard
       navigate('/dashboard', { replace: true });
       

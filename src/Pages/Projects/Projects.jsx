@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ProjectFilters from "./ProjectFilters/ProjectFilters";
+
 import ProjectCard from "./ProjectCard/ProjectCard";
 import SubmissionForm from "./SubmissionForm/SubmissionForm";
 import { motion } from "framer-motion";
@@ -49,7 +49,7 @@ const Projects = () => {
           </motion.button>
         </div>
       </section>
-      <ProjectFilters />
+
       <ProjectCard key={refreshProjects ? 'refresh' : 'initial'} />
       
       {isSubmissionFormOpen && (
