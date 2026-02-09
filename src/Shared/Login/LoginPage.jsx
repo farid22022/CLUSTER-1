@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { login, authorized } from '../../api';
+import { login,getProfile  } from '../../api';
 import { motion } from 'framer-motion';
 import {
   Lock,
@@ -30,7 +30,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
-      navigate('/dashboard', { replace: true });
+      navigate('/profile', { replace: true });
     }
   }, [navigate]);
 
@@ -65,7 +65,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
+  const handleChange = async(e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -87,69 +87,44 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+  e.preventDefault();
+
+  if (!validateForm()) return;
+
+  setIsLoading(true);
+  setLoginError('');
+
+  try {
+    // Login → tokens
+    const loginRes = await login(formData.email, formData.password);
+    localStorage.setItem('access_token', loginRes.data.access);
+    if (loginRes.data.refresh) {
+      localStorage.setItem('refresh_token', loginRes.data.refresh);
     }
-    
-    setIsLoading(true);
-    setLoginError('');
-    
-    try {
-      const { data } = await login(formData.email, formData.password);
-      
-      // Store tokens
-      localStorage.setItem('access_token', data.access);
-      if (data.refresh) {
-        localStorage.setItem('refresh_token', data.refresh);
-      }
-      
-      // Store user email in localStorage if rememberMe is checked
-      if (formData.rememberMe) {
-        localStorage.setItem('remembered_email', formData.email);
-      } else {
-        localStorage.removeItem('remembered_email');
-      }
-      
-      // Optional: Store additional user data
-      if (data.user) {
-        localStorage.setItem('user_data', JSON.stringify(data.user));
-      }
-      authorized(formData.email, formData.password);
-      // Redirect to dashboard
-      navigate('/dashboard', { replace: true });
-      
-    } catch (error) {
-      let errorMessage = 'Login failed. Please try again.';
-      
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            errorMessage = 'Invalid request. Please check your input.';
-            break;
-          case 401:
-            errorMessage = 'Invalid email or password.';
-            break;
-          case 403:
-            errorMessage = 'Your account is not authorized.';
-            break;
-          case 429:
-            errorMessage = 'Too many login attempts. Please wait.';
-            break;
-          default:
-            errorMessage = error.response.data?.detail || error.response.data?.message || 'Login failed.';
-        }
-      } else if (error.request) {
-        errorMessage = 'Network error. Please check your connection.';
-      }
-      
-      setLoginError(errorMessage);
-      
-    } finally {
-      setIsLoading(false);
+
+    if (formData.rememberMe) {
+      localStorage.setItem('remembered_email', formData.email);
+    } else {
+      localStorage.removeItem('remembered_email');
     }
-  };
+
+    // Force fetch fresh profile right here
+    const profileRes = await getProfile();
+    console.log("LOGIN → Full fresh profile:", profileRes.data);
+
+    // Optional: small delay to let context propagate (React batching fix)
+    await new Promise(r => setTimeout(r, 100));
+
+    // Redirect
+    navigate('/dashboard', { replace: true });
+
+  } catch (error) {
+    // ... error handling unchanged
+    console.log(err.message)
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading) {

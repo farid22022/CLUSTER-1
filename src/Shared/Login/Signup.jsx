@@ -74,7 +74,7 @@ const Signup = () => {
       setSuccess('Account verified! Redirecting...');
 
       setTimeout(() => {
-        navigate('/dashboard'); // or '/' or login page
+        navigate('/profile'); // or '/' or login page
       }, 1500);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid or expired OTP');
