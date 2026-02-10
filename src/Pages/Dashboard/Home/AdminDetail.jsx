@@ -1,523 +1,184 @@
-// // // src/pages/dashboard/AdminDetail.jsx
-// // import { useState, useEffect } from 'react';
-// // import { useParams, useNavigate } from 'react-router-dom';
-// // import { motion } from 'framer-motion';
-// // import {
-// //   ArrowLeft, Shield, Users, UserCheck, Mail, Calendar, Globe,
-// //   Lock, CheckCircle, XCircle, Edit3
-// // } from 'lucide-react';
-// // import Swal from 'sweetalert2';
-// // import { getAdmins } from '../../../api';  
 
-// // const roleDisplayMap = {
-// //   SUPER_ADMIN:   'Super Admin',
-// //   ADMIN:         'Admin',
-// //   LAYERED_ADMIN: 'Layered Admin',
-// // };
-
-// // const getRoleColor = (role) => ({
-// //   SUPER_ADMIN:   'from-blue-600 to-indigo-700',
-// //   ADMIN:         'from-blue-600 to-cyan-700',
-// //   LAYERED_ADMIN: 'from-green-600 to-teal-700',
-// // }[role] || 'from-gray-600 to-gray-700');
-
-// // const getRoleIcon = (role) => ({
-// //   SUPER_ADMIN:   <Shield className="w-7 h-7" />,
-// //   ADMIN:         <Users className="w-7 h-7" />,
-// //   LAYERED_ADMIN: <UserCheck className="w-7 h-7" />,
-// // }[role] || null);
-
-// // export default function AdminDetail() {
-// //   const { id } = useParams();
-// //   const navigate = useNavigate();
-// //   const [admin, setAdmin] = useState(null);
-// //   const [loading, setLoading] = useState(true);
-// //   const [error, setError] = useState(null);
-
-// //   useEffect(() => {
-// //     const fetchAdmin = async () => {
-// //       try {
-// //         setLoading(true);
-// //         const res = await getAdmins(); // temporary – get all & filter
-// //         const found = res.data.find(u => u.id === Number(id));
-        
-// //         if (!found) {
-// //           setError('Administrator not found');
-// //           return;
-// //         }
-
-// //         setAdmin({
-// //           ...found,
-// //           displayRole: roleDisplayMap[found.role] || found.role,
-// //           date_joined_formatted: found.date_joined 
-// //             ? new Date(found.date_joined).toLocaleDateString('en-US', {
-// //                 year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-// //               })
-// //             : '—'
-// //         });
-// //       } catch (err) {
-// //         console.error(err);
-// //         setError('Failed to load administrator details');
-// //       } finally {
-// //         setLoading(false);
-// //       }
-// //     };
-
-// //     fetchAdmin();
-// //   }, [id]);
-
-// //   if (loading) {
-// //     return (
-// //       <div className="flex items-center justify-center min-h-screen">
-// //         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-// //       </div>
-// //     );
-// //   }
-
-// //   if (error || !admin) {
-// //     return (
-// //       <div className="min-h-screen flex items-center justify-center p-6">
-// //         <div className="text-center">
-// //           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-// //           <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'Administrator not found'}</p>
-// //           <button
-// //             onClick={() => navigate('/dashboard/admins')}
-// //             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-// //           >
-// //             Back to Admins List
-// //           </button>
-// //         </div>
-// //       </div>
-// //     );
-// //   }
-
-// //   return (
-// //     <motion.div
-// //       initial={{ opacity: 0, y: 20 }}
-// //       animate={{ opacity: 1, y: 0 }}
-// //       className="min-h-screen bg-gray-50 dark:bg-slate-950 p-6 md:p-10"
-// //     >
-// //       <div className="max-w-5xl mx-auto">
-// //         {/* Header */}
-// //         <div className="flex items-center justify-between mb-8">
-// //           <button
-// //             onClick={() => navigate(-1)}
-// //             className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
-// //           >
-// //             <ArrowLeft size={20} />
-// //             Back to list
-// //           </button>
-          
-// //           <button
-// //             onClick={() => {/* open edit modal or navigate to edit */}}
-// //             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition"
-// //           >
-// //             <Edit3 size={18} />
-// //             Edit Admin
-// //           </button>
-// //         </div>
-
-// //         {/* Main Card */}
-// //         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-700">
-// //           {/* Gradient top bar */}
-// //           <div className={`h-3 bg-gradient-to-r ${getRoleColor(admin.role)}`} />
-
-// //           <div className="p-8 md:p-10">
-// //             {/* Avatar & basic info */}
-// //             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
-// //               <div className="relative">
-// //                 <img
-// //                   src={admin.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(admin.name)}&background=0D8ABC&color=fff&size=256`}
-// //                   alt={admin.name}
-// //                   className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-2xl"
-// //                 />
-// //                 <div className={`absolute -bottom-2 -right-2 p-2 rounded-full bg-gradient-to-br ${getRoleColor(admin.role)} text-white shadow-lg`}>
-// //                   {getRoleIcon(admin.role)}
-// //                 </div>
-// //               </div>
-
-// //               <div className="text-center md:text-left">
-// //                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-// //                   {admin.name}
-// //                 </h1>
-// //                 <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-// //                   <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-sm font-medium bg-gradient-to-r ${getRoleColor(admin.role)}`}>
-// //                     {getRoleIcon(admin.role)}
-// //                     {admin.displayRole}
-// //                   </span>
-// //                 </div>
-// //                 <p className="text-lg text-gray-600 dark:text-slate-300 flex items-center gap-2 justify-center md:justify-start">
-// //                   <Mail size={18} />
-// //                   {admin.email}
-// //                 </p>
-// //               </div>
-// //             </div>
-
-// //             {/* Details Grid */}
-// //             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-// //               {/* Left column */}
-// //               <div className="space-y-6">
-// //                 <div className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
-// //                   <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-slate-200 flex items-center gap-2">
-// //                     <Calendar size={20} />
-// //                     Account Information
-// //                   </h3>
-// //                   <dl className="space-y-4 text-sm">
-// //                     <div>
-// //                       <dt className="text-gray-500 dark:text-slate-400">Joined</dt>
-// //                       <dd className="font-medium text-gray-900 dark:text-white mt-1">
-// //                         {admin.date_joined_formatted}
-// //                       </dd>
-// //                     </div>
-// //                     <div>
-// //                       <dt className="text-gray-500 dark:text-slate-400">Status</dt>
-// //                       <dd className="mt-1">
-// //                         {admin.is_active ? (
-// //                           <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 font-medium">
-// //                             <CheckCircle size={16} /> Active
-// //                           </span>
-// //                         ) : (
-// //                           <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
-// //                             <XCircle size={16} /> Inactive
-// //                           </span>
-// //                         )}
-// //                       </dd>
-// //                     </div>
-// //                   </dl>
-// //                 </div>
-// //               </div>
-
-// //               {/* Right column */}
-// //               <div className="space-y-6">
-// //                 {admin.role === 'LAYERED_ADMIN' && admin.assigned_pages_details?.length > 0 && (
-// //                   <div className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
-// //                     <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-slate-200 flex items-center gap-2">
-// //                       <Globe size={20} />
-// //                       Assigned Pages
-// //                     </h3>
-// //                     <ul className="space-y-2">
-// //                       {admin.assigned_pages_details.map(page => (
-// //                         <li key={page.id} className="flex items-center gap-3 text-gray-700 dark:text-slate-300">
-// //                           <CheckCircle size={16} className="text-green-500" />
-// //                           {page.name}
-// //                         </li>
-// //                       ))}
-// //                     </ul>
-// //                   </div>
-// //                 )}
-// //                 {admin.role.toUpperCase().replace(/ /g, '_') === 'LAYERED_ADMIN' && 
-// //                     admin.assigned_pages_details?.length > 0 && (
-// //                     <div className="flex items-start gap-3 text-gray-700 dark:text-slate-300">
-// //                         <CheckCircle size={18} className="mt-0.5 text-green-500" />
-// //                         <div>
-// //                         <span className="font-medium">Assigned Pages:</span>
-// //                         <ul className="list-disc pl-5 text-sm mt-1 space-y-1">
-// //                             {admin.assigned_pages_details.map(page => (
-// //                             <li key={page.id}>{page.name}</li>
-// //                             ))} 
-// //                         </ul>
-// //                         </div>
-// //                     </div>
-// //                     )}
-                
-
-// //                 <div className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
-// //                   <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-slate-200 flex items-center gap-2">
-// //                     <Lock size={20} />
-// //                     Permissions
-// //                   </h3>
-// //                   <div className="grid grid-cols-2 gap-4 text-sm">
-// //                     <div>
-// //                       <span className="text-gray-500 dark:text-slate-400 block">Staff</span>
-// //                       <span className={admin.is_staff ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400"}>
-// //                         {admin.is_staff ? 'Yes' : 'No'}
-// //                       </span>
-// //                     </div>
-// //                     <div>
-// //                       <span className="text-gray-500 dark:text-slate-400 block">Superuser</span>
-// //                       <span className={admin.is_superuser ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400"}>
-// //                         {admin.is_superuser ? 'Yes' : 'No'}
-// //                       </span>
-// //                     </div>
-// //                   </div>
-// //                 </div>
-// //               </div>
-// //             </div>
-// //           </div>
-// //         </div>
-// //       </div>
-// //     </motion.div>
-// //   );
-// // }
-// // src/pages/dashboard/AdminDetail.jsx
 // import { useState, useEffect } from 'react';
 // import { useParams, useNavigate } from 'react-router-dom';
 // import { motion } from 'framer-motion';
 // import {
-//   ArrowLeft, Shield, Users, UserCheck, Mail, Calendar, Globe,
-//   Lock, CheckCircle, XCircle, Edit, UserPlus
+//   ArrowLeft, Shield, Mail, Calendar,  CheckCircle, XCircle
 // } from 'lucide-react';
-// import Swal from 'sweetalert2';
-// import { getAdmins, transferSuperAdmin } from '../../../api';
-
-// const roleDisplayMap = {
-//   SUPER_ADMIN:   'Super Admin',
-//   ADMIN:         'Admin',
-//   LAYERED_ADMIN: 'Layered Admin',
-//   STUDENT:       'Student',
-// };
-
-// const getRoleColor = (role) => ({
-//   SUPER_ADMIN:   'from-blue-600 to-indigo-700',
-//   ADMIN:         'from-blue-600 to-cyan-700',
-//   LAYERED_ADMIN: 'from-green-600 to-teal-700',
-//   STUDENT:       'from-gray-500 to-gray-700',
-// }[role] || 'from-gray-600 to-gray-700');
-
-// const getRoleIcon = (role) => ({
-//   SUPER_ADMIN:   <Shield className="w-7 h-7" />,
-//   ADMIN:         <Users className="w-7 h-7" />,
-//   LAYERED_ADMIN: <UserCheck className="w-7 h-7" />,
-//   STUDENT:       <Users className="w-7 h-7 opacity-60" />,
-// }[role] || null);
+// // import Swal from 'sweetalert2';
+// import { getUserById } from '../../../api';
 
 // export default function AdminDetail() {
 //   const { id } = useParams();
 //   const navigate = useNavigate();
-
-//   const [admin, setAdmin] = useState(null);
+//   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
 
-//   // TODO: Replace with real auth context
-//   const currentUserRole = 'SUPER_ADMIN'; // temporary
-//   const isSuperAdmin = currentUserRole === 'SUPER_ADMIN';
-
 //   useEffect(() => {
-//     const fetchAdmin = async () => {
+//     const fetchUser = async () => {
 //       try {
 //         setLoading(true);
-//         const res = await getAdmins();
-//         const found = res.data.find(u => u.id === Number(id));
-
-//         if (!found) {
-//           setError('Administrator not found');
-//           return;
-//         }
-
-//         setAdmin({
-//           ...found,
-//           displayRole: roleDisplayMap[found.role] || found.role,
-//           date_joined_formatted: found.date_joined
-//             ? new Date(found.date_joined).toLocaleString('en-US', {
-//                 year: 'numeric', month: 'long', day: 'numeric',
-//                 hour: '2-digit', minute: '2-digit'
-//               })
-//             : '—'
-//         });
+//         const res = await getUserById(id);
+//         setUser(res.data);
 //       } catch (err) {
 //         console.error(err);
-//         setError('Failed to load administrator details');
+//         setError('Failed to load user details');
 //       } finally {
 //         setLoading(false);
 //       }
 //     };
 
-//     fetchAdmin();
+//     fetchUser();
 //   }, [id]);
 
-//   const handleTransferSuperAdmin = () => {
-//     if (!admin || admin.role === 'SUPER_ADMIN') return;
+//   if (loading) {
+//     return (
+//       <div className="flex items-center justify-center min-h-screen">
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+//       </div>
+//     );
+//   }
 
-//     Swal.fire({
-//       title: 'Transfer Super Admin Role?',
-//       html: `Are you sure you want to transfer <b>Super Admin</b> privileges to <b>${admin.name}</b>?<br/><br/>
-//              <small>You will be downgraded to Admin role.</small>`,
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#10b981',
-//       cancelButtonColor: '#d33',
-//       confirmButtonText: 'Yes, Transfer',
-//       cancelButtonText: 'Cancel'
-//     }).then(async (result) => {
-//       if (result.isConfirmed) {
-//         try {
-//           await transferSuperAdmin(admin.id);
-//           Swal.fire({
-//             icon: 'success',
-//             title: 'Role Transferred',
-//             text: 'You are now an Admin. Logging out...',
-//             timer: 2500,
-//             showConfirmButton: false
-//           });
-//           // Force logout
-//           localStorage.clear();
-//           navigate('/login');
-//         } catch (err) {
-//           Swal.fire({
-//             icon: 'error',
-//             title: 'Transfer Failed',
-//             text: err.response?.data?.error || 'Something went wrong'
-//           });
-//         }
-//       }
-//     });
-//   };
-
-//   if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin h-12 w-12 border-4 border-blue-500 rounded-full border-t-transparent"></div></div>;
-
-//   if (error || !admin) {
+//   if (error || !user) {
 //     return (
 //       <div className="min-h-screen flex items-center justify-center p-6">
-//         <div className="text-center max-w-md">
+//         <div className="text-center">
 //           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-//           <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'Administrator not found'}</p>
+//           <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'User not found'}</p>
 //           <button
-//             onClick={() => navigate('/dashboard/admins')}
-//             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+//             onClick={() => navigate('/dashboard/users')}
+//             className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
 //           >
-//             Back to Admins List
+//             Back to List
 //           </button>
 //         </div>
 //       </div>
 //     );
 //   }
 
+//   const currentMembership = user.current_membership;
+//   const currentRole = currentMembership?.role;
+//   const isPresident = currentRole?.is_president;
+
 //   return (
 //     <motion.div
 //       initial={{ opacity: 0, y: 20 }}
 //       animate={{ opacity: 1, y: 0 }}
-//       className="min-h-screen bg-gray-50 dark:bg-slate-950 p-6 md:p-10"
+//       className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6"
 //     >
 //       <div className="max-w-6xl mx-auto">
-//         <div className="flex items-center justify-between mb-8">
-//           <button
-//             onClick={() => navigate(-1)}
-//             className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 transition"
-//           >
-//             <ArrowLeft size={20} /> Back
-//           </button>
-
-//           <div className="flex gap-4">
-//             <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-//               <Edit size={18} /> Edit
-//             </button>
-
-//             {isSuperAdmin && admin.role !== 'SUPER_ADMIN' && (
-//               <button
-//                 onClick={handleTransferSuperAdmin}
-//                 className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
-//               >
-//                 <UserPlus size={18} /> Transfer Super Admin
-//               </button>
-//             )}
-//           </div>
-//         </div>
+//         <button
+//           onClick={() => navigate('/dashboard/users')}
+//           className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline mb-8"
+//         >
+//           <ArrowLeft size={18} /> Back to Users
+//         </button>
 
 //         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 //           {/* Profile Card */}
 //           <div className="lg:col-span-1">
-//             <div className={`bg-gradient-to-br ${getRoleColor(admin.role)} rounded-2xl p-8 text-white shadow-2xl`}>
+//             <div className={`rounded-2xl p-8 text-white shadow-xl ${
+//               isPresident
+//                 ? 'bg-gradient-to-br from-blue-600 to-indigo-700'
+//                 : 'bg-gradient-to-br from-indigo-600 to-purple-700'
+//             }`}>
 //               <div className="flex flex-col items-center text-center">
-//                 {getRoleIcon(admin.role)}
-//                 <h1 className="text-3xl font-bold mt-5">{admin.name}</h1>
-//                 <p className="text-xl opacity-90 mt-1">{admin.displayRole}</p>
+//                 <img
+//                   src={user.photo || 'https://via.placeholder.com/128?text=User'}
+//                   alt={user.name}
+//                   className="w-32 h-32 rounded-full object-cover border-4 border-white/30 mb-6"
+//                 />
+//                 <h2 className="text-3xl font-bold mb-2">{user.name}</h2>
+//                 <p className="text-xl opacity-90 mb-4">
+//                   {currentRole?.name || 'No Role Assigned'}
+//                   {isPresident && <span className="ml-2 font-semibold">(President)</span>}
+//                 </p>
 
-//                 {admin.photo ? (
-//                   <img
-//                     src={admin.photo}
-//                     alt={admin.name}
-//                     className="mt-8 w-40 h-40 rounded-full object-cover border-4 border-white/30 shadow-lg"
-//                   />
-//                 ) : (
-//                   <div className="mt-8 w-40 h-40 rounded-full bg-white/20 flex items-center justify-center text-5xl font-bold">
-//                     {admin.name.charAt(0)}
-//                   </div>
-//                 )}
+//                 <div className="flex flex-col gap-3 text-sm opacity-90">
+//                   <p className="flex items-center justify-center gap-2">
+//                     <Mail size={16} /> {user.email}
+//                   </p>
+//                   <p className="flex items-center justify-center gap-2">
+//                     <Calendar size={16} /> Joined {new Date(user.date_joined).toLocaleDateString()}
+//                   </p>
+//                   {user.student_id && (
+//                     <p>Student ID: {user.student_id}</p>
+//                   )}
+//                 </div>
+
+//                 <div className="mt-6">
+//                   {user.is_active ? (
+//                     <span className="inline-flex items-center gap-2 bg-white/20 px-4 py-1 rounded-full">
+//                       <CheckCircle size={16} /> Active
+//                     </span>
+//                   ) : (
+//                     <span className="inline-flex items-center gap-2 bg-red-500/30 px-4 py-1 rounded-full">
+//                       <XCircle size={16} /> Inactive
+//                     </span>
+//                   )}
+//                 </div>
 //               </div>
 //             </div>
 //           </div>
 
 //           {/* Details */}
-//           <div className="lg:col-span-2 space-y-6">
-//             <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow-xl border border-gray-200 dark:border-slate-700">
-//               <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Basic Information</h3>
-//               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400">Email</p>
-//                   <p className="font-medium mt-1 flex items-center gap-2">
-//                     <Mail size={16} className="text-gray-400" /> {admin.email}
-//                   </p>
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400">Joined</p>
-//                   <p className="font-medium mt-1 flex items-center gap-2">
-//                     <Calendar size={16} className="text-gray-400" /> {admin.date_joined_formatted}
-//                   </p>
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400">Student ID</p>
-//                   <p className="font-medium mt-1">{admin.student_id || '—'}</p>
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400">Status</p>
-//                   <p className="mt-1">
-//                     {admin.is_active ? (
-//                       <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 font-medium">
-//                         <CheckCircle size={16} /> Active
-//                       </span>
+//           <div className="lg:col-span-2 space-y-8">
+//             {/* Current Role & Permissions */}
+//             {currentMembership && (
+//               <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow border border-gray-200 dark:border-slate-700">
+//                 <h3 className="text-xl font-bold mb-5 flex items-center gap-3">
+//                   <Shield size={20} /> Current Committee Role ({currentMembership.year})
+//                 </h3>
+//                 <div className="space-y-4">
+//                   <div>
+//                     <p className="text-sm text-gray-500 dark:text-slate-400">Role</p>
+//                     <p className="font-medium text-lg">{currentRole.name}</p>
+//                   </div>
+//                   <div>
+//                     <p className="text-sm text-gray-500 dark:text-slate-400">Permissions</p>
+//                     {currentRole.permissions?.length > 0 ? (
+//                       <div className="flex flex-wrap gap-2 mt-2">
+//                         {currentRole.permissions.map(p => (
+//                           <span
+//                             key={p.id}
+//                             className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+//                           >
+//                             {p.name}
+//                           </span>
+//                         ))}
+//                       </div>
 //                     ) : (
-//                       <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
-//                         <XCircle size={16} /> Inactive
-//                       </span>
+//                       <p className="text-gray-500 dark:text-slate-400 italic">No specific page permissions</p>
 //                     )}
-//                   </p>
+//                   </div>
 //                 </div>
 //               </div>
-//             </div>
+//             )}
 
-//             {/* Assigned Pages (Layered Admin only) */}
-//             {admin.role === 'LAYERED_ADMIN' && admin.assigned_pages_details?.length > 0 && (
-//               <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow-xl border border-gray-200 dark:border-slate-700">
-//                 <h3 className="text-xl font-bold mb-5 text-gray-900 dark:text-white flex items-center gap-2">
-//                   <Globe size={20} /> Assigned Pages
+//             {/* Membership History */}
+//             {user.memberships?.length > 0 && (
+//               <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow border border-gray-200 dark:border-slate-700">
+//                 <h3 className="text-xl font-bold mb-5 flex items-center gap-3">
+//                   <Calendar size={20} /> Committee History
 //                 </h3>
-//                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-//                   {admin.assigned_pages_details.map(page => (
-//                     <div key={page.id} className="p-4 bg-gray-50 dark:bg-slate-900/60 rounded-lg border border-gray-200 dark:border-slate-700">
-//                       <div className="flex items-center gap-3">
-//                         <CheckCircle size={18} className="text-green-500" />
-//                         <span className="font-medium text-gray-800 dark:text-slate-200">{page.name}</span>
+//                 <div className="space-y-4">
+//                   {user.memberships.map((m, idx) => (
+//                     <div key={idx} className="p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
+//                       <div className="flex justify-between items-start">
+//                         <div>
+//                           <p className="font-medium">{m.role.name}</p>
+//                           <p className="text-sm text-gray-500 dark:text-slate-400">Year: {m.year}</p>
+//                         </div>
+//                         <span className="text-xs px-2 py-1 bg-gray-200 dark:bg-slate-600 rounded">
+//                           {new Date(m.assigned_at).toLocaleDateString()}
+//                         </span>
 //                       </div>
-//                       {page.description && (
-//                         <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">{page.description}</p>
-//                       )}
 //                     </div>
 //                   ))}
 //                 </div>
 //               </div>
 //             )}
-
-//             {/* Permissions Overview */}
-//             <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow-xl border border-gray-200 dark:border-slate-700">
-//               <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
-//                 <Lock size={20} /> Permissions
-//               </h3>
-//               <div className="grid grid-cols-2 gap-8 text-center">
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">Staff Access</p>
-//                   <p className={`text-2xl font-bold ${admin.is_staff ? 'text-green-600' : 'text-red-600'}`}>
-//                     {admin.is_staff ? 'Yes' : 'No'}
-//                   </p>
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">Superuser</p>
-//                   <p className={`text-2xl font-bold ${admin.is_superuser ? 'text-green-600' : 'text-red-600'}`}>
-//                     {admin.is_superuser ? 'Yes' : 'No'}
-//                   </p>
-//                 </div>
-//               </div>
-//             </div>
 //           </div>
 //         </div>
 //       </div>
@@ -525,25 +186,67 @@
 //   );
 // }
 
-// src/pages/dashboard/AdminDetail.jsx
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  ArrowLeft, Shield, Mail, Calendar, Globe,
-  Lock, CheckCircle, XCircle
-} from 'lucide-react';
-import Swal from 'sweetalert2';
-import { getUserById } from '../../../api';
+// HandleAdmin.jsx
 
-export default function AdminDetail() {
-  const { id } = useParams();
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Search, Plus, Loader2, Trash2, UserPlus } from 'lucide-react';
+import Swal from 'sweetalert2';
+
+import {
+  getUsers,
+  getRoles,
+  createUser,
+  updateUser,
+  deleteUser,
+  createMembership,
+  importTeamMembers,
+  createRole,
+  getPages,
+  performHandover,
+  getUserById,
+} from '../../../api';
+import { useNavigate, useParams } from 'react-router-dom';
+
+export default function HandleAdmin() {
+  const { id } = useParams()
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role_id: '',
+    year: new Date().getFullYear(),
+  });
+  const [importFile, setImportFile] = useState(null);
+  const [importYear, setImportYear] = useState(new Date().getFullYear());
+  const [archiveOld, setArchiveOld] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);  // New: Role creation modal
+  const [roleForm, setRoleForm] = useState({ name: '', is_president: false, permissions_ids: [] });  // New
+  const [pages, setPages] = useState([]);  // New: Fetch pages for permissions
+  const [showHandoverModal, setShowHandoverModal] = useState(false);  // New: Handover
+  const [handoverForm, setHandoverForm] = useState({ new_year: new Date().getFullYear() + 1, new_president_id: '', archive_old: false });  // New
 
   useEffect(() => {
+    loadData();
+    getPages().then(res => setPages(res.data));  // New: Fetch pages for role permissions
+  }, []);
+
+  useEffect(() => {
+    if (!id || isNaN(id) || id === 'undefined') {
+      setError('Invalid user ID');
+      setLoading(false);
+      return;
+    }
+
     const fetchUser = async () => {
       try {
         setLoading(true);
@@ -560,156 +263,442 @@ export default function AdminDetail() {
     fetchUser();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [usersRes, rolesRes] = await Promise.all([getUsers(), getRoles()]);
+      setUsers(usersRes.data);
+      setRoles(rolesRes.data);
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Error', 'Failed to load data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (error || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'User not found'}</p>
+    if (!id || id === 'undefined') {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Invalid User ID</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              The user ID is missing or invalid.
+            </p>
+            <button
+              onClick={() => navigate('/dashboard/admins')}  // or wherever your list is
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Back to Users List
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+  const handleAddUser = async () => {
+    if (!form.name || !form.email || !form.password || !form.role_id) {
+      Swal.fire('Missing fields', 'Please fill all required fields', 'warning');
+      return;
+    }
+
+    try {
+      const userRes = await createUser({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
+
+      await createMembership({
+        user: userRes.data.id,
+        role_id: form.role_id,
+        year: form.year,
+      });
+
+      Swal.fire('Success', 'User and role assigned', 'success');
+      setShowAddModal(false);
+      setForm({ name: '', email: '', password: '', role_id: '', year: new Date().getFullYear() });
+      loadData();
+    } catch (err) {
+      Swal.fire('Error', err.response?.data?.detail || 'Failed to create user', 'error');
+    }
+  };
+
+  const handleImport = async () => {
+    if (!importFile) {
+      Swal.fire('No file', 'Please select a CSV file', 'warning');
+      return;
+    }
+
+    setImporting(true);
+    const data = new FormData();
+    data.append('file', importFile);
+    data.append('year', importYear);
+    data.append('archive_old', archiveOld);
+
+    try {
+      await importTeamMembers(data);
+      Swal.fire('Success', 'Committee imported successfully', 'success');
+      loadData();
+    } catch (err) {
+      Swal.fire('Error', 'Import failed', 'error',err.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleCreateRole = async () => {
+    try {
+      await createRole(roleForm);
+      Swal.fire('Success', 'Role created', 'success');
+      setShowRoleModal(false);
+      loadData();  // Refresh roles
+    } catch (err) {
+      Swal.fire('Error', 'Failed to create role', 'error',err);
+    }
+  };
+
+  const handleHandover = async () => {
+    try {
+      await performHandover(handoverForm);
+      Swal.fire('Success', 'Handover complete', 'success');
+      setShowHandoverModal(false);
+      loadData();  // Refresh after year change
+    } catch (err) {
+      Swal.fire('Error', 'Handover failed', 'error');
+    }
+  };
+
+  const filteredUsers = users.filter(u =>
+    u.name?.toLowerCase().includes(search.toLowerCase()) ||
+    u.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Committee & Users</h1>
+        <div className="flex gap-4">
           <button
-            onClick={() => navigate('/dashboard/users')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Back to List
+            <UserPlus size={18} /> Add User
+          </button>
+          <button
+            onClick={() => setShowRoleModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            <Plus size={18} /> Add Role
+          </button>
+          <button
+            onClick={() => setShowHandoverModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            <UserPlus size={18} /> Perform Handover
           </button>
         </div>
       </div>
-    );
-  }
 
-  const currentMembership = user.current_membership;
-  const currentRole = currentMembership?.role;
-  const isPresident = currentRole?.is_president;
+      {/* Search & Import */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white" size={18} />
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600"
+          />
+        </div>
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6"
-    >
-      <div className="max-w-6xl mx-auto">
-        <button
-          onClick={() => navigate('/dashboard/users')}
-          className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline mb-8"
-        >
-          <ArrowLeft size={18} /> Back to Users
-        </button>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
-          <div className="lg:col-span-1">
-            <div className={`rounded-2xl p-8 text-white shadow-xl ${
-              isPresident
-                ? 'bg-gradient-to-br from-blue-600 to-indigo-700'
-                : 'bg-gradient-to-br from-indigo-600 to-purple-700'
-            }`}>
-              <div className="flex flex-col items-center text-center">
-                <img
-                  src={user.photo || 'https://via.placeholder.com/128?text=User'}
-                  alt={user.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white/30 mb-6"
-                />
-                <h2 className="text-3xl font-bold mb-2">{user.name}</h2>
-                <p className="text-xl opacity-90 mb-4">
-                  {currentRole?.name || 'No Role Assigned'}
-                  {isPresident && <span className="ml-2 font-semibold">(President)</span>}
-                </p>
-
-                <div className="flex flex-col gap-3 text-sm opacity-90">
-                  <p className="flex items-center justify-center gap-2">
-                    <Mail size={16} /> {user.email}
-                  </p>
-                  <p className="flex items-center justify-center gap-2">
-                    <Calendar size={16} /> Joined {new Date(user.date_joined).toLocaleDateString()}
-                  </p>
-                  {user.student_id && (
-                    <p>Student ID: {user.student_id}</p>
-                  )}
-                </div>
-
-                <div className="mt-6">
-                  {user.is_active ? (
-                    <span className="inline-flex items-center gap-2 bg-white/20 px-4 py-1 rounded-full">
-                      <CheckCircle size={16} /> Active
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 bg-red-500/30 px-4 py-1 rounded-full">
-                      <XCircle size={16} /> Inactive
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+        {/* Simple import UI – you can make it a modal later */}
+        <div className="flex gap-3 items-end">
+          <div>
+            <label className="block text-sm mb-1">Year</label>
+            <input
+              type="number"
+              value={importYear}
+              onChange={e => setImportYear(e.target.value)}
+              className="w-24 px-3 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600"
+            />
           </div>
-
-          {/* Details */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Current Role & Permissions */}
-            {currentMembership && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow border border-gray-200 dark:border-slate-700">
-                <h3 className="text-xl font-bold mb-5 flex items-center gap-3">
-                  <Shield size={20} /> Current Committee Role ({currentMembership.year})
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-slate-400">Role</p>
-                    <p className="font-medium text-lg">{currentRole.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-slate-400">Permissions</p>
-                    {currentRole.permissions?.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {currentRole.permissions.map(p => (
-                          <span
-                            key={p.id}
-                            className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded-full text-sm"
-                          >
-                            {p.name}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 dark:text-slate-400 italic">No specific page permissions</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Membership History */}
-            {user.memberships?.length > 0 && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow border border-gray-200 dark:border-slate-700">
-                <h3 className="text-xl font-bold mb-5 flex items-center gap-3">
-                  <Calendar size={20} /> Committee History
-                </h3>
-                <div className="space-y-4">
-                  {user.memberships.map((m, idx) => (
-                    <div key={idx} className="p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{m.role.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-slate-400">Year: {m.year}</p>
-                        </div>
-                        <span className="text-xs px-2 py-1 bg-gray-200 dark:bg-slate-600 rounded">
-                          {new Date(m.assigned_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div>
+            <label className="block text-sm mb-1">CSV File</label>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={e => setImportFile(e.target.files[0])}
+              className="file:px-4 file:py-2 file:bg-blue-600 file:text-white file:rounded-lg"
+            />
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={archiveOld}
+              onChange={e => setArchiveOld(e.target.checked)}
+            />
+            Archive old
+          </label>
+          <button
+            onClick={handleImport}
+            disabled={importing}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {importing ? 'Importing...' : 'Import Committee'}
+          </button>
         </div>
       </div>
-    </motion.div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-slate-800">
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">Email</th>
+                <th className="p-4 text-left">Current Role</th>
+                <th className="p-4 text-left">Year</th>
+                <th className="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map(u => (
+                <tr key={u.id} className="border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                  <td className="p-4">{u.name}</td>
+                  <td className="p-4">{u.email}</td>
+                  <td className="p-4">
+                    {u.current_membership?.role?.name || '—'}
+                    {u.current_membership?.role?.is_president && ' (President)'}
+                  </td>
+                  <td className="p-4">{u.current_membership?.year || '—'}</td>
+                  <td className="p-4 text-right flex gap-2 justify-end">
+                    <button
+                      onClick={() => navigate(`/dashboard/users/${u.id}`)}
+                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDelete(u.id)}
+                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add User Modal – very basic version */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6">Add New User</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-1 text-sm">Name</label>
+                <input
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">Email</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">Password</label>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">Role</label>
+                <select
+                  value={form.role_id}
+                  onChange={e => setForm({ ...form, role_id: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                >
+                  <option value="">Select Role</option>
+                  {roles.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} {r.is_president ? '(President)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">Committee Year</label>
+                <input
+                  type="number"
+                  value={form.year}
+                  onChange={e => setForm({ ...form, year: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddUser}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-xl"
+              >
+                Create & Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Modal (Step a: Add Role) */}
+      {showRoleModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6">Add New Role</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-1 text-sm">Name</label>
+                <input
+                  value={roleForm.name}
+                  onChange={e => setRoleForm({...roleForm, name: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    checked={roleForm.is_president} 
+                    onChange={e => setRoleForm({...roleForm, is_president: e.target.checked})} 
+                  />
+                  Is President
+                </label>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">Permissions</label>
+                <select
+                  multiple
+                  value={roleForm.permissions_ids}
+                  onChange={e => setRoleForm({...roleForm, permissions_ids: Array.from(e.target.selectedOptions, o => o.value)})}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                >
+                  {pages.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setShowRoleModal(false)}
+                className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateRole}
+                className="flex-1 py-3 bg-green-600 text-white rounded-xl"
+              >
+                Create Role
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Handover Modal */}
+      {showHandoverModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6">Perform Handover</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-1 text-sm">New Year</label>
+                <input
+                  type="number"
+                  value={handoverForm.new_year}
+                  onChange={e => setHandoverForm({...handoverForm, new_year: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm">New President</label>
+                <select
+                  value={handoverForm.new_president_id}
+                  onChange={e => setHandoverForm({...handoverForm, new_president_id: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600"
+                >
+                  <option value="">Select New President</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    checked={handoverForm.archive_old} 
+                    onChange={e => setHandoverForm({...handoverForm, archive_old: e.target.checked})} 
+                  />
+                  Archive Old Committee to Alumni
+                </label>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setShowHandoverModal(false)}
+                className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleHandover}
+                className="flex-1 py-3 bg-purple-600 text-white rounded-xl"
+              >
+                Confirm Handover
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

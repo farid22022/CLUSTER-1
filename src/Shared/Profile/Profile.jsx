@@ -385,7 +385,7 @@ const Profile = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Role</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(profile.role)}`}>
-                    {profile.role_display}
+                    {profile?.current_membership?.role?.name || 'User'}
                   </span>
                 </div>
               </div>
