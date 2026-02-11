@@ -1,1448 +1,1059 @@
 
-
-
-// // src/pages/dashboard/DashboardContact.jsx
-// import { useState } from 'react';
+// import { useState, useEffect } from 'react';
 // import { motion, AnimatePresence } from 'framer-motion';
 // import {
 //   Mail, Search, Edit3, Trash, Upload, CheckCircle,
-//   User, Facebook, Linkedin, Download, Quote
+//   Facebook, Linkedin, Archive, Loader2, X, Plus, User
 // } from 'lucide-react';
 // import Swal from 'sweetalert2';
-// import Papa from 'papaparse';
+// import {
+//   getCurrentYear,
+//   getCommittee,
+//   importTeamMembers, // keep for CSV import (adjust if needed)
+// } from '../../../api';
 
-// const initialTeamMembers = [
-//   {
-//     id: 1,
-//     designation: "Director",
-//     name: "Professor Dr. Kazi Masudul Alam",
-//     student_id: "210123",
-//     image_url: "https://i.ibb.co.com/bXynWfb/Money.png",
-//     facebook_url: "https://facebook.com/username1",
-//     linkedin_url: "https://linkedin.com/in/username1",
-//     email: "username1@email.com",
-//     quote: "Leading with vision and empowering excellence."
-//   },
-//   {
-//     id: 2,
-//     designation: "President",
-//     name: "Tahmid Hasan Tasfi",
-//     student_id: "210218",
-//     image_url: "https://i.ibb.co/TqxvVFb3/tasfi.jpg",
-//     facebook_url: "https://facebook.com/username1",
-//     linkedin_url: "https://linkedin.com/in/username1",
-//     email: "username1@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 3,
-//     designation: "Vice President-1",
-//     name: "Md Tasbi Hassan",
-//     student_id: "210216",
-//     image_url: "https://i.ibb.co/4RhPX7Ks/tasbi.jpg",
-//     facebook_url: "https://facebook.com/username2",
-//     linkedin_url: "https://linkedin.com/in/username2",
-//     email: "username2@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 4,
-//     designation: "Vice President-2",
-//     name: "Razu Sarder",
-//     student_id: "220220",
-//     image_url: "https://i.ibb.co/tpDz54TM/razu.jpg",
-//     facebook_url: "https://facebook.com/username3",
-//     linkedin_url: "https://linkedin.com/in/username3",
-//     email: "username3@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 5,
-//     designation: "General Secretary",
-//     name: "Md Anjir Hossain",
-//     student_id: "210230",
-//     image_url: "https://i.ibb.co/1thHGwzw/anjir.jpg",
-//     facebook_url: "https://facebook.com/username4",
-//     linkedin_url: "https://linkedin.com/in/username4",
-//     email: "username4@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 6,
-//     designation: "Joint Secretary",
-//     name: "Sohag Chandra",
-//     student_id: "220238",
-//     image_url: "https://i.ibb.co/jZ5W0PJJ/sohag.jpg",
-//     facebook_url: "https://facebook.com/username5",
-//     linkedin_url: "https://linkedin.com/in/username5",
-//     email: "username5@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 7,
-//     designation: "Treasurer",
-//     name: "Md Ashiquzzaman Rahad",
-//     student_id: "210201",
-//     image_url: "https://i.ibb.co/yB7kHjfZ/rahad.jpg",
-//     facebook_url: "https://facebook.com/username6",
-//     linkedin_url: "https://linkedin.com/in/username6",
-//     email: "username6@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 8,
-//     designation: "Programming Campaign Secretary",
-//     name: "Nahid Hassan",
-//     student_id: "220229",
-//     image_url: "https://i.ibb.co/cKHbZNg6/nahid.jpg",
-//     facebook_url: "https://facebook.com/username7",
-//     linkedin_url: "https://linkedin.com/in/username7",
-//     email: "username7@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 9,
-//     designation: "Workshop Secretary",
-//     name: "Muhammad Fahim",
-//     student_id: "210210",
-//     image_url: "https://i.ibb.co/nq871XvD/Fahim.png",
-//     facebook_url: "https://facebook.com/username8",
-//     linkedin_url: "https://linkedin.com/in/username8",
-//     email: "username8@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 10,
-//     designation: "Assistant Workshop Secretary",
-//     name: "Sardar Muhammad Sakib Hossain",
-//     student_id: "230222",
-//     image_url: "https://i.ibb.co.com/gDLBssv/230222-Sardar-Muhammad-Sakib-Hossain.jpg",
-//     facebook_url: "https://facebook.com/username9",
-//     linkedin_url: "https://linkedin.com/in/username9",
-//     email: "username9@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 11,
-//     designation: "WISE Secretary",
-//     name: "Sharmika Das Banhi",
-//     student_id: "210204",
-//     image_url: "https://example.com/image10.jpg",
-//     facebook_url: "https://facebook.com/username10",
-//     linkedin_url: "https://linkedin.com/in/username10",
-//     email: "username10@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 12,
-//     designation: "Public Relations Secretary",
-//     name: "Radhika Chowdhury",
-//     student_id: "220239",
-//     image_url: "https://example.com/image11.jpg",
-//     facebook_url: "https://facebook.com/username11",
-//     linkedin_url: "https://linkedin.com/in/username11",
-//     email: "username11@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 13,
-//     designation: "IT Secretary",
-//     name: "Mohaiminul Islam Saad",
-//     student_id: "220201",
-//     image_url: "https://i.ibb.co/HTLfg95m/shaad.jpg",
-//     facebook_url: "https://facebook.com/username12",
-//     linkedin_url: "https://linkedin.com/in/username12",
-//     email: "username12@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 14,
-//     designation: "Assistant IT Secretary",
-//     name: "Kazi Rifat Morshed",
-//     student_id: "230220",
-//     image_url: "https://i.ibb.co/V0RKRzgt/rifat.jpg",
-//     facebook_url: "https://facebook.com/username13",
-//     linkedin_url: "https://linkedin.com/in/username13",
-//     email: "username13@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 15,
-//     designation: "Campaign Secretary",
-//     name: "Md Abdullah Al Mahin",
-//     student_id: "230210",
-//     image_url: "https://i.ibb.co.com/nCW3Pj2/Mahin.png",
-//     facebook_url: "https://facebook.com/username14",
-//     linkedin_url: "https://linkedin.com/in/username14",
-//     email: "username14@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 16,
-//     designation: "Cultural Secretary",
-//     name: "SM Shibly Noman",
-//     student_id: "230206",
-//     image_url: "https://i.ibb.co.com/64dCbMy/230206-shibly.jpg",
-//     facebook_url: "https://facebook.com/username15",
-//     linkedin_url: "https://linkedin.com/in/username15",
-//     email: "username15@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 17,
-//     designation: "Member-1 (MSc.)",
-//     name: "Istyaque Ahammed",
-//     student_id: "M.Sc. 250235",
-//     image_url: "https://i.ibb.co/wFzXp8KJ/istyake.jpg",
-//     facebook_url: "https://facebook.com/username16",
-//     linkedin_url: "https://linkedin.com/in/username16",
-//     email: "username16@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 18,
-//     designation: "Member-2 (BSc.)",
-//     name: "Sneha Shah",
-//     student_id: "240242",
-//     image_url: "https://i.ibb.co/tpDz54TM/razu.jpg",
-//     facebook_url: "https://facebook.com/username17",
-//     linkedin_url: "https://linkedin.com/in/username17",
-//     email: "username17@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 19,
-//     designation: "Member-3 (BSc.)",
-//     name: "Towhid Al Mahmud",
-//     student_id: "240239",
-//     image_url: "https://example.com/image18.jpg",
-//     facebook_url: "https://facebook.com/username18",
-//     linkedin_url: "https://linkedin.com/in/username18",
-//     email: "username18@email.com",
-//     quote: ""
-//   },
-//   {
-//     id: 20,
-//     designation: "Member-4 (BSc.)",
-//     name: "Abir Khan Siam",
-//     student_id: "240228",
-//     image_url: "https://example.com/image19.jpg",
-//     facebook_url: "https://facebook.com/username19",
-//     linkedin_url: "https://linkedin.com/in/username19",
-//     email: "username19@email.com",
-//     quote: ""
-//   }
-// ];
-
-
-// const initialFAQs = [
-//   { id: 1, question: "How can I join CLUSTER?", answer: "Membership is open to all KU CSE students..." },
-//   { id: 2, question: "What kind of events does CLUSTER organize?", answer: "We organize programming contests..." },
-//   // ... add more as needed
-// ];
-
-// export default function DashboardContact() {
+// const DashboardContact = () => {
+//   const [activeTab, setActiveTab] = useState('team');
 //   const [searchTerm, setSearchTerm] = useState('');
-//   const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
-//   const [faqs, setFAQs] = useState(initialFAQs);
 //   const [showModal, setShowModal] = useState(false);
 //   const [editingItem, setEditingItem] = useState(null);
-//   const [activeSection, setActiveSection] = useState('team'); // 'team' or 'faqs'
+//   const [committeeMembers, setCommitteeMembers] = useState([]);
+//   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+//   const [loading, setLoading] = useState(true);
 
+//   // Form data (for add/edit membership - adapt fields as per your backend)
 //   const [formData, setFormData] = useState({
-//     designation: '', name: '', student_id: '', image_url: '',
-//     facebook_url: '', linkedin_url: '', email: '', quote: '',
-//     question: '', answer: ''
+//     user: '',           // user ID (you'll need a user selector in real form)
+//     role: '',           // role ID
+//     year: new Date().getFullYear(),
 //   });
 
-//   // Filtered lists
-//   const filteredTeam = teamMembers.filter(t =>
-//     (t.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     (t.designation || '').toLowerCase().includes(searchTerm.toLowerCase())
-//   );
+//   useEffect(() => {
+//     fetchData();
+//   }, []);
 
-//   const filteredFAQs = faqs.filter(f =>
-//     (f.question || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     (f.answer || '').toLowerCase().includes(searchTerm.toLowerCase())
-//   );
+//   const fetchData = async () => {
+//     setLoading(true);
+//     try {
+//       // Get current year
+//       const yearRes = await getCurrentYear();
+//       const fetchedYear = yearRes.data?.current_year || new Date().getFullYear();
+//       setCurrentYear(fetchedYear);
+//       setFormData(prev => ({ ...prev, year: fetchedYear }));
 
-//   // ── CSV EXPORT ───────────────────────────────────────────
-//   const exportToCSV = (data, filename) => {
-//     if (!data?.length) {
-//       Swal.fire('No Data', 'Nothing to export', 'info');
-//       return;
+//       // Get committee for current year
+//       const committeeRes = await getCommittee(fetchedYear);
+//       const data = committeeRes.data;
+//       const members = Array.isArray(data) ? data : data?.results || [];
+//       setCommitteeMembers(members);
+//     } catch (err) {
+//       console.error('Fetch error:', err);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Failed to load data',
+//         text: err.response?.data?.detail || 'Please check network or login status'
+//       });
+//       setCommitteeMembers([]);
+//     } finally {
+//       setLoading(false);
 //     }
-
-//     let headers, rows;
-
-//     if (filename.includes('Team')) {
-//       headers = ['Designation', 'Name', 'Student ID', 'Image URL', 'Facebook URL', 'LinkedIn URL', 'Email', 'Quote'];
-//       rows = data.map(r => [
-//         `"${(r.designation || '').replace(/"/g, '""')}"`,
-//         `"${(r.name || '').replace(/"/g, '""')}"`,
-//         `"${(r.student_id || '').replace(/"/g, '""')}"`,
-//         `"${(r.image_url || '').replace(/"/g, '""')}"`,
-//         `"${(r.facebook_url || '').replace(/"/g, '""')}"`,
-//         `"${(r.linkedin_url || '').replace(/"/g, '""')}"`,
-//         `"${(r.email || '').replace(/"/g, '""')}"`,
-//         `"${(r.quote || '').replace(/"/g, '""')}"`
-//       ]);
-//     } else {
-//       headers = ['Question', 'Answer'];
-//       rows = data.map(f => [
-//         `"${(f.question || '').replace(/"/g, '""')}"`,
-//         `"${(f.answer || '').replace(/"/g, '""')}"`
-//       ]);
-//     }
-
-//     const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-
-//     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-//     const url = URL.createObjectURL(blob);
-//     const link = document.createElement('a');
-//     link.href = url;
-//     link.download = `${filename.replace(/\s+/g, '_')}.csv`;
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//     URL.revokeObjectURL(url);
-
-//     Swal.fire('Exported!', `${data.length} item(s) exported`, 'success', { timer: 2200 });
 //   };
 
-//   // ── CSV IMPORT ───────────────────────────────────────────
-//   const handleCSVImport = (section) => {
-//     Swal.fire({
-//       title: `Import ${section === 'team' ? 'Team Members' : 'FAQs'}`,
-//       text: 'Upload your CSV file',
-//       input: 'file',
-//       inputAttributes: { accept: '.csv' },
+//   // Derived data
+//   const currentMembers = committeeMembers.filter(m => m.year === currentYear);
+//   const archivedMembers = committeeMembers
+//     .filter(m => m.year < currentYear)
+//     .reduce((acc, m) => {
+//       const y = m.year;
+//       if (!acc[y]) acc[y] = [];
+//       acc[y].push(m);
+//       return acc;
+//     }, {});
+
+//   const filteredCurrent = currentMembers.filter(m =>
+//     (m.user_name || m.user_email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+//     (m.role?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   // ─── Handlers ────────────────────────────────────────────────
+
+//   const handleImport = async (e) => {
+//     const file = e.target.files?.[0];
+//     if (!file) return;
+
+//     const result = await Swal.fire({
+//       title: 'Import Committee CSV',
+//       text: `Target year: ${currentYear}`,
+//       input: 'checkbox',
+//       inputLabel: 'Archive previous year members',
 //       showCancelButton: true,
 //       confirmButtonText: 'Import',
-//       showLoaderOnConfirm: true,
-//       preConfirm: (file) => {
-//         return new Promise((resolve, reject) => {
-//           if (!file) return reject('No file selected');
-
-//           Papa.parse(file, {
-//             header: true,
-//             skipEmptyLines: 'greedy',
-//             transformHeader: (header) => {
-//               const cleaned = header.trim().toLowerCase().replace(/\s+/g, '_');
-//               // Explicit mapping for exported CSV column names
-//               const headerMap = {
-//                 'designation': 'designation',
-//                 'name': 'name',
-//                 'student_id': 'student_id',
-//                 'student id': 'student_id',
-//                 'image_url': 'image_url',
-//                 'facebook_url': 'facebook_url',
-//                 'linkedin_url': 'linkedin_url',
-//                 'email': 'email',
-//                 'quote': 'quote',
-//                 'question': 'question',
-//                 'answer': 'answer'
-//               };
-//               return headerMap[cleaned] || cleaned;
-//             },
-//             complete: (result) => {
-//               if (result.errors.length > 0) {
-//                 return reject('CSV parsing error: ' + result.errors.map(e => e.message).join('; '));
-//               }
-//               if (!result.data.length) return reject('The CSV file is empty');
-
-//               let validItems = [];
-
-//               if (section === 'team') {
-//                 validItems = result.data
-//                   .filter(row => (row.name || '').trim() && (row.designation || '').trim())
-//                   .map((row, idx) => ({
-//                     id: Date.now() + idx,
-//                     designation: (row.designation || '').trim(),
-//                     name: (row.name || 'Untitled').trim(),
-//                     student_id: (row.student_id || '').trim(),
-//                     image_url: (row.image_url || '').trim(),
-//                     facebook_url: (row.facebook_url || '').trim(),
-//                     linkedin_url: (row.linkedin_url || '').trim(),
-//                     email: (row.email || '').trim(),
-//                     quote: (row.quote || '').trim()
-//                   }));
-//               } else {
-//                 validItems = result.data
-//                   .filter(row => (row.question || '').trim() && (row.answer || '').trim())
-//                   .map((row, idx) => ({
-//                     id: Date.now() + idx,
-//                     question: (row.question || '').trim(),
-//                     answer: (row.answer || '').trim()
-//                   }));
-//               }
-
-//               if (validItems.length === 0) {
-//                 return reject('No valid rows found (required fields missing)');
-//               }
-
-//               resolve(validItems);
-//             },
-//             error: (err) => reject('File read error: ' + err.message)
-//           });
-//         });
-//       }
-//     }).then((result) => {
-//       if (result.isConfirmed) {
-//         const imported = result.value;
-//         if (section === 'team') {
-//           setTeamMembers(prev => [...prev, ...imported]);
-//         } else {
-//           setFAQs(prev => [...prev, ...imported]);
-//         }
-//         Swal.fire({
-//           title: 'Success',
-//           text: `${imported.length} item${imported.length === 1 ? '' : 's'} imported successfully`,
-//           icon: 'success',
-//           timer: 2200
-//         });
-//       }
-//     }).catch((err) => {
-//       if (err && err !== 'Swal is cancelled') {
-//         Swal.fire('Import Failed', err.toString(), 'error');
-//       }
 //     });
+
+//     if (!result.isConfirmed) return;
+
+//     const archiveOld = !!result.value;
+
+//     const formDataToSend = new FormData();
+//     formDataToSend.append('file', file);
+//     formDataToSend.append('year', currentYear);
+//     formDataToSend.append('archive_old', archiveOld);
+
+//     try {
+//       await importTeamMembers(formDataToSend);
+//       Swal.fire('Success', 'Committee imported', 'success');
+//       fetchData();
+//     } catch (err) {
+//       Swal.fire('Error', err.response?.data?.error || 'Import failed', 'error');
+//     }
 //   };
 
-//   // ── MODAL OPEN / SAVE / DELETE ───────────────────────────
-//   const openModal = (item = null, section = 'team') => {
-//     setActiveSection(section);
-//     setEditingItem(item);
-//     setFormData(item ? (section === 'team' ? {
-//       designation: item.designation || '',
-//       name: item.name || '',
-//       student_id: item.student_id || '',
-//       image_url: item.image_url || '',
-//       facebook_url: item.facebook_url || '',
-//       linkedin_url: item.linkedin_url || '',
-//       email: item.email || '',
-//       quote: item.quote || ''
-//     } : {
-//       question: item.question || '',
-//       answer: item.answer || ''
-//     }) : (section === 'team' ? {
-//       designation: '', name: '', student_id: '', image_url: '',
-//       facebook_url: '', linkedin_url: '', email: '', quote: ''
-//     } : {
-//       question: '', answer: ''
-//     }));
+//   const handleAdd = () => {
+//     setEditingItem(null);
+//     setFormData({
+//       user: '',
+//       role: '',
+//       year: currentYear,
+//     });
+//     setShowModal(true);
+//   };
+
+//   const handleEdit = (member) => {
+//     setEditingItem(member);
+//     setFormData({
+//       user: member.user,
+//       role: member.role?.id || '',
+//       year: member.year,
+//     });
 //     setShowModal(true);
 //   };
 
 //   const handleSave = async () => {
-//     if (activeSection === 'team') {
-//       if (!formData.name?.trim() || !formData.designation?.trim()) {
-//         Swal.fire('Error', 'Name and Designation are required', 'error');
-//         return;
-//       }
-//     } else {
-//       if (!formData.question?.trim() || !formData.answer?.trim()) {
-//         Swal.fire('Error', 'Question and Answer are required', 'error');
-//         return;
-//       }
+//     if (!formData.user || !formData.role) {
+//       Swal.fire('Required', 'User and Role are required', 'warning');
+//       return;
 //     }
 
-//     const newItem = { ...formData };
-
-//     if (editingItem) {
-//       if (activeSection === 'team') {
-//         setTeamMembers(prev => prev.map(t => t.id === editingItem.id ? { ...newItem, id: t.id } : t));
-//       } else {
-//         setFAQs(prev => prev.map(f => f.id === editingItem.id ? { ...newItem, id: f.id } : f));
-//       }
-//       await Swal.fire('Success', 'Updated successfully', 'success');
-//     } else {
-//       newItem.id = Date.now();
-//       if (activeSection === 'team') {
-//         setTeamMembers(prev => [...prev, newItem]);
-//       } else {
-//         setFAQs(prev => [...prev, newItem]);
-//       }
-//       await Swal.fire('Success', 'Added successfully', 'success');
+//     try {
+//       // You need backend endpoints for create/update membership
+//       // Example: await createMembership(formData);
+//       // For now placeholder:
+//       Swal.fire('Placeholder', 'Membership save/update not implemented yet', 'info');
+//       setShowModal(false);
+//       fetchData();
+//     } catch (err) {
+//       Swal.fire('Error', 'Save failed', 'error');
 //     }
-
-//     setShowModal(false);
-//     setEditingItem(null);
 //   };
 
-//   const confirmDelete = async (item, section) => {
-//     const result = await Swal.fire({
-//       title: 'Delete Item?',
-//       text: `Are you sure you want to delete this ${section === 'team' ? 'team member' : 'FAQ'}?`,
+//   const handleDelete = async (id) => {
+//     const confirmed = await Swal.fire({
+//       title: 'Delete Membership?',
+//       text: "This cannot be undone.",
 //       icon: 'warning',
 //       showCancelButton: true,
-//       confirmButtonColor: '#ef4444',
-//       cancelButtonColor: '#6b7280',
-//       confirmButtonText: 'Yes, delete it!'
+//       confirmButtonColor: '#d33',
 //     });
 
-//     if (result.isConfirmed) {
-//       if (section === 'team') {
-//         setTeamMembers(prev => prev.filter(t => t.id !== item.id));
-//       } else {
-//         setFAQs(prev => prev.filter(f => f.id !== item.id));
+//     if (confirmed.isConfirmed) {
+//       try {
+//         // await deleteMembership(id); // implement in api.js + backend
+//         Swal.fire('Deleted', 'Membership removed', 'success');
+//         fetchData();
+//       } catch (err) {
+//         Swal.fire('Error', 'Delete failed', 'error');
 //       }
-//       Swal.fire('Deleted!', 'Item removed', 'success');
 //     }
 //   };
 
-//   // ── RENDER ───────────────────────────────────────────────
 //   return (
-//     <div className="space-y-10 pb-10">
-//       {/* Header */}
-//       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-//         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-//           <Mail className="w-8 h-8 text-blue-600" />
-//           Manage Contact Page
-//         </h1>
-
-//         <div className="relative w-full sm:w-80">
-//           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-//           <input
-//             type="text"
-//             placeholder="Search team or FAQs..."
-//             value={searchTerm}
-//             onChange={e => setSearchTerm(e.target.value)}
-//             className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//           />
+//     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
+//       {loading ? (
+//         <div className="flex flex-col items-center justify-center min-h-[70vh]">
+//           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
+//           <p className="text-gray-600 dark:text-gray-400">Loading committee data...</p>
 //         </div>
-//       </div>
-
-//       {/* Team Members Section */}
-//       <div className="mt-10">
-//         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-//           <h3 className="text-xl font-bold text-gray-800 dark:text-white">Team Members</h3>
-//           <div className="flex flex-wrap gap-3">
-//             <motion.button
-//               onClick={() => handleCSVImport('team')}
-//               className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl flex items-center gap-2 text-sm font-medium"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
+//       ) : (
+//         <>
+//           {/* Tabs */}
+//           <div className="flex border-b border-gray-200 dark:border-slate-700 mb-8">
+//             <button
+//               onClick={() => setActiveTab('team')}
+//               className={`px-8 py-4 font-medium text-lg transition-colors ${
+//                 activeTab === 'team'
+//                   ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
+//                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+//               }`}
 //             >
-//               <Upload size={16} /> Import CSV
-//             </motion.button>
-
-//             <motion.button
-//               onClick={() => exportToCSV(filteredTeam, 'Team_Members')}
-//               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
+//               Committee Members
+//             </button>
+//             <button
+//               onClick={() => setActiveTab('faqs')}
+//               className={`px-8 py-4 font-medium text-lg transition-colors ${
+//                 activeTab === 'faqs'
+//                   ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
+//                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+//               }`}
 //             >
-//               <Download size={16} /> Export CSV
-//             </motion.button>
-
-//             <motion.button
-//               onClick={() => openModal(null, 'team')}
-//               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
-//             >
-//               <CheckCircle size={16} /> Add Member
-//             </motion.button>
+//               FAQs
+//             </button>
 //           </div>
-//         </div>
 
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//           {filteredTeam.map(member => (
-//             <motion.div
-//               key={member.id}
-//               className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 p-5 hover:shadow-lg transition-shadow"
-//               initial={{ opacity: 0, y: 10 }}
-//               animate={{ opacity: 1, y: 0 }}
-//             >
-//               <div className="font-bold text-lg mb-1">{member.name}</div>
-//               <div className="text-blue-600 dark:text-blue-400 mb-2">{member.designation}</div>
-//               <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-//                 ID: {member.student_id || '—'}
-//               </div>
-//               <div className="flex justify-end gap-3 mt-4">
-//                 <motion.button
-//                   onClick={() => openModal(member, 'team')}
-//                   className="p-2 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
-//                   whileHover={{ scale: 1.1 }}
-//                 >
-//                   <Edit3 size={18} className="text-blue-600 dark:text-blue-400" />
-//                 </motion.button>
-//                 <motion.button
-//                   onClick={() => confirmDelete(member, 'team')}
-//                   className="p-2 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
-//                   whileHover={{ scale: 1.1 }}
-//                 >
-//                   <Trash size={18} className="text-red-600 dark:text-red-400" />
-//                 </motion.button>
-//               </div>
-//             </motion.div>
-//           ))}
-//         </div>
+//           {activeTab === 'team' && (
+//             <>
+//               {/* Controls */}
+//               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+//                 <div className="relative w-full sm:w-96">
+//                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+//                   <input
+//                     type="text"
+//                     placeholder="Search name, email or role..."
+//                     value={searchTerm}
+//                     onChange={(e) => setSearchTerm(e.target.value)}
+//                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:border-blue-500 outline-none"
+//                   />
+//                 </div>
 
-//         {!filteredTeam.length && (
-//           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-//             No team members found
-//           </div>
-//         )}
-//       </div>
-
-//       {/* FAQs Section */}
-//       <div className="mt-12">
-//         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-//           <h3 className="text-xl font-bold text-gray-800 dark:text-white">Frequently Asked Questions</h3>
-//           <div className="flex flex-wrap gap-3">
-//             <motion.button
-//               onClick={() => handleCSVImport('faqs')}
-//               className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl flex items-center gap-2 text-sm font-medium"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
-//             >
-//               <Upload size={16} /> Import CSV
-//             </motion.button>
-
-//             <motion.button
-//               onClick={() => exportToCSV(filteredFAQs, 'FAQs')}
-//               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
-//             >
-//               <Download size={16} /> Export CSV
-//             </motion.button>
-
-//             <motion.button
-//               onClick={() => openModal(null, 'faqs')}
-//               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl flex items-center gap-2 text-sm font-medium shadow-sm"
-//               whileHover={{ scale: 1.03 }}
-//               whileTap={{ scale: 0.97 }}
-//             >
-//               <CheckCircle size={16} /> Add FAQ
-//             </motion.button>
-//           </div>
-//         </div>
-
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//           {filteredFAQs.map(faq => (
-//             <motion.div
-//               key={faq.id}
-//               className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 p-5 hover:shadow-lg transition-shadow"
-//               initial={{ opacity: 0, y: 10 }}
-//               animate={{ opacity: 1, y: 0 }}
-//             >
-//               <div className="font-semibold text-base mb-2">{faq.question}</div>
-//               <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-4">{faq.answer}</p>
-//               <div className="flex justify-end gap-3 mt-4">
-//                 <motion.button
-//                   onClick={() => openModal(faq, 'faqs')}
-//                   className="p-2 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
-//                   whileHover={{ scale: 1.1 }}
-//                 >
-//                   <Edit3 size={18} className="text-blue-600 dark:text-blue-400" />
-//                 </motion.button>
-//                 <motion.button
-//                   onClick={() => confirmDelete(faq, 'faqs')}
-//                   className="p-2 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
-//                   whileHover={{ scale: 1.1 }}
-//                 >
-//                   <Trash size={18} className="text-red-600 dark:text-red-400" />
-//                 </motion.button>
-//               </div>
-//             </motion.div>
-//           ))}
-//         </div>
-
-//         {!filteredFAQs.length && (
-//           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-//             No FAQs found
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Modal */}
-//       <AnimatePresence>
-//         {showModal && (
-//           <motion.div
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-//             onClick={() => setShowModal(false)}
-//           >
-//             <motion.div
-//               initial={{ scale: 0.92, y: 40 }}
-//               animate={{ scale: 1, y: 0 }}
-//               exit={{ scale: 0.92, y: 40 }}
-//               className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
-//               onClick={e => e.stopPropagation()}
-//             >
-//               <div className="px-6 py-5 border-b border-gray-200 dark:border-slate-700">
-//                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-//                   {editingItem ? 'Edit' : 'Add New'} {activeSection === 'team' ? 'Team Member' : 'FAQ'}
-//                 </h3>
+//                 <div className="flex flex-wrap gap-3">
+//                   <label className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl cursor-pointer shadow-sm hover:from-blue-700">
+//                     <Upload size={18} />
+//                     Import CSV
+//                     <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
+//                   </label>
+//                   <button
+//                     onClick={handleAdd}
+//                     className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm"
+//                   >
+//                     <Plus size={18} /> Add Member
+//                   </button>
+//                 </div>
 //               </div>
 
-//               <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-//                 {activeSection === 'team' ? (
-//                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-//                     <div>
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-//                         Designation <span className="text-red-500">*</span>
-//                       </label>
-//                       <input
-//                         type="text"
-//                         value={formData.designation}
-//                         onChange={e => setFormData({ ...formData, designation: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
+//               {/* Current Committee */}
+//               <section className="mb-12">
+//                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+//                   Current Committee <span className="text-blue-600">({currentYear})</span>
+//                 </h2>
 
-//                     <div>
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-//                         Full Name <span className="text-red-500">*</span>
-//                       </label>
-//                       <input
-//                         type="text"
-//                         value={formData.name}
-//                         onChange={e => setFormData({ ...formData, name: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
-
-//                     <div>
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Student ID</label>
-//                       <input
-//                         type="text"
-//                         value={formData.student_id}
-//                         onChange={e => setFormData({ ...formData, student_id: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
-
-//                     <div className="md:col-span-2">
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Image URL</label>
-//                       <input
-//                         type="url"
-//                         value={formData.image_url}
-//                         onChange={e => setFormData({ ...formData, image_url: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                         placeholder="https://..."
-//                       />
-//                     </div>
-
-//                     <div className="md:col-span-2">
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Facebook URL</label>
-//                       <input
-//                         type="url"
-//                         value={formData.facebook_url}
-//                         onChange={e => setFormData({ ...formData, facebook_url: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
-
-//                     <div className="md:col-span-2">
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">LinkedIn URL</label>
-//                       <input
-//                         type="url"
-//                         value={formData.linkedin_url}
-//                         onChange={e => setFormData({ ...formData, linkedin_url: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
-
-//                     <div className="md:col-span-2">
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
-//                       <input
-//                         type="email"
-//                         value={formData.email}
-//                         onChange={e => setFormData({ ...formData, email: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-//                       />
-//                     </div>
-
-//                     <div className="md:col-span-2">
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Quote</label>
-//                       <textarea
-//                         value={formData.quote}
-//                         onChange={e => setFormData({ ...formData, quote: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none min-h-[100px]"
-//                       />
-//                     </div>
+//                 {filteredCurrent.length === 0 ? (
+//                   <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed">
+//                     <User size={48} className="mx-auto text-gray-400 mb-4" />
+//                     <p className="text-gray-600 dark:text-gray-400">No members in current committee yet</p>
 //                   </div>
 //                 ) : (
-//                   <div className="space-y-5">
+//                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                     {filteredCurrent.map((m) => (
+//                       <motion.div
+//                         key={m.id}
+//                         className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all p-6"
+//                         initial={{ opacity: 0, y: 20 }}
+//                         animate={{ opacity: 1, y: 0 }}
+//                       >
+//                         <div className="flex items-center gap-4 mb-5">
+//                           <div className="relative">
+//                             <img
+//                               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(m.user_name || m.user_email.split('@')[0])}&background=0D8ABC&color=fff&size=128`}
+//                               alt={m.user_name || 'Member'}
+//                               className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 dark:border-slate-600"
+//                             />
+//                             {m.role?.is_president && (
+//                               <div className="absolute -top-1 -right-1 bg-yellow-500 text-xs text-white px-2 py-1 rounded-full font-bold">
+//                                 President
+//                               </div>
+//                             )}
+//                           </div>
+//                           <div>
+//                             <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+//                               {m.user_name || m.user_email.split('@')[0]}
+//                             </h3>
+//                             <p className="text-blue-600 dark:text-blue-400 font-medium">
+//                               {m.role?.name || 'Unknown Role'}
+//                             </p>
+//                             <p className="text-sm text-gray-500 dark:text-gray-400">
+//                               {m.user_email}
+//                             </p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-end gap-3 mt-4">
+//                           <button
+//                             onClick={() => handleEdit(m)}
+//                             className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+//                           >
+//                             <Edit3 size={18} className="text-blue-600" />
+//                           </button>
+//                           <button
+//                             onClick={() => handleDelete(m.id)}
+//                             className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+//                           >
+//                             <Trash size={18} className="text-red-600" />
+//                           </button>
+//                         </div>
+//                       </motion.div>
+//                     ))}
+//                   </div>
+//                 )}
+//               </section>
+
+//               {/* Archived Committees */}
+//               <section>
+//                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+//                   <Archive size={24} className="text-purple-600" />
+//                   Archived Committees
+//                 </h2>
+
+//                 {Object.keys(archivedMembers).length === 0 ? (
+//                   <p className="text-gray-500 dark:text-gray-400 py-8">No archived committees yet.</p>
+//                 ) : (
+//                   Object.keys(archivedMembers)
+//                     .sort((a, b) => Number(b) - Number(a))
+//                     .map(year => (
+//                       <div key={year} className="mb-10">
+//                         <h3 className="text-xl font-semibold mb-4 flex items-center gap-3">
+//                           <span className="bg-purple-100 dark:bg-purple-900/40 px-4 py-1 rounded-full">
+//                             {year}
+//                           </span>
+//                         </h3>
+//                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                           {archivedMembers[year].map(m => (
+//                             <div
+//                               key={m.id}
+//                               className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700"
+//                             >
+//                               <div className="flex items-center gap-4">
+//                                 <img
+//                                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(m.user_name || m.user_email.split('@')[0])}&size=64`}
+//                                   alt={m.user_name}
+//                                   className="w-14 h-14 rounded-full"
+//                                 />
+//                                 <div>
+//                                   <h4 className="font-semibold">{m.user_name || m.user_email.split('@')[0]}</h4>
+//                                   <p className="text-sm text-purple-600">{m.role?.name}</p>
+//                                 </div>
+//                               </div>
+//                             </div>
+//                           ))}
+//                         </div>
+//                       </div>
+//                     ))
+//                 )}
+//               </section>
+//             </>
+//           )}
+
+//           {activeTab === 'faqs' && (
+//             <div className="text-center py-20">
+//               <h2 className="text-2xl font-bold mb-4">FAQs Management</h2>
+//               <p className="text-gray-500 dark:text-gray-400">
+//                 FAQ section coming soon – CRUD will be added here.
+//               </p>
+//             </div>
+//           )}
+
+//           {/* Modal - Membership (basic - expand as needed) */}
+//           <AnimatePresence>
+//             {showModal && (
+//               <motion.div
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 1 }}
+//                 exit={{ opacity: 0 }}
+//                 className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+//               >
+//                 <motion.div
+//                   initial={{ scale: 0.95 }}
+//                   animate={{ scale: 1 }}
+//                   exit={{ scale: 0.95 }}
+//                   className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md"
+//                 >
+//                   <div className="p-6 border-b flex justify-between items-center">
+//                     <h2 className="text-xl font-bold">
+//                       {editingItem ? 'Edit' : 'Add'} Committee Member
+//                     </h2>
+//                     <button onClick={() => setShowModal(false)}>
+//                       <X size={24} />
+//                     </button>
+//                   </div>
+
+//                   <div className="p-6 space-y-5">
 //                     <div>
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-//                         Question <span className="text-red-500">*</span>
-//                       </label>
+//                       <label className="block text-sm font-medium mb-1">User ID *</label>
 //                       <input
 //                         type="text"
-//                         value={formData.question}
-//                         onChange={e => setFormData({ ...formData, question: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+//                         value={formData.user}
+//                         onChange={e => setFormData({ ...formData, user: e.target.value })}
+//                         className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700"
+//                         placeholder="User ID from /users/"
 //                       />
 //                     </div>
-
 //                     <div>
-//                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-//                         Answer <span className="text-red-500">*</span>
-//                       </label>
-//                       <textarea
-//                         value={formData.answer}
-//                         onChange={e => setFormData({ ...formData, answer: e.target.value })}
-//                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none min-h-[160px]"
+//                       <label className="block text-sm font-medium mb-1">Role ID *</label>
+//                       <input
+//                         type="text"
+//                         value={formData.role}
+//                         onChange={e => setFormData({ ...formData, role: e.target.value })}
+//                         className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700"
+//                         placeholder="Role ID from /roles/"
+//                       />
+//                     </div>
+//                     <div>
+//                       <label className="block text-sm font-medium mb-1">Year</label>
+//                       <input
+//                         type="number"
+//                         value={formData.year}
+//                         readOnly
+//                         className="w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-slate-700 cursor-not-allowed"
 //                       />
 //                     </div>
 //                   </div>
-//                 )}
-//               </div>
 
-//               <div className="px-6 py-5 border-t border-gray-200 dark:border-slate-700 flex gap-4">
-//                 <button
-//                   onClick={() => setShowModal(false)}
-//                   className="flex-1 py-3.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl font-medium transition-colors"
-//                 >
-//                   Cancel
-//                 </button>
-//                 <button
-//                   onClick={handleSave}
-//                   className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2"
-//                 >
-//                   <CheckCircle size={18} />
-//                   {editingItem ? 'Update' : 'Add'}
-//                 </button>
-//               </div>
-//             </motion.div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
+//                   <div className="p-6 border-t flex gap-4">
+//                     <button
+//                       onClick={() => setShowModal(false)}
+//                       className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl"
+//                     >
+//                       Cancel
+//                     </button>
+//                     <button
+//                       onClick={handleSave}
+//                       className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+//                     >
+//                       {editingItem ? 'Update' : 'Add'}
+//                     </button>
+//                   </div>
+//                 </motion.div>
+//               </motion.div>
+//             )}
+//           </AnimatePresence>
+//         </>
+//       )}
 //     </div>
 //   );
-// }
+// };
 
-// src/pages/dashboard/DashboardContact.jsx
-import { useEffect, useState } from 'react';
+// export default DashboardContact;
+
+
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Mail, Search, Edit3, Trash, Upload, CheckCircle,
-  User, Facebook, Linkedin, Download, Quote
+  Mail, Search, Eye, Upload, CheckCircle,
+  Facebook, Linkedin, Archive, Loader2, X, Plus, User, Calendar
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import Papa from 'papaparse';
 import {
-  getTeamMembers, createTeamMember, updateTeamMember, deleteTeamMember,
-  // You'll need to add these FAQ endpoints in api.js and backend
-  getFAQs, createFAQ, updateFAQ, deleteFAQ
-} from '../../../api'; // Adjust path
+  getCurrentYear,
+  getCommittee,
+  importTeamMembers,
+} from '../../../api';
 
-export default function DashboardContact() {
+const DashboardContact = () => {
+  const [activeTab, setActiveTab] = useState('team');
   const [searchTerm, setSearchTerm] = useState('');
-  const [teamMembers, setTeamMembers] = useState([]);
-  const [faqs, setFAQs] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [viewingItem, setViewingItem] = useState(null);
+  const [committeeMembers, setCommitteeMembers] = useState([]);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [activeSection, setActiveSection] = useState('team'); // 'team' or 'faqs'
-
+  // Form data for adding new member
   const [formData, setFormData] = useState({
-    designation: '', name: '', student_id: '', image_url: '',
-    facebook_url: '', linkedin_url: '', email: '', quote: '',
-    question: '', answer: ''
+    name: '',
+    email: '',
+    role: '',
+    year: new Date().getFullYear(),
+    phone: '',
+    department: '',
   });
 
-  // Fetch data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [teamRes, faqRes] = await Promise.all([
-          getTeamMembers(),
-          getFAQs() // ← implement this
-        ]);
-        setTeamMembers(teamRes.data);
-        setFAQs(faqRes.data);
-      } catch (err) {
-        Swal.fire('Error', 'Failed to load contact data', 'error',err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
-  const filteredTeam = teamMembers.filter(t =>
-    (t.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (t.designation || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Get current year
+      const yearRes = await getCurrentYear();
+      const fetchedYear = yearRes.data?.current_year || new Date().getFullYear();
+      setCurrentYear(fetchedYear);
+      setFormData(prev => ({ ...prev, year: fetchedYear }));
 
-  const filteredFAQs = faqs?.filter(f =>
-    (f.question || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (f.answer || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // ────────────────────────────────────────────────
-  // CSV Export
-  // ────────────────────────────────────────────────
-  const exportToCSV = (data, filename) => {
-    if (!data?.length) {
-      Swal.fire('No Data', 'Nothing to export', 'info');
-      return;
+      // Get committee for current year
+      const committeeRes = await getCommittee(fetchedYear);
+      const data = committeeRes.data;
+      const members = Array.isArray(data) ? data : data?.results || [];
+      setCommitteeMembers(members);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to load data',
+        text: err.response?.data?.detail || 'Please check network or login status'
+      });
+      setCommitteeMembers([]);
+    } finally {
+      setLoading(false);
     }
-
-    let headers, rows;
-    if (filename.includes('Team')) {
-      headers = ['Designation', 'Name', 'Student ID', 'Image URL', 'Facebook URL', 'LinkedIn URL', 'Email', 'Quote'];
-      rows = data.map(r => [
-        `"${(r.designation || '').replace(/"/g, '""')}"`,
-        `"${(r.name || '').replace(/"/g, '""')}"`,
-        `"${(r.student_id || '').replace(/"/g, '""')}"`,
-        `"${(r.image_url || '').replace(/"/g, '""')}"`,
-        `"${(r.facebook_url || '').replace(/"/g, '""')}"`,
-        `"${(r.linkedin_url || '').replace(/"/g, '""')}"`,
-        `"${(r.email || '').replace(/"/g, '""')}"`,
-        `"${(r.quote || '').replace(/"/g, '""')}"`
-      ]);
-    } else {
-      headers = ['Question', 'Answer'];
-      rows = data.map(f => [
-        `"${(f.question || '').replace(/"/g, '""')}"`,
-        `"${(f.answer || '').replace(/"/g, '""')}"`
-      ]);
-    }
-
-    const csv = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${filename.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-
-    Swal.fire('Exported!', `${data.length} item(s) exported`, 'success');
   };
 
-  // ────────────────────────────────────────────────
-  // CSV Import
-  // ────────────────────────────────────────────────
-  const handleCSVImport = (section) => {
-    Swal.fire({
-      title: `Import ${section === 'team' ? 'Team Members' : 'FAQs'}`,
-      text: 'Upload CSV file',
-      input: 'file',
-      inputAttributes: { accept: '.csv' },
+  // Derived data
+  const currentMembers = committeeMembers.filter(m => m.year === currentYear);
+  const archivedMembers = committeeMembers
+    .filter(m => m.year < currentYear)
+    .reduce((acc, m) => {
+      const y = m.year;
+      if (!acc[y]) acc[y] = [];
+      acc[y].push(m);
+      return acc;
+    }, {});
+
+  const filteredCurrent = currentMembers.filter(m =>
+    (m.user_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.user_email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.role?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handlers
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const result = await Swal.fire({
+      title: 'Import Committee CSV',
+      text: `Target year: ${currentYear}`,
+      input: 'checkbox',
+      inputLabel: 'Archive previous year members',
       showCancelButton: true,
       confirmButtonText: 'Import',
-      showLoaderOnConfirm: true,
-      preConfirm: file => new Promise((resolve, reject) => {
-        if (!file) return reject('No file selected');
-
-        Papa.parse(file, {
-          header: true,
-          skipEmptyLines: 'greedy',
-          transformHeader: h => h.trim().toLowerCase(),
-          complete: result => {
-            if (result.errors.length) return reject(result.errors.map(e => e.message).join('; '));
-            if (!result.data.length) return reject('CSV is empty');
-
-            let valid = [];
-            if (section === 'team') {
-              valid = result.data
-                .filter(row => row.name?.trim() && row.designation?.trim())
-                .map(row => ({
-                  designation: row.designation.trim(),
-                  name: row.name.trim(),
-                  student_id: row.student_id?.trim() || '',
-                  image_url: row.image_url?.trim() || '',
-                  facebook_url: row.facebook_url?.trim() || '',
-                  linkedin_url: row.linkedin_url?.trim() || '',
-                  email: row.email?.trim() || '',
-                  quote: row.quote?.trim() || ''
-                }));
-            } else {
-              valid = result.data
-                .filter(row => row.question?.trim() && row.answer?.trim())
-                .map(row => ({
-                  question: row.question.trim(),
-                  answer: row.answer.trim()
-                }));
-            }
-
-            if (!valid.length) reject('No valid rows found');
-            resolve(valid);
-          },
-          error: err => reject(err.message)
-        });
-      })
-    }).then(result => {
-      if (result.isConfirmed) importFromCSV(result.value, section);
-    }).catch(err => {
-      if (err && err !== 'cancel') Swal.fire('Import Failed', String(err), 'error');
     });
-  };
 
-  const importFromCSV = async (rows, section) => {
+    if (!result.isConfirmed) return;
+
+    const archiveOld = !!result.value;
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('file', file);
+    formDataToSend.append('year', currentYear);
+    formDataToSend.append('archive_old', archiveOld);
+
     try {
-      const added = [];
-      const createMethod = section === 'team' ? createTeamMember : createFAQ;
-      for (const row of rows) {
-        try {
-          const { data } = await createMethod(row);
-          added.push(data);
-        } catch (e) {
-          console.error('Failed row:', row, e.response?.data);
-        }
-      }
-      if (added.length > 0) {
-        if (section === 'team') setTeamMembers(prev => [...prev, ...added]);
-        else setFAQs(prev => [...prev, ...added]);
-        Swal.fire('Imported', `${added.length} item(s) added`, 'success');
-      }
+      await importTeamMembers(formDataToSend);
+      Swal.fire('Success', 'Committee imported', 'success');
+      fetchData();
     } catch (err) {
-      Swal.fire('Error', 'Import failed', 'error',err.message);
+      Swal.fire('Error', err.response?.data?.error || 'Import failed', 'error');
     }
   };
 
-  // ────────────────────────────────────────────────
-  // Modal & CRUD
-  // ────────────────────────────────────────────────
-  const openModal = (item = null, section = 'team') => {
-    setActiveSection(section);
-    setEditingItem(item);
-    setFormData(item ? (section === 'team' ? {
-      designation: item.designation || '',
-      name: item.name || '',
-      student_id: item.student_id || '',
-      image_url: item.image_url || '',
-      facebook_url: item.facebook_url || '',
-      linkedin_url: item.linkedin_url || '',
-      email: item.email || '',
-      quote: item.quote || ''
-    } : {
-      question: item.question || '',
-      answer: item.answer || ''
-    }) : (section === 'team' ? {
-      designation: '', name: '', student_id: '', image_url: '',
-      facebook_url: '', linkedin_url: '', email: '', quote: ''
-    } : {
-      question: '', answer: ''
-    }));
+  const handleView = (member) => {
+    setViewingItem(member);
+    setShowModal(true);
+  };
+
+  const handleAdd = () => {
+    setViewingItem(null);
+    setFormData({
+      name: '',
+      email: '',
+      role: '',
+      year: currentYear,
+      phone: '',
+      department: '',
+    });
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    const isTeam = activeSection === 'team';
-    const requiredFields = isTeam
-      ? ['name', 'designation']
-      : ['question', 'answer'];
-
-    const errors = requiredFields.filter(f => !formData[f]?.trim());
-    if (errors.length) {
-      Swal.fire('Missing Fields', 'Please fill required fields', 'error');
+    if (!formData.name || !formData.email || !formData.role) {
+      Swal.fire('Required', 'Name, Email, and Role are required', 'warning');
       return;
     }
 
-    const payload = isTeam ? {
-      designation: formData.designation.trim(),
-      name: formData.name.trim(),
-      student_id: formData.student_id?.trim() || '',
-      image_url: formData.image_url?.trim() || '',
-      facebook_url: formData.facebook_url?.trim() || '',
-      linkedin_url: formData.linkedin_url?.trim() || '',
-      email: formData.email?.trim() || '',
-      quote: formData.quote?.trim() || ''
-    } : {
-      question: formData.question.trim(),
-      answer: formData.answer.trim()
-    };
-
     try {
-      let updatedList;
-      if (editingItem) {
-        const method = isTeam ? updateTeamMember : updateFAQ;
-        const { data } = await method(editingItem.id, payload);
-        updatedList = isTeam
-          ? teamMembers.map(t => t.id === data.id ? data : t)
-          : faqs.map(f => f.id === data.id ? data : f);
-        if (isTeam) setTeamMembers(updatedList); else setFAQs(updatedList);
-        Swal.fire('Success', 'Updated', 'success');
-      } else {
-        const method = isTeam ? createTeamMember : createFAQ;
-        const { data } = await method(payload);
-        updatedList = isTeam
-          ? [...teamMembers, data]
-          : [...faqs, data];
-        if (isTeam) setTeamMembers(updatedList); else setFAQs(updatedList);
-        Swal.fire('Success', 'Added', 'success');
-      }
+      // Placeholder for actual API call
+      Swal.fire('Placeholder', 'Member save not implemented yet', 'info');
       setShowModal(false);
-      setEditingItem(null);
+      fetchData();
     } catch (err) {
-      let msg = 'Failed to save';
-      if (err.response?.data) msg = JSON.stringify(err.response.data, null, 2);
-      Swal.fire('Error', msg, 'error');
-    }
-  };
-
-  const confirmDelete = async (item, section) => {
-    const res = await Swal.fire({
-      title: 'Delete?',
-      text: `Delete this ${section === 'team' ? 'team member' : 'FAQ'}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280'
-    });
-
-    if (res.isConfirmed) {
-      try {
-        const method = section === 'team' ? deleteTeamMember : deleteFAQ;
-        await method(item.id);
-        if (section === 'team') {
-          setTeamMembers(prev => prev.filter(t => t.id !== item.id));
-        } else {
-          setFAQs(prev => prev.filter(f => f.id !== item.id));
-        }
-        Swal.fire('Deleted', 'Removed successfully', 'success');
-      } catch (err) {
-        Swal.fire('Error', 'Delete failed', 'error',err.message);
-      }
+      Swal.fire('Error', 'Save failed', 'error');
     }
   };
 
   return (
-    <div className="space-y-10 pb-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-          <Mail className="w-8 h-8 text-blue-600" />
-          Manage Contact Page
-        </h1>
-
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search team or FAQs..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-          />
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center min-h-[70vh]">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Loading committee data...</p>
         </div>
-      </div>
-
-      {/* Team Members */}
-      <div className="mt-10">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">Team Members</h3>
-          <div className="flex flex-wrap gap-3">
-            <motion.button
-              onClick={() => handleCSVImport('team')}
-              className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl flex items-center gap-2 text-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+      ) : (
+        <>
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 dark:border-slate-700 mb-8">
+            <button
+              onClick={() => setActiveTab('team')}
+              className={`px-8 py-4 font-medium text-lg transition-colors ${
+                activeTab === 'team'
+                  ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+              }`}
             >
-              <Upload size={16} /> Import CSV
-            </motion.button>
-            <motion.button
-              onClick={() => exportToCSV(filteredTeam, 'Team_Members')}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2 text-sm shadow-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              Committee Members
+            </button>
+            <button
+              onClick={() => setActiveTab('faqs')}
+              className={`px-8 py-4 font-medium text-lg transition-colors ${
+                activeTab === 'faqs'
+                  ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+              }`}
             >
-              <Download size={16} /> Export CSV
-            </motion.button>
-            <motion.button
-              onClick={() => openModal(null, 'team')}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl flex items-center gap-2 text-sm shadow-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <CheckCircle size={16} /> Add Member
-            </motion.button>
+              FAQs
+            </button>
           </div>
-        </div>
 
-        {loading ? (
-          <div className="text-center py-16 text-gray-500">Loading team members...</div>
-        ) : filteredTeam.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-            No team members found
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTeam.map(member => (
-              <motion.div
-                key={member.id}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4 }}
-              >
-                <div className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-                  <h4 className="font-bold text-lg">{member.name}</h4>
-                  <p className="text-sm opacity-90">{member.designation}</p>
+          {activeTab === 'team' && (
+            <>
+              {/* Controls */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div className="relative w-full sm:w-96">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Search name, email or role..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:border-blue-500 outline-none"
+                  />
                 </div>
-                <div className="p-4 space-y-2 text-sm">
-                  {member.student_id && <p>ID: {member.student_id}</p>}
-                  {member.email && <p className="break-all">{member.email}</p>}
-                  {member.quote && <p className="italic text-gray-600 dark:text-gray-400">"{member.quote}"</p>}
-                  <div className="flex justify-end gap-3 pt-3">
-                    <motion.button
-                      onClick={() => openModal(member, 'team')}
-                      className="p-2 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Edit3 size={18} className="text-blue-600 dark:text-blue-400" />
-                    </motion.button>
-                    <motion.button
-                      onClick={() => confirmDelete(member, 'team')}
-                      className="p-2 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Trash size={18} className="text-red-600 dark:text-red-400" />
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* FAQs */}
-      <div className="mt-12">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">Frequently Asked Questions</h3>
-          <div className="flex flex-wrap gap-3">
-            <motion.button
-              onClick={() => handleCSVImport('faqs')}
-              className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl flex items-center gap-2 text-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Upload size={16} /> Import CSV
-            </motion.button>
-            <motion.button
-              onClick={() => exportToCSV(filteredFAQs, 'FAQs')}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2 text-sm shadow-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Download size={16} /> Export CSV
-            </motion.button>
-            <motion.button
-              onClick={() => openModal(null, 'faqs')}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl flex items-center gap-2 text-sm shadow-sm"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <CheckCircle size={16} /> Add FAQ
-            </motion.button>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="text-center py-16 text-gray-500">Loading FAQs...</div>
-        ) : filteredFAQs.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-            No FAQs found
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFAQs.map(faq => (
-              <motion.div
-                key={faq.id}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4 }}
-              >
-                <div className="px-5 py-3 bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-                  <h4 className="font-bold text-lg">{faq.question}</h4>
+                <div className="flex flex-wrap gap-3">
+                  <label className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl cursor-pointer shadow-sm hover:from-blue-700">
+                    <Upload size={18} />
+                    Import CSV
+                    <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
+                  </label>
+                  <button
+                    onClick={handleAdd}
+                    className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm"
+                  >
+                    <Plus size={18} /> Add Member
+                  </button>
                 </div>
-                <div className="p-4">
-                  <p className="text-gray-700 dark:text-gray-300 line-clamp-4">{faq.answer}</p>
-                  <div className="flex justify-end gap-3 mt-4">
-                    <motion.button
-                      onClick={() => openModal(faq, 'faqs')}
-                      className="p-2 hover:bg-purple-50 dark:hover:bg-purple-950 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Edit3 size={18} className="text-purple-600 dark:text-purple-400" />
-                    </motion.button>
-                    <motion.button
-                      onClick={() => confirmDelete(faq, 'faqs')}
-                      className="p-2 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Trash size={18} className="text-red-600 dark:text-red-400" />
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.92, y: 40 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 40 }}
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="px-6 py-5 border-b border-gray-200 dark:border-slate-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {editingItem ? 'Edit' : 'Add New'} {activeSection === 'team' ? 'Team Member' : 'FAQ'}
-                </h3>
               </div>
 
-              <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-                {activeSection === 'team' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Designation <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.designation}
-                        onChange={e => setFormData({ ...formData, designation: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="e.g. President"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={e => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="Full name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Student ID</label>
-                      <input
-                        type="text"
-                        value={formData.student_id}
-                        onChange={e => setFormData({ ...formData, student_id: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="e.g. 210218"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Image URL</label>
-                      <input
-                        type="text"
-                        value={formData.image_url}
-                        onChange={e => setFormData({ ...formData, image_url: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="https://... or /images/member.jpg"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Facebook URL</label>
-                      <input
-                        type="url"
-                        value={formData.facebook_url}
-                        onChange={e => setFormData({ ...formData, facebook_url: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="https://facebook.com/..."
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">LinkedIn URL</label>
-                      <input
-                        type="url"
-                        value={formData.linkedin_url}
-                        onChange={e => setFormData({ ...formData, linkedin_url: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="https://linkedin.com/in/..."
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="email@example.com"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Quote</label>
-                      <textarea
-                        value={formData.quote}
-                        onChange={e => setFormData({ ...formData, quote: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none min-h-[100px]"
-                        placeholder="Personal quote (optional)"
-                      />
-                    </div>
+              {/* Current Committee - Table View */}
+              <section className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    Current Committee <span className="text-blue-600">({currentYear})</span>
+                  </h2>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {filteredCurrent.length} members
+                  </span>
+                </div>
+
+                {filteredCurrent.length === 0 ? (
+                  <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed">
+                    <User size={48} className="mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400">No members in current committee yet</p>
                   </div>
                 ) : (
-                  <div className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Question <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.question}
-                        onChange={e => setFormData({ ...formData, question: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="e.g. How can I join CLUSTER?"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Answer <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        value={formData.answer}
-                        onChange={e => setFormData({ ...formData, answer: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none min-h-[160px]"
-                        placeholder="Detailed answer..."
-                      />
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 dark:bg-slate-700/50">
+                          <tr>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Name</th>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Role</th>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Department</th>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                          {filteredCurrent.map((member, index) => (
+                            <motion.tr
+                              key={member.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="hover:bg-gray-50 dark:hover:bg-slate-700/30"
+                            >
+                              <td className="py-4 px-6">
+                                <div className="flex items-center gap-3">
+                                  <img
+                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.user_name || member.user_email.split('@')[0])}&background=0D8ABC&color=fff&size=48`}
+                                    alt={member.user_name}
+                                    className="w-10 h-10 rounded-full"
+                                  />
+                                  <div>
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {member.user_name || member.user_email.split('@')[0]}
+                                    </div>
+                                    {member.role?.is_president && (
+                                      <span className="inline-block px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded-full font-medium">
+                                        President
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6">
+                                <div className="flex items-center gap-2">
+                                  <Mail size={16} className="text-gray-400" />
+                                  <a 
+                                    href={`mailto:${member.user_email}`}
+                                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                                  >
+                                    {member.user_email}
+                                  </a>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6">
+                                <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+                                  {member.role?.name || 'Unknown Role'}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
+                                {member.department || 'Not specified'}
+                              </td>
+                              <td className="py-4 px-6">
+                                <button
+                                  onClick={() => handleView(member)}
+                                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+                                >
+                                  <Eye size={16} />
+                                  View
+                                </button>
+                              </td>
+                            </motion.tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 )}
-              </div>
+              </section>
 
-              <div className="px-6 py-5 border-t border-gray-200 dark:border-slate-700 flex gap-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl font-medium"
+              {/* Archived Committees - Compact View */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                  <Archive size={24} className="text-purple-600" />
+                  Archived Committees
+                </h2>
+
+                {Object.keys(archivedMembers).length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 py-8">No archived committees yet.</p>
+                ) : (
+                  <div className="space-y-6">
+                    {Object.keys(archivedMembers)
+                      .sort((a, b) => Number(b) - Number(a))
+                      .map(year => (
+                        <div key={year} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                          <div className="px-6 py-4 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Calendar size={18} />
+                                {year} Committee
+                              </h3>
+                              <span className="text-sm text-purple-600 dark:text-purple-400">
+                                {archivedMembers[year].length} members
+                              </span>
+                            </div>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full">
+                              <thead>
+                                <tr className="bg-gray-50 dark:bg-slate-700/30">
+                                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-600 dark:text-gray-400">Name</th>
+                                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-600 dark:text-gray-400">Role</th>
+                                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-600 dark:text-gray-400">Email</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                                {archivedMembers[year].map(member => (
+                                  <tr key={member.id}>
+                                    <td className="py-3 px-6">
+                                      <div className="flex items-center gap-3">
+                                        <img
+                                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.user_name || member.user_email.split('@')[0])}&size=40`}
+                                          alt={member.user_name}
+                                          className="w-8 h-8 rounded-full"
+                                        />
+                                        <span className="font-medium">{member.user_name || member.user_email.split('@')[0]}</span>
+                                      </div>
+                                    </td>
+                                    <td className="py-3 px-6">
+                                      <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded text-sm">
+                                        {member.role?.name}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-6 text-gray-600 dark:text-gray-400 text-sm">
+                                      {member.user_email}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {activeTab === 'faqs' && (
+            <div className="text-center py-20">
+              <h2 className="text-2xl font-bold mb-4">FAQs Management</h2>
+              <p className="text-gray-500 dark:text-gray-400">
+                FAQ section coming soon – CRUD will be added here.
+              </p>
+            </div>
+          )}
+
+          {/* Modal - View/Add Member */}
+          <AnimatePresence>
+            {showModal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+                onClick={() => setShowModal(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-medium shadow-sm flex items-center justify-center gap-2"
-                >
-                  <CheckCircle size={18} />
-                  {editingItem ? 'Update' : 'Add'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {viewingItem ? 'View Committee Member' : 'Add New Committee Member'}
+                    </h2>
+                    <button 
+                      onClick={() => setShowModal(false)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg"
+                    >
+                      <X size={24} className="text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div className="p-6">
+                    {viewingItem ? (
+                      // View Mode
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Profile</label>
+                            <div className="flex items-center gap-4">
+                              <img
+                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(viewingItem.user_name || viewingItem.user_email.split('@')[0])}&background=0D8ABC&color=fff&size=128`}
+                                alt={viewingItem.user_name}
+                                className="w-20 h-20 rounded-full border-4 border-gray-100 dark:border-slate-700"
+                              />
+                              <div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                  {viewingItem.user_name || viewingItem.user_email.split('@')[0]}
+                                </h3>
+                                <p className="text-blue-600 dark:text-blue-400 font-medium">
+                                  {viewingItem.role?.name}
+                                </p>
+                                {viewingItem.role?.is_president && (
+                                  <span className="inline-block mt-2 px-3 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 rounded-full text-sm font-medium">
+                                    Committee President
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Contact</label>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3">
+                                <Mail size={18} className="text-gray-400" />
+                                <a 
+                                  href={`mailto:${viewingItem.user_email}`}
+                                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                                >
+                                  {viewingItem.user_email}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Committee Details</label>
+                            <div className="space-y-3">
+                              <div>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">Year:</span>
+                                <p className="text-gray-900 dark:text-white font-medium">
+                                  {viewingItem.year}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">Department:</span>
+                                <p className="text-gray-900 dark:text-white font-medium">
+                                  {viewingItem.department || 'Not specified'}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">Member Since:</span>
+                                <p className="text-gray-900 dark:text-white font-medium">
+                                  {viewingItem.created_at ? new Date(viewingItem.created_at).toLocaleDateString() : 'Unknown'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Social Links</label>
+                            <div className="flex gap-3">
+                              <button className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg text-blue-600 dark:text-blue-400">
+                                <Facebook size={20} />
+                              </button>
+                              <button className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg text-blue-600 dark:text-blue-400">
+                                <Linkedin size={20} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      // Add Mode
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Full Name *
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.name}
+                              onChange={e => setFormData({ ...formData, name: e.target.value })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                              placeholder="Enter full name"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Email Address *
+                            </label>
+                            <input
+                              type="email"
+                              value={formData.email}
+                              onChange={e => setFormData({ ...formData, email: e.target.value })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                              placeholder="Enter email address"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Role *
+                            </label>
+                            <select
+                              value={formData.role}
+                              onChange={e => setFormData({ ...formData, role: e.target.value })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                            >
+                              <option value="">Select a role</option>
+                              <option value="president">President</option>
+                              <option value="vice_president">Vice President</option>
+                              <option value="secretary">Secretary</option>
+                              <option value="treasurer">Treasurer</option>
+                              <option value="member">Member</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Department
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.department}
+                              onChange={e => setFormData({ ...formData, department: e.target.value })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                              placeholder="e.g., Marketing, IT, Finance"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Phone Number
+                            </label>
+                            <input
+                              type="tel"
+                              value={formData.phone}
+                              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                              placeholder="Enter phone number"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Year
+                            </label>
+                            <input
+                              type="number"
+                              value={formData.year}
+                              onChange={e => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
+                              min="2000"
+                              max="2030"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
+                          <div className="flex justify-end gap-4">
+                            <button
+                              onClick={() => setShowModal(false)}
+                              className="px-6 py-3 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSave}
+                              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2"
+                            >
+                              <CheckCircle size={18} />
+                              Add Member
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {viewingItem && (
+                    <div className="p-6 border-t border-gray-200 dark:border-slate-700 flex justify-end">
+                      <button
+                        onClick={() => setShowModal(false)}
+                        className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default DashboardContact;

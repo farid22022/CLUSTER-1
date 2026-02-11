@@ -37,6 +37,10 @@ api.interceptors.response.use(
   }
 );
 
+
+export const getCurrentYear = () => api.get('system-settings/current-year/');
+
+
 // Auth
 export const register       = (data) => api.post('auth/register/', data);
 export const verifyOTP      = (data) => api.post('auth/verify-otp/', data);
@@ -118,11 +122,63 @@ export const getAlumni         = (year = '') => api.get(withYear('alumni/', year
 export const createAlumni      = (data) => api.post('alumni/', data);
 export const updateAlumni      = (id, data) => api.patch(`alumni/${id}/`, data);
 export const deleteAlumni      = (id) => api.delete(`alumni/${id}/`);
+export const approveAlumni   = (id) => api.post(`alumni/${id}/approve/`);
+export const rejectAlumni    = (id) => api.post(`alumni/${id}/reject/`);
 
-export const getTeamMembers    = (year = '') => api.get(withYear('team-members/', year));
-export const createTeamMember  = (data) => api.post('team-members/', data);
-export const updateTeamMember  = (id, data) => api.patch(`team-members/${id}/`, data);
-export const deleteTeamMember  = (id) => api.delete(`team-members/${id}/`);
+// export const getTeamMembers    = (year = '') => api.get(withYear('team-members/', year));
+// export const createTeamMember  = (data) => api.post('team-members/', data);
+// export const updateTeamMember  = (id, data) => api.patch(`team-members/${id}/`, data);
+// export const deleteTeamMember  = (id) => api.delete(`team-members/${id}/`);
+
+// api.js  (only showing the relevant updated/added parts)
+
+// ... existing code ...
+
+// ────────────────────────────────────────────────
+// Team Members (Contact / Committee)
+// ────────────────────────────────────────────────
+
+/**
+ * Get all team members (optionally filtered by year)
+ * @param {number|string} [year=''] - optional year filter
+ */
+export const getTeamMembers = (year = '') => api.get(withYear('team-members/', year));
+
+/**
+ * Get current year from system settings
+ * (You should have this endpoint in backend)
+ */
+export const getCommittee = (year = '') => {
+  const url = year ? `memberships/?year=${year}` : 'memberships/';
+  return api.get(url);
+};
+
+
+
+/**
+ * Create a new team member
+ */
+export const createTeamMember = (data) => api.post('team-members/', data);
+
+/**
+ * Update existing team member
+ */
+export const updateTeamMember = (id, data) => api.patch(`team-members/${id}/`, data);
+
+/**
+ * Delete a team member
+ */
+export const deleteTeamMember = (id) => api.delete(`team-members/${id}/`);
+
+/**
+ * Import multiple team members via CSV
+ * @param {FormData} formData - must contain 'file', 'year', optionally 'archive_old'
+ */
+// export const importTeamMembers = (formData) => api.post('team-members/import/', formData, {
+//   headers: { 'Content-Type': 'multipart/form-data' },
+// });
+
+// ... rest of your existing exports ...
 
 // Near the content endpoints section
 export const approveProject    = (id) => api.post(`projects/${id}/approve/`);
