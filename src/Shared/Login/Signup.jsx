@@ -1,4 +1,4 @@
-// src/components/auth/Signup.jsx
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register, verifyOTP } from '../../api'; // adjust path
@@ -219,9 +219,9 @@ const handleResend = async () => {
             </button>
 
             <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Didn't receive OTP?
+              Didn&apos;t receive OTP?
               <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4">
-                Didn't receive OTP?
+                Didn&apos;t receive OTP?
                 <button
                   type="button"
                   onClick={handleResend}

@@ -41,22 +41,27 @@ export default function DashboardResources() {
 
   const [formErrors, setFormErrors] = useState({});
 
-  const fetchResources = async () => {
-    try {
-      setLoading(true);
-      const { data } = await getResources();
-      setResources(data);
-    } catch (err) {
-      console.error('Fetch resources failed:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load resources. Please check your connection.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchResources = async () => {
+  try {
+    setLoading(true);
+    const { data } = await getResources();
+    setResources(
+      data.map(r => ({
+        ...r,
+        approval_status: r.approval_status.toLowerCase()  // ← Add this to normalize
+      }))
+    );
+  } catch (err) {
+    console.error('Fetch resources failed:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to load resources. Please check your connection.'
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchResources();

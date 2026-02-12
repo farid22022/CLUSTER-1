@@ -289,7 +289,7 @@ export default function DashboardPosts() {
   };
 
   const handleShareToFacebook = (post) => {
-    const postUrl = `https://your-domain.com/posts/${post.slug || post.id}`;
+    const postUrl = `https://cluster-ku.web.app/posts/${post.slug || post.id}`;
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
       'fbShare',
@@ -389,17 +389,17 @@ export default function DashboardPosts() {
                     key={post.id}
                     className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-150"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                    <td className="px-6 py-4 font-medium text-yellow-500 ">
                       <div className="max-w-xs truncate" title={post.title}>
                         {post.title}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 text-green-500">
                       <div className="max-w-xs truncate" title={post.slug}>
                         {post.slug || '—'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 text-red-500 ">
                       {new Date(post.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',

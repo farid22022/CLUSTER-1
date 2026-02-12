@@ -1,438 +1,4 @@
 
-// import { useState, useEffect } from 'react';
-// import { motion, AnimatePresence } from 'framer-motion';
-// import {
-//   Mail, Search, Edit3, Trash, Upload, CheckCircle,
-//   Facebook, Linkedin, Archive, Loader2, X, Plus, User
-// } from 'lucide-react';
-// import Swal from 'sweetalert2';
-// import {
-//   getCurrentYear,
-//   getCommittee,
-//   importTeamMembers, // keep for CSV import (adjust if needed)
-// } from '../../../api';
-
-// const DashboardContact = () => {
-//   const [activeTab, setActiveTab] = useState('team');
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [showModal, setShowModal] = useState(false);
-//   const [editingItem, setEditingItem] = useState(null);
-//   const [committeeMembers, setCommitteeMembers] = useState([]);
-//   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-//   const [loading, setLoading] = useState(true);
-
-//   // Form data (for add/edit membership - adapt fields as per your backend)
-//   const [formData, setFormData] = useState({
-//     user: '',           // user ID (you'll need a user selector in real form)
-//     role: '',           // role ID
-//     year: new Date().getFullYear(),
-//   });
-
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-
-//   const fetchData = async () => {
-//     setLoading(true);
-//     try {
-//       // Get current year
-//       const yearRes = await getCurrentYear();
-//       const fetchedYear = yearRes.data?.current_year || new Date().getFullYear();
-//       setCurrentYear(fetchedYear);
-//       setFormData(prev => ({ ...prev, year: fetchedYear }));
-
-//       // Get committee for current year
-//       const committeeRes = await getCommittee(fetchedYear);
-//       const data = committeeRes.data;
-//       const members = Array.isArray(data) ? data : data?.results || [];
-//       setCommitteeMembers(members);
-//     } catch (err) {
-//       console.error('Fetch error:', err);
-//       Swal.fire({
-//         icon: 'error',
-//         title: 'Failed to load data',
-//         text: err.response?.data?.detail || 'Please check network or login status'
-//       });
-//       setCommitteeMembers([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // Derived data
-//   const currentMembers = committeeMembers.filter(m => m.year === currentYear);
-//   const archivedMembers = committeeMembers
-//     .filter(m => m.year < currentYear)
-//     .reduce((acc, m) => {
-//       const y = m.year;
-//       if (!acc[y]) acc[y] = [];
-//       acc[y].push(m);
-//       return acc;
-//     }, {});
-
-//   const filteredCurrent = currentMembers.filter(m =>
-//     (m.user_name || m.user_email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     (m.role?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-//   );
-
-//   // ─── Handlers ────────────────────────────────────────────────
-
-//   const handleImport = async (e) => {
-//     const file = e.target.files?.[0];
-//     if (!file) return;
-
-//     const result = await Swal.fire({
-//       title: 'Import Committee CSV',
-//       text: `Target year: ${currentYear}`,
-//       input: 'checkbox',
-//       inputLabel: 'Archive previous year members',
-//       showCancelButton: true,
-//       confirmButtonText: 'Import',
-//     });
-
-//     if (!result.isConfirmed) return;
-
-//     const archiveOld = !!result.value;
-
-//     const formDataToSend = new FormData();
-//     formDataToSend.append('file', file);
-//     formDataToSend.append('year', currentYear);
-//     formDataToSend.append('archive_old', archiveOld);
-
-//     try {
-//       await importTeamMembers(formDataToSend);
-//       Swal.fire('Success', 'Committee imported', 'success');
-//       fetchData();
-//     } catch (err) {
-//       Swal.fire('Error', err.response?.data?.error || 'Import failed', 'error');
-//     }
-//   };
-
-//   const handleAdd = () => {
-//     setEditingItem(null);
-//     setFormData({
-//       user: '',
-//       role: '',
-//       year: currentYear,
-//     });
-//     setShowModal(true);
-//   };
-
-//   const handleEdit = (member) => {
-//     setEditingItem(member);
-//     setFormData({
-//       user: member.user,
-//       role: member.role?.id || '',
-//       year: member.year,
-//     });
-//     setShowModal(true);
-//   };
-
-//   const handleSave = async () => {
-//     if (!formData.user || !formData.role) {
-//       Swal.fire('Required', 'User and Role are required', 'warning');
-//       return;
-//     }
-
-//     try {
-//       // You need backend endpoints for create/update membership
-//       // Example: await createMembership(formData);
-//       // For now placeholder:
-//       Swal.fire('Placeholder', 'Membership save/update not implemented yet', 'info');
-//       setShowModal(false);
-//       fetchData();
-//     } catch (err) {
-//       Swal.fire('Error', 'Save failed', 'error');
-//     }
-//   };
-
-//   const handleDelete = async (id) => {
-//     const confirmed = await Swal.fire({
-//       title: 'Delete Membership?',
-//       text: "This cannot be undone.",
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#d33',
-//     });
-
-//     if (confirmed.isConfirmed) {
-//       try {
-//         // await deleteMembership(id); // implement in api.js + backend
-//         Swal.fire('Deleted', 'Membership removed', 'success');
-//         fetchData();
-//       } catch (err) {
-//         Swal.fire('Error', 'Delete failed', 'error');
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
-//       {loading ? (
-//         <div className="flex flex-col items-center justify-center min-h-[70vh]">
-//           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
-//           <p className="text-gray-600 dark:text-gray-400">Loading committee data...</p>
-//         </div>
-//       ) : (
-//         <>
-//           {/* Tabs */}
-//           <div className="flex border-b border-gray-200 dark:border-slate-700 mb-8">
-//             <button
-//               onClick={() => setActiveTab('team')}
-//               className={`px-8 py-4 font-medium text-lg transition-colors ${
-//                 activeTab === 'team'
-//                   ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
-//                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
-//               }`}
-//             >
-//               Committee Members
-//             </button>
-//             <button
-//               onClick={() => setActiveTab('faqs')}
-//               className={`px-8 py-4 font-medium text-lg transition-colors ${
-//                 activeTab === 'faqs'
-//                   ? 'border-b-4 border-blue-600 text-blue-700 dark:text-blue-400'
-//                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
-//               }`}
-//             >
-//               FAQs
-//             </button>
-//           </div>
-
-//           {activeTab === 'team' && (
-//             <>
-//               {/* Controls */}
-//               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-//                 <div className="relative w-full sm:w-96">
-//                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-//                   <input
-//                     type="text"
-//                     placeholder="Search name, email or role..."
-//                     value={searchTerm}
-//                     onChange={(e) => setSearchTerm(e.target.value)}
-//                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:border-blue-500 outline-none"
-//                   />
-//                 </div>
-
-//                 <div className="flex flex-wrap gap-3">
-//                   <label className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl cursor-pointer shadow-sm hover:from-blue-700">
-//                     <Upload size={18} />
-//                     Import CSV
-//                     <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
-//                   </label>
-//                   <button
-//                     onClick={handleAdd}
-//                     className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm"
-//                   >
-//                     <Plus size={18} /> Add Member
-//                   </button>
-//                 </div>
-//               </div>
-
-//               {/* Current Committee */}
-//               <section className="mb-12">
-//                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-//                   Current Committee <span className="text-blue-600">({currentYear})</span>
-//                 </h2>
-
-//                 {filteredCurrent.length === 0 ? (
-//                   <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed">
-//                     <User size={48} className="mx-auto text-gray-400 mb-4" />
-//                     <p className="text-gray-600 dark:text-gray-400">No members in current committee yet</p>
-//                   </div>
-//                 ) : (
-//                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//                     {filteredCurrent.map((m) => (
-//                       <motion.div
-//                         key={m.id}
-//                         className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all p-6"
-//                         initial={{ opacity: 0, y: 20 }}
-//                         animate={{ opacity: 1, y: 0 }}
-//                       >
-//                         <div className="flex items-center gap-4 mb-5">
-//                           <div className="relative">
-//                             <img
-//                               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(m.user_name || m.user_email.split('@')[0])}&background=0D8ABC&color=fff&size=128`}
-//                               alt={m.user_name || 'Member'}
-//                               className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 dark:border-slate-600"
-//                             />
-//                             {m.role?.is_president && (
-//                               <div className="absolute -top-1 -right-1 bg-yellow-500 text-xs text-white px-2 py-1 rounded-full font-bold">
-//                                 President
-//                               </div>
-//                             )}
-//                           </div>
-//                           <div>
-//                             <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-//                               {m.user_name || m.user_email.split('@')[0]}
-//                             </h3>
-//                             <p className="text-blue-600 dark:text-blue-400 font-medium">
-//                               {m.role?.name || 'Unknown Role'}
-//                             </p>
-//                             <p className="text-sm text-gray-500 dark:text-gray-400">
-//                               {m.user_email}
-//                             </p>
-//                           </div>
-//                         </div>
-
-//                         <div className="flex justify-end gap-3 mt-4">
-//                           <button
-//                             onClick={() => handleEdit(m)}
-//                             className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-//                           >
-//                             <Edit3 size={18} className="text-blue-600" />
-//                           </button>
-//                           <button
-//                             onClick={() => handleDelete(m.id)}
-//                             className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-//                           >
-//                             <Trash size={18} className="text-red-600" />
-//                           </button>
-//                         </div>
-//                       </motion.div>
-//                     ))}
-//                   </div>
-//                 )}
-//               </section>
-
-//               {/* Archived Committees */}
-//               <section>
-//                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-//                   <Archive size={24} className="text-purple-600" />
-//                   Archived Committees
-//                 </h2>
-
-//                 {Object.keys(archivedMembers).length === 0 ? (
-//                   <p className="text-gray-500 dark:text-gray-400 py-8">No archived committees yet.</p>
-//                 ) : (
-//                   Object.keys(archivedMembers)
-//                     .sort((a, b) => Number(b) - Number(a))
-//                     .map(year => (
-//                       <div key={year} className="mb-10">
-//                         <h3 className="text-xl font-semibold mb-4 flex items-center gap-3">
-//                           <span className="bg-purple-100 dark:bg-purple-900/40 px-4 py-1 rounded-full">
-//                             {year}
-//                           </span>
-//                         </h3>
-//                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//                           {archivedMembers[year].map(m => (
-//                             <div
-//                               key={m.id}
-//                               className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700"
-//                             >
-//                               <div className="flex items-center gap-4">
-//                                 <img
-//                                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(m.user_name || m.user_email.split('@')[0])}&size=64`}
-//                                   alt={m.user_name}
-//                                   className="w-14 h-14 rounded-full"
-//                                 />
-//                                 <div>
-//                                   <h4 className="font-semibold">{m.user_name || m.user_email.split('@')[0]}</h4>
-//                                   <p className="text-sm text-purple-600">{m.role?.name}</p>
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           ))}
-//                         </div>
-//                       </div>
-//                     ))
-//                 )}
-//               </section>
-//             </>
-//           )}
-
-//           {activeTab === 'faqs' && (
-//             <div className="text-center py-20">
-//               <h2 className="text-2xl font-bold mb-4">FAQs Management</h2>
-//               <p className="text-gray-500 dark:text-gray-400">
-//                 FAQ section coming soon – CRUD will be added here.
-//               </p>
-//             </div>
-//           )}
-
-//           {/* Modal - Membership (basic - expand as needed) */}
-//           <AnimatePresence>
-//             {showModal && (
-//               <motion.div
-//                 initial={{ opacity: 0 }}
-//                 animate={{ opacity: 1 }}
-//                 exit={{ opacity: 0 }}
-//                 className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-//               >
-//                 <motion.div
-//                   initial={{ scale: 0.95 }}
-//                   animate={{ scale: 1 }}
-//                   exit={{ scale: 0.95 }}
-//                   className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md"
-//                 >
-//                   <div className="p-6 border-b flex justify-between items-center">
-//                     <h2 className="text-xl font-bold">
-//                       {editingItem ? 'Edit' : 'Add'} Committee Member
-//                     </h2>
-//                     <button onClick={() => setShowModal(false)}>
-//                       <X size={24} />
-//                     </button>
-//                   </div>
-
-//                   <div className="p-6 space-y-5">
-//                     <div>
-//                       <label className="block text-sm font-medium mb-1">User ID *</label>
-//                       <input
-//                         type="text"
-//                         value={formData.user}
-//                         onChange={e => setFormData({ ...formData, user: e.target.value })}
-//                         className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700"
-//                         placeholder="User ID from /users/"
-//                       />
-//                     </div>
-//                     <div>
-//                       <label className="block text-sm font-medium mb-1">Role ID *</label>
-//                       <input
-//                         type="text"
-//                         value={formData.role}
-//                         onChange={e => setFormData({ ...formData, role: e.target.value })}
-//                         className="w-full px-4 py-2 border rounded-lg dark:bg-slate-700"
-//                         placeholder="Role ID from /roles/"
-//                       />
-//                     </div>
-//                     <div>
-//                       <label className="block text-sm font-medium mb-1">Year</label>
-//                       <input
-//                         type="number"
-//                         value={formData.year}
-//                         readOnly
-//                         className="w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-slate-700 cursor-not-allowed"
-//                       />
-//                     </div>
-//                   </div>
-
-//                   <div className="p-6 border-t flex gap-4">
-//                     <button
-//                       onClick={() => setShowModal(false)}
-//                       className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl"
-//                     >
-//                       Cancel
-//                     </button>
-//                     <button
-//                       onClick={handleSave}
-//                       className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
-//                     >
-//                       {editingItem ? 'Update' : 'Add'}
-//                     </button>
-//                   </div>
-//                 </motion.div>
-//               </motion.div>
-//             )}
-//           </AnimatePresence>
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default DashboardContact;
-
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -462,7 +28,7 @@ const DashboardContact = () => {
     role: '',
     year: new Date().getFullYear(),
     phone: '',
-    department: '',
+    assigned_at: '',
   });
 
   useEffect(() => {
@@ -558,7 +124,7 @@ const DashboardContact = () => {
       role: '',
       year: currentYear,
       phone: '',
-      department: '',
+      assigned_at: '',
     });
     setShowModal(true);
   };
@@ -575,7 +141,7 @@ const DashboardContact = () => {
       setShowModal(false);
       fetchData();
     } catch (err) {
-      Swal.fire('Error', 'Save failed', 'error');
+      Swal.fire('Error', 'Save failed', 'error',err.message);
     }
   };
 
@@ -667,7 +233,7 @@ const DashboardContact = () => {
                             <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Name</th>
                             <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Email</th>
                             <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Role</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Department</th>
+                            <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">assigned_at</th>
                             <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                           </tr>
                         </thead>
@@ -711,17 +277,27 @@ const DashboardContact = () => {
                                 </div>
                               </td>
                               <td className="py-4 px-6">
-                                <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+                                <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-yellow-500  rounded-full text-sm font-medium">
                                   {member.role?.name || 'Unknown Role'}
                                 </span>
                               </td>
-                              <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
-                                {member.department || 'Not specified'}
+                              <td className="py-4 px-6 text-red-600 ">
+                                {member.assigned_at
+                                  ? new Date(member.assigned_at).toLocaleString('en-GB', {
+                                      day: '2-digit',
+                                      month: 'short',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true,
+                                    })
+                                  : 'Not specified'}
                               </td>
+
                               <td className="py-4 px-6">
                                 <button
                                   onClick={() => handleView(member)}
-                                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+                                  className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
                                 >
                                   <Eye size={16} />
                                   View
@@ -899,9 +475,9 @@ const DashboardContact = () => {
                                 </p>
                               </div>
                               <div>
-                                <span className="text-sm text-gray-500 dark:text-gray-400">Department:</span>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">assigned_at:</span>
                                 <p className="text-gray-900 dark:text-white font-medium">
-                                  {viewingItem.department || 'Not specified'}
+                                  {viewingItem.assigned_at || 'Not specified'}
                                 </p>
                               </div>
                               <div>
@@ -976,12 +552,12 @@ const DashboardContact = () => {
 
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Department
+                              assigned_at
                             </label>
                             <input
                               type="text"
-                              value={formData.department}
-                              onChange={e => setFormData({ ...formData, department: e.target.value })}
+                              value={formData.assigned_at}
+                              onChange={e => setFormData({ ...formData, assigned_at: e.target.value })}
                               className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none"
                               placeholder="e.g., Marketing, IT, Finance"
                             />

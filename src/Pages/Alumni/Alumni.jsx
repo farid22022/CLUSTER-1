@@ -181,6 +181,22 @@ const Alumni = () => {
     };
   }, []);
 
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const { data } = await getProfile();
+      setFormData(prev => ({
+        ...prev,
+        name: data.name,
+        email: data.email,
+        phone_number: data.phone_number,
+        // student_id to batch? e.g. batch: data.student_id?.split('-')[0] || '',
+      }));
+    } catch (err) {}
+  };
+  fetchUser();
+}, []);
+
   // Form submission
   const handleSubmit = async () => {
     if (!formData.name || !formData.email || (!formData.passing_year && !formData.graduation_year)) {

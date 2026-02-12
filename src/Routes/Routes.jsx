@@ -8,6 +8,7 @@ import Blog from "../Pages/Blog/BlogsPage";
 import Alumni from "../Pages/Alumni/Alumni";
 import Contact from "../Pages/Contact/Contact";
 import Profile from "../Shared/Profile/Profile";
+import MyActivity from "../Shared/Profile/MyActivity";
 import Posts from "../Pages/Posts/Posts";
 import Login from "../Shared/Login/LoginPage";
 import Signup from "../Shared/Login/Signup";
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
       { path: "/alumni", element: <Alumni /> },
       { path: "/contact", element: <Contact /> },
       { path: "/profile", element: <Profile /> },
+      { path: "/activity", element: <MyActivity/>},
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Signup /> },
       { path: "/logout", element: <Logout /> },

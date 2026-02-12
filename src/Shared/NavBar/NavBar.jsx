@@ -6,7 +6,7 @@ import profileImage from '../../../public/logo/profile.jpg';
 
 import { useAuth } from '../../providers/AuthProvider';  
 import {
-   LogOut, User, LayoutDashboard, ChevronDown, Menu, X
+   LogOut, User, LayoutDashboard, ChevronDown, Menu, X,Activity
 } from 'lucide-react';
 
 const NavBar = () => {
@@ -163,6 +163,15 @@ const NavBar = () => {
                       >
                         <User size={18} />
                         Profile
+                      </Link>
+
+                      <Link
+                        to="/activity"
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-slate-800 text-slate-200 transition"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <Activity size={18} />
+                        My Activity
                       </Link>
 
                       <button

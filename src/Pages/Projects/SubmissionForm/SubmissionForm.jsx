@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import { createProject } from '../../../api';
 
-// Rich text + Bangla support
+
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import "@fontsource/noto-sans-bengali";
@@ -23,21 +23,21 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     techStack: '',
     team: '',
     github: '',
-    demoLink: '',           // user can also enter manual demo link
+    demoLink: '',           
     domain: '',
     status: 'Ongoing',
     year: new Date().getFullYear().toString(),
     studentId: '',
   });
 
-  const [images, setImages] = useState([]);   // multiple previews, but we take first one for backend
-  const [videoUrl, setVideoUrl] = useState(null);  // single video secure_url
+  const [images, setImages] = useState([]);  
+  const [videoUrl, setVideoUrl] = useState(null);  
 
   const imageWidgetRef = useRef(null);
   const videoWidgetRef = useRef(null);
 
-  const cloudName = "dvpbeekmy";          // ← confirm this is your actual cloud name
-  const uploadPreset = "project_submit"; // ← must exist and be UNSIGNED in dashboard
+  const cloudName = "dvpbeekmy";          
+  const uploadPreset = "project_submit"; 
 
   const domains = [
     'AI/ML', 'Web Development', 'Mobile Apps',

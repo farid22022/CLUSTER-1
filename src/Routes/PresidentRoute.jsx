@@ -1,6 +1,7 @@
 // src/Components/PresidentRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
+import Swal from "sweetalert2"
 
 const PresidentRoute = ({ children }) => {
   const { user, isAuthenticated, loading } = useAuth();

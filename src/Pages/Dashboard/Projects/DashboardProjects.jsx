@@ -50,7 +50,8 @@ export default function DashboardProjects() {
       const mapped = data.map(p => ({
         ...p,
         techStack: p.tech_stack?.join(', ') || '',
-        team: p.team?.join(', ') || ''
+        team: p.team?.join(', ') || '',
+        approval_status: p.approval_status.toLowerCase()
       }));
       setProjects(mapped);
     } catch (err) {

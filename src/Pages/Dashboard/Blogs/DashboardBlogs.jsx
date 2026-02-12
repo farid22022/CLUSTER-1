@@ -90,17 +90,22 @@ export default function DashboardBlogs() {
     if (duration > 0) setTimeout(() => setNotification(null), duration);
   };
 
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true);
-      const { data } = await getBlogs();
-      setBlogs(data);
-    } catch (err) {
-      showNotification('error', 'Error', 'Failed to load blogs',err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchBlogs = async () => {
+  try {
+    setLoading(true);
+    const { data } = await getBlogs();
+    setBlogs(
+      data.map(b => ({
+        ...b,
+        approval_status: b.approval_status.toLowerCase()  // ← Add this to normalize
+      }))
+    );
+  } catch (err) {
+    showNotification('error', 'Error', 'Failed to load blogs', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchBlogs();

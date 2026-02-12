@@ -17,8 +17,10 @@ import {
   Globe,
   Users
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
+  const navigate = useNavigate()
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -132,7 +134,7 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg font-semibold text-gray-800">Loading Profile...</p>
         </div>
       </div>
@@ -150,7 +152,7 @@ const Profile = () => {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={fetchProfile}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
           >
             Try Again
           </button>
@@ -187,7 +189,7 @@ const Profile = () => {
       </AnimatePresence>
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-700 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="flex-1">
@@ -211,7 +213,7 @@ const Profile = () => {
                     )}
                   </div>
                   {isEditing && (
-                    <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-colors">
+                    <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors">
                       <Camera className="w-5 h-5 text-white" />
                     </button>
                   )}
@@ -235,7 +237,7 @@ const Profile = () => {
                       {profile?.role_display}
                     </span>
                   </div>
-                  <p className="text-indigo-200 flex items-center gap-2">
+                  <p className="text-blue-200 flex items-center gap-2">
                     <GraduationCap className="w-4 h-4" />
                     Student ID: {profile.student_id}
                   </p>
@@ -299,7 +301,7 @@ const Profile = () => {
                 className={`px-5 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 ${
                   isEditing
                     ? 'bg-white/20 text-white hover:bg-white/30'
-                    : 'bg-white text-indigo-700 hover:bg-gray-100'
+                    : 'bg-white text-blue-700 hover:bg-gray-100'
                 } transition-colors`}
               >
                 {isEditing ? (
@@ -353,7 +355,7 @@ const Profile = () => {
               className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
             >
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-indigo-600" />
+                <User className="w-5 h-5 text-blue-600" />
                 Account Information
               </h3>
               
@@ -388,6 +390,14 @@ const Profile = () => {
                     {profile?.current_membership?.role?.name || 'User'}
                   </span>
                 </div>
+                  <div>
+                  <button 
+                    onClick={() => navigate('/activity')}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    My Activity
+                  </button>
+                </div>
               </div>
             </motion.div>
 
@@ -400,7 +410,7 @@ const Profile = () => {
                 className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
               >
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-indigo-600" />
+                  <Briefcase className="w-5 h-5 text-blue-600" />
                   Assigned Pages
                 </h3>
                 <div className="space-y-2">
@@ -439,7 +449,7 @@ const Profile = () => {
                             type="text"
                             value={editedProfile.name || ''}
                             onChange={(e) => handleInputChange('name', e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Enter your full name"
                           />
                         ) : (
@@ -467,7 +477,7 @@ const Profile = () => {
                             type="email"
                             value={editedProfile.email || ''}
                             onChange={(e) => handleInputChange('email', e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Enter email address"
                           />
                         ) : (
@@ -486,7 +496,7 @@ const Profile = () => {
                             type="tel"
                             value={editedProfile.phone_number || ''}
                             onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Enter phone number"
                           />
                         ) : (
@@ -515,7 +525,7 @@ const Profile = () => {
                               type={showPassword ? "text" : "password"}
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
-                              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all pr-12"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all pr-12"
                               placeholder="Enter new password"
                             />
                             <button
@@ -540,7 +550,7 @@ const Profile = () => {
                             type={showPassword ? "text" : "password"}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Confirm new password"
                           />
                         </div>
@@ -584,15 +594,16 @@ const Profile = () => {
                       <Calendar className="w-5 h-5" />
                       Membership Details
                     </h4>
-                    <div className="p-4 bg-indigo-50 rounded-xl">
+                    <div className="p-4 bg-blue-50 rounded-xl">
                       <p className="text-gray-700 mb-2">You joined CLUSTER on</p>
-                      <p className="text-xl font-bold text-indigo-700">
+                      <p className="text-xl font-bold text-blue-700">
                         {formatDate(profile.date_joined)}
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
+              
 
               {/* Action Buttons */}
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
@@ -608,7 +619,7 @@ const Profile = () => {
                       <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow disabled:opacity-70 flex items-center gap-2"
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow disabled:opacity-70 flex items-center gap-2"
                       >
                         {saving ? (
                           <>
@@ -626,7 +637,7 @@ const Profile = () => {
                   ) : (
                     <button
                       onClick={handleEditToggle}
-                      className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center gap-2"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center gap-2"
                     >
                       <Edit2 className="w-5 h-5" />
                       Edit Profile Information

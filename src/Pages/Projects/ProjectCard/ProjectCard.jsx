@@ -43,30 +43,37 @@ const ProjectCard = () => {
   };
 
   // Fetch projects → only approved ones
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const response = await getProjects();
-        const allProjects = response.data || [];
+// Fetch projects → only approved ones
+useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await getProjects();
+      const allProjects = response.data || [];
 
-        const approvedProjects = allProjects.filter(
-          project => project.approval_status === 'approved'
-        );
+      // Normalize approval_status to lowercase for consistent filtering
+      const normalizedProjects = allProjects.map(project => ({
+        ...project,
+        approval_status: project.approval_status.toLowerCase()  // ← Add this normalization
+      }));
 
-        setProjects(approvedProjects);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching projects:', err);
-        setError('Failed to load projects');
-        setProjects([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const approvedProjects = normalizedProjects.filter(
+        project => project.approval_status === 'approved'
+      );
 
-    fetchProjects();
-  }, []);
+      setProjects(approvedProjects);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to load projects');
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProjects();
+}, []);
 
   // Loading state
   if (loading) {
