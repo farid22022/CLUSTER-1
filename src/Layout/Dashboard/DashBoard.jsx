@@ -54,8 +54,8 @@ const Dashboard = () => {
     };
 
     fetchUser();
-    window.addEventListener('focus', fetchUser);
-    return () => window.removeEventListener('focus', fetchUser);
+    // window.addEventListener('focus', fetchUser);
+    // return () => window.removeEventListener('focus', fetchUser);
   }, [navigate]);
 
   const handleLogout = async () => {

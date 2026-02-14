@@ -23,21 +23,21 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     techStack: '',
     team: '',
     github: '',
-    demoLink: '',           
+    demoLink: '',
     domain: '',
     status: 'Ongoing',
     year: new Date().getFullYear().toString(),
     studentId: '',
   });
 
-  const [images, setImages] = useState([]);  
-  const [videoUrl, setVideoUrl] = useState(null);  
+  const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   const imageWidgetRef = useRef(null);
   const videoWidgetRef = useRef(null);
 
-  const cloudName = "dvpbeekmy";          
-  const uploadPreset = "project_submit"; 
+  const cloudName = "dvpbeekmy";
+  const uploadPreset = "project_submit";
 
   const domains = [
     'AI/ML', 'Web Development', 'Mobile Apps',
@@ -102,17 +102,20 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
     videoWidgetRef.current = window.cloudinary.createUploadWidget(
       {
         ...widgetConfig,
-        multiple: false,
+        multiple: true,
         resourceType: "video",
+        maxFiles: 3,
         clientAllowedFormats: ["mp4", "mov", "webm"],
         maxFileSize: 150 * 1024 * 1024, // 150MB example
       },
       (error, result) => {
         if (!error && result?.event === "success") {
-          setVideoUrl(result.info.secure_url);
+          setVideos(prev => [...prev, result.info.secure_url]);
         }
       }
     );
+
+    
 
     return () => {
       imageWidgetRef.current?.destroy();
@@ -135,7 +138,9 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
   const removeImage = (index) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
-
+  const removeVideo = (index) => {
+      setVideos(prev => prev.filter((_, i) => i !== index));
+    };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -154,12 +159,16 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
         tech_stack: formData.techStack.split(',').map(s => s.trim()).filter(Boolean),
         team: formData.team.split(',').map(s => s.trim()).filter(Boolean),
         github: formData.github?.trim() || null,
-        demo: videoUrl || formData.demoLink?.trim() || null,  // video URL has priority over manual link
+
+        // Changed / added fields
+        demo_link: formData.demoLink?.trim() || null,           // renamed + kept as fallback
+        videos: videos,                                         // ← array of video URLs
+        images: images.map(img => img.url),                     // ← array of full image URLs
+
         domain: formData.domain || null,
         status: formData.status,
         year: formData.year,
         student_id: formData.studentId.trim(),
-        image: images[0]?.url || "",   // send first uploaded image (or change logic if needed)
       };
 
       await createProject(payload);
@@ -379,11 +388,11 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
                 )}
               </div>
 
-              {/* Video → stored in demo */}
+              {/* Videos – multiple */}
               <div>
                 <label className="font-medium text-gray-700 mb-2 block flex items-center">
                   <FiVideo className="mr-2 text-purple-600" />
-                  Project Demo Video (optional – saved to demo field)
+                  Project Demo Videos (optional – multiple allowed)
                 </label>
 
                 <button
@@ -391,17 +400,27 @@ const SubmissionForm = ({ onClose, onSuccess }) => {
                   onClick={openVideoUpload}
                   className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
                 >
-                  Upload Video
+                  Upload Videos
                 </button>
 
-                {videoUrl && (
-                  <div className="mt-4">
-                    <video
-                      src={videoUrl}
-                      controls
-                      className="w-full max-h-64 rounded-lg border"
-                    />
-                    <p className="text-sm text-gray-600 mt-1">Video ready – will be sent in demo field</p>
+                {videos.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {videos.map((videoUrl, idx) => (
+                      <div key={idx} className="relative group">
+                        <video
+                          src={videoUrl}
+                          controls
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeVideo(idx)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX size={14} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

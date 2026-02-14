@@ -1,4 +1,8 @@
 
+
+
+
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -21,7 +25,23 @@ import {
   deletePost,
 } from '../../../api';
 import "@fontsource/noto-sans-bengali";
-import { useState, useEffect, useRef, useCallback } from 'react';
+
+// Quill wrapper to avoid findDOMNode warning
+const QuillWrapper = forwardRef(({ value, onChange, modules, formats, placeholder, className }, ref) => {
+  return (
+    <div ref={ref} className={className}>
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={onChange}
+        modules={modules}
+        formats={formats}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+});
+QuillWrapper.displayName = 'QuillWrapper';
 
 export default function DashboardPosts() {
   const [posts, setPosts] = useState([]);
@@ -52,7 +72,7 @@ export default function DashboardPosts() {
       const { data } = await getPosts();
       setPosts(data || []);
     } catch (err) {
-      Swal.fire('Error', 'Failed to load posts', 'error',err.message);
+      Swal.fire('Error', 'Failed to load posts', 'error', err.message);
     } finally {
       setLoading(false);
     }
@@ -101,13 +121,18 @@ export default function DashboardPosts() {
     setShowModal(true);
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setFormErrors({});
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
       e.preventDefault();
     }
   };
 
-  const openCloudinaryWidget = useCallback((resourceType = 'image') => {
+  const openCloudinaryWidget = (resourceType = 'image') => {
     if (!cloudinaryScriptLoaded.current) {
       Swal.fire({
         title: 'Loading Uploader',
@@ -124,7 +149,6 @@ export default function DashboardPosts() {
       return;
     }
 
-    // Set uploading state based on resource type
     if (resourceType === 'image') {
       setUploadingImages(true);
     } else {
@@ -139,10 +163,10 @@ export default function DashboardPosts() {
         multiple: true,
         maxFiles: resourceType === 'image' ? 20 : 5,
         resourceType: resourceType,
-        clientAllowedFormats: resourceType === 'image' 
-          ? ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'] 
+        clientAllowedFormats: resourceType === 'image'
+          ? ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']
           : ['mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv'],
-        maxFileSize: resourceType === 'image' ? 5000000 : 50000000, // 5MB for images, 50MB for videos
+        maxFileSize: resourceType === 'image' ? 5000000 : 50000000,
         folder: `posts/${resourceType}s`,
         styles: {
           palette: {
@@ -195,7 +219,6 @@ export default function DashboardPosts() {
 
           setMediaItems((prev) => [...prev, newMediaItem]);
 
-          // Show success toast
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -221,7 +244,7 @@ export default function DashboardPosts() {
     );
 
     widget.open();
-  }, []);
+  };
 
   const removeMedia = (index) => {
     setMediaItems((prev) => prev.filter((_, i) => i !== index));
@@ -242,12 +265,21 @@ export default function DashboardPosts() {
       return;
     }
 
+    const imagesUrls = mediaItems
+    .filter(item => item.type === 'image' )
+    .map(item => item.url);
+
+  const videosUrls = mediaItems
+    .filter(item => item.type === 'video')
+    .map(item => item.url);
+
     const payload = {
-      title: formData.title.trim(),
-      slug: formData.slug.trim() || undefined,
-      content: formData.content.trim(),
-      media: mediaItems,
-    };
+     title: formData.title.trim(),    
+   slug: formData.slug?.trim() || undefined,
+   content: formData.content.trim(),
+  images: imagesUrls,// only urls
+  videos: videosUrls,
+};
 
     try {
       if (editingPost) {
@@ -322,12 +354,10 @@ export default function DashboardPosts() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Posts Dashboard
         </h1>
-
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <div className="relative flex-1">
             <Search
@@ -339,7 +369,7 @@ export default function DashboardPosts() {
               placeholder="Search posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <button
@@ -351,7 +381,6 @@ export default function DashboardPosts() {
         </div>
       </div>
 
-      {/* Table / Loading */}
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -389,17 +418,17 @@ export default function DashboardPosts() {
                     key={post.id}
                     className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-150"
                   >
-                    <td className="px-6 py-4 font-medium text-yellow-500 ">
+                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                       <div className="max-w-xs truncate" title={post.title}>
                         {post.title}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-green-500">
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                       <div className="max-w-xs truncate" title={post.slug}>
                         {post.slug || '—'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-red-500 ">
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                       {new Date(post.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -439,7 +468,6 @@ export default function DashboardPosts() {
         </div>
       )}
 
-      {/* Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -447,7 +475,7 @@ export default function DashboardPosts() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowModal(false)}
+            onClick={closeModal}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -456,23 +484,19 @@ export default function DashboardPosts() {
               className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
-              <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {editingPost ? 'Edit Post' : 'Create New Post'}
-                  </h2>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                    aria-label="Close"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {editingPost ? 'Edit Post' : 'Create New Post'}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              {/* Modal Content - Scrollable */}
               <div className="overflow-y-auto flex-1">
                 <form
                   ref={formRef}
@@ -480,7 +504,6 @@ export default function DashboardPosts() {
                   onKeyDown={handleKeyDown}
                   className="p-6 space-y-6"
                 >
-                  {/* Title */}
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-900 dark:text-white">
                       Title <span className="text-red-500">*</span>
@@ -492,9 +515,7 @@ export default function DashboardPosts() {
                         setFormData({ ...formData, title: e.target.value })
                       }
                       className={`w-full px-4 py-3 rounded-lg border ${
-                        formErrors.title
-                          ? 'border-red-500'
-                          : 'border-gray-300 dark:border-slate-600'
+                        formErrors.title ? 'border-red-500' : 'border-gray-300 dark:border-slate-600'
                       } bg-white dark:bg-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-colors`}
                       placeholder="Enter post title"
                     />
@@ -505,7 +526,6 @@ export default function DashboardPosts() {
                     )}
                   </div>
 
-                  {/* Slug */}
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-900 dark:text-white">
                       Slug (optional)
@@ -521,7 +541,6 @@ export default function DashboardPosts() {
                     />
                   </div>
 
-                  {/* Content */}
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-900 dark:text-white">
                       Content <span className="text-red-500">*</span>
@@ -533,9 +552,8 @@ export default function DashboardPosts() {
                           : 'border-gray-300 dark:border-slate-600'
                       } rounded-lg overflow-hidden bg-white dark:bg-slate-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition-colors`}
                     >
-                      <ReactQuill
+                      <QuillWrapper
                         ref={quillRef}
-                        theme="snow"
                         value={formData.content}
                         onChange={(value) =>
                           setFormData({ ...formData, content: value })
@@ -553,32 +571,26 @@ export default function DashboardPosts() {
                     )}
                   </div>
 
-                  {/* Media Section */}
                   <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
                     <label className="block text-sm font-medium mb-4 text-gray-900 dark:text-white">
-                      Media Attachments
+                      Images
                     </label>
 
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      {/* Image Upload Button */}
+                    <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
                         onClick={() => openCloudinaryWidget('image')}
-                        disabled={uploadingImages || uploadingVideos}
-                        className={`px-4 py-3 rounded-lg font-medium flex items-center gap-3 transition-all duration-200 ${
-                          uploadingImages || uploadingVideos
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:scale-[1.02] active:scale-95'
-                        } ${
+                        disabled={uploadingImages}
+                        className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all duration-200 ${
                           uploadingImages
-                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                            : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                            ? 'bg-blue-100 text-blue-600 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
                         }`}
                       >
                         {uploadingImages ? (
                           <>
                             <Loader2 size={18} className="animate-spin" />
-                            Uploading Images...
+                            Uploading...
                           </>
                         ) : (
                           <>
@@ -587,26 +599,53 @@ export default function DashboardPosts() {
                           </>
                         )}
                       </button>
+                    </div>
 
-                      {/* Video Upload Button */}
+                    {mediaItems.filter(m => m.type === 'image').length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {mediaItems.filter(m => m.type === 'image').map((img, idx) => (
+                          <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-300 dark:border-slate-600">
+                            <img
+                              src={img.url}
+                              alt={`Upload ${idx + 1}`}
+                              className="w-full h-32 object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeMedia(idx)}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={14} />
+                            </button>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate">
+                              {img.format?.toUpperCase() || 'IMAGE'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
+                    <label className="block text-sm font-medium mb-4 text-gray-900 dark:text-white">
+                      Videos
+                    </label>
+
+                    <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
                         onClick={() => openCloudinaryWidget('video')}
-                        disabled={uploadingImages || uploadingVideos}
-                        className={`px-4 py-3 rounded-lg font-medium flex items-center gap-3 transition-all duration-200 ${
-                          uploadingImages || uploadingVideos
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:scale-[1.02] active:scale-95'
-                        } ${
+                        disabled={uploadingVideos}
+                        className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all duration-200 ${
                           uploadingVideos
-                            ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                            : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
+                            ? 'bg-purple-100 text-purple-600 cursor-not-allowed'
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
                         }`}
                       >
                         {uploadingVideos ? (
                           <>
                             <Loader2 size={18} className="animate-spin" />
-                            Uploading Videos...
+                            Uploading...
                           </>
                         ) : (
                           <>
@@ -617,96 +656,49 @@ export default function DashboardPosts() {
                       </button>
                     </div>
 
-                    {mediaItems.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {mediaItems.map((item, idx) => (
-                          <div
-                            key={`${item.public_id}-${idx}`}
-                            className="relative group rounded-lg overflow-hidden border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 transition-all duration-200 hover:shadow-lg"
-                          >
-                            {item.type === 'image' ? (
-                              <div className="aspect-square">
-                                <img
-                                  src={item.url}
-                                  alt="Uploaded content"
-                                  className="w-full h-full object-cover"
-                                  loading="lazy"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = `https://via.placeholder.com/400/374151/FFFFFF?text=Image+Error`;
-                                  }}
-                                />
-                              </div>
-                            ) : (
-                              <div className="aspect-square bg-gradient-to-br from-gray-900 to-black flex flex-col items-center justify-center text-white p-4">
-                                <Video size={32} className="mb-2" />
-                                <span className="text-xs font-medium text-center">
-                                  {item.format?.toUpperCase() || 'VIDEO'}
-                                </span>
-                                {item.duration && (
-                                  <span className="text-xs opacity-75 mt-1">
-                                    {Math.floor(item.duration)}s
-                                  </span>
-                                )}
-                              </div>
-                            )}
-
+                    {mediaItems.filter(m => m.type === 'video').length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {mediaItems.filter(m => m.type === 'video').map((video, idx) => (
+                          <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-300 dark:border-slate-600 bg-gray-900">
+                            <video
+                              src={video.url}
+                              className="w-full h-32 object-cover"
+                              controls
+                            />
                             <button
                               type="button"
                               onClick={() => removeMedia(idx)}
-                              className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
-                              title="Remove"
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <X size={14} />
                             </button>
-
-                            <div className="px-3 py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
-                              <div className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate capitalize">
-                                {item.type}
-                              </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {item.public_id?.split('/').pop() || `upload-${idx + 1}`}
-                              </div>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate">
+                              {video.format?.toUpperCase() || 'VIDEO'} {video.duration ? `• ${Math.floor(video.duration)}s` : ''}
                             </div>
                           </div>
                         ))}
                       </div>
-                    ) : (
-                      <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-lg">
-                        <div className="text-gray-400 dark:text-gray-500 mb-2">
-                          <ImageIcon size={32} className="inline-block mr-2" />
-                          <Video size={32} className="inline-block" />
-                        </div>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          No media uploaded yet
-                        </p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                          Upload images or videos using buttons above
-                        </p>
-                      </div>
                     )}
                   </div>
-                </form>
-              </div>
 
-              {/* Modal Footer */}
-              <div className="p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex-shrink-0">
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-lg font-medium transition-colors duration-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={handleSave}
-                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg font-medium shadow transition-all duration-200 active:scale-[0.98]"
-                  >
-                    {editingPost ? 'Update Post' : 'Create Post'}
-                  </button>
-                </div>
+                  <div className="pt-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowModal(false)}
+                        className="flex-1 py-3 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-lg font-medium transition-colors duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg font-medium shadow transition-all duration-200 active:scale-[0.98]"
+                      >
+                        {editingPost ? 'Update Post' : 'Create Post'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </motion.div>
           </motion.div>
@@ -715,3 +707,4 @@ export default function DashboardPosts() {
     </div>
   );
 }
+

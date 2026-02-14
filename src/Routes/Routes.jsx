@@ -176,9 +176,8 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Fallback
-  {
-    path: "*",
-    element: <Navigate to="/" replace />,
-  },
+  // {
+  //   path: "*",
+  //   element: <Navigate to="/" replace />,
+  // },
 ]);

@@ -9,13 +9,16 @@ import {
   Newspaper,
   Clock,
   Eye,
-  
+   Calendar,
   Share2,
   BookOpen,
+  ChevronLeft,
   ChevronRight,
   X,
   ArrowRight,
-  Sparkles
+  Sparkles,
+    Image,
+  Video
 } from 'lucide-react';
 
 const Posts = () => {
@@ -335,129 +338,293 @@ const Posts = () => {
       {/* Modal */}
       <AnimatePresence>
         {isModalOpen && selectedPost && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeModal}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-            />
+  <>
+    {/* Backdrop */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={closeModal}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+    />
 
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-              <div className="bg-white rounded-3xl shadow-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                {/* Modal Header */}
-                <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-8 py-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                          {selectedPost.title}
-                        </h2>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-sm text-gray-500 flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            Author #{selectedPost.author}
-                          </span>
-                          <span className="text-sm text-gray-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatDate(selectedPost.created_at)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={closeModal}
-                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                    >
-                      <X className="w-5 h-5 text-gray-600" />
-                    </button>
-                  </div>
+    {/* Modal Content */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div className="bg-white rounded-3xl shadow-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Modal Header - Fixed */}
+        <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-8 py-6 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                {/* Optional icon */}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {selectedPost.title}
+                </h2>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    Author ID: {selectedPost.author}
+                  </span>
+                  <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {new Date(selectedPost.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
+                  {selectedPost.year && (
+                    <span className="text-sm text-gray-500 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Year: {selectedPost.year}
+                    </span>
+                  )}
                 </div>
-
-                {/* Modal Body */}
-                <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+              </div>
+            </div>
+            <button
+              onClick={closeModal}
+              className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
                   {/* Slug */}
-                  <div className="mb-6">
-                    <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
-                      <Hash className="w-4 h-4 text-gray-500" />
-                      <code className="text-sm font-mono text-gray-700">
-                        {selectedPost.slug}
-                      </code>
-                    </div>
-                  </div>
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+                <Hash className="w-4 h-4 text-gray-500" />
+                <code className="text-sm font-mono text-gray-700">
+                  {selectedPost.slug}
+                </code>
+              </div>
+            </div>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1">
+          {/* Media Carousel - At the top like Facebook */}
+          {((selectedPost.images && selectedPost.images.length > 0) || 
+            (selectedPost.videos && selectedPost.videos.length > 0)) && (
+            <div className="relative bg-gray-900">
+              {/* Media Counter */}
+              <div className="absolute top-4 right-4 z-10 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium">
+                {(() => {
+                  const total = (selectedPost.images?.length || 0) + (selectedPost.videos?.length || 0);
+                  return `1/${total}`;
+                })()}
+              </div>
 
-                  {/* Content */}
-                  <div className="prose prose-lg max-w-none">
-                    <div 
-                      className="text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                    />
-                  </div>
+              {/* Carousel Content */}
+              <div className="relative aspect-[16/9] w-full">
+                {/* Show first image if exists */}
+                {selectedPost.images && selectedPost.images.length > 0 ? (
+                  <img
+                    src={selectedPost.images[0]}
+                    alt={selectedPost.title}
+                    className="w-full h-full object-contain bg-gray-900"
+                  />
+                ) : selectedPost.videos && selectedPost.videos.length > 0 ? (
+                  <video
+                    src={selectedPost.videos[0]}
+                    controls
+                    className="w-full h-full object-contain bg-gray-900"
+                  />
+                ) : null}
 
-                  {/* Media */}
-                  {selectedPost.media && selectedPost.media.length > 0 && (
-                    <div className="mt-8 pt-8 border-t border-gray-200">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Media</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        {selectedPost.media.map((item, index) => (
-                          <div key={index} className="bg-gray-100 rounded-xl p-4">
-                            <p className="text-sm text-gray-600">Media {index + 1}</p>
-                          </div>
+                {/* Navigation Arrows */}
+                {(() => {
+                  const total = (selectedPost.images?.length || 0) + (selectedPost.videos?.length || 0);
+                  if (total > 1) {
+                    return (
+                      <>
+                        <button className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all">
+                          <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <button className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all">
+                          <ChevronRight className="w-6 h-6" />
+                        </button>
+                      </>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Media Type Indicator */}
+                <div className="absolute bottom-4 left-4 z-10 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                  {selectedPost.images && selectedPost.images.length > 0 && (
+                    <>
+                      <Image className="w-4 h-4" />
+                      {selectedPost.images.length} {selectedPost.images.length === 1 ? 'Photo' : 'Photos'}
+                    </>
+                  )}
+                  {selectedPost.videos && selectedPost.videos.length > 0 && (
+                    <>
+                      {selectedPost.images && selectedPost.images.length > 0 && <span className="mx-1">•</span>}
+                      <Video className="w-4 h-4" />
+                      {selectedPost.videos.length} {selectedPost.videos.length === 1 ? 'Video' : 'Videos'}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Thumbnail Strip */}
+              {(() => {
+                const allMedia = [
+                  ...(selectedPost.images || []).map(url => ({ type: 'image', url })),
+                  ...(selectedPost.videos || []).map(url => ({ type: 'video', url }))
+                ];
+                
+                if (allMedia.length > 1) {
+                  return (
+                    <div className="bg-black p-2 overflow-x-auto">
+                      <div className="flex gap-2">
+                        {allMedia.map((media, index) => (
+                          <button
+                            key={index}
+                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                              index === 0 ? 'border-blue-500' : 'border-transparent hover:border-gray-400'
+                            }`}
+                          >
+                            {media.type === 'image' ? (
+                              <img
+                                src={media.url}
+                                alt={`Thumbnail ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                                <Video className="w-6 h-6 text-white" />
+                              </div>
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>
-                  )}
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          )}
 
-                  {/* Dates */}
-                  <div className="mt-8 pt-8 border-t border-gray-200">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="bg-blue-50 rounded-xl p-4">
-                        <p className="text-sm text-blue-600 font-medium mb-1">Created</p>
-                        <p className="text-gray-900">{formatDate(selectedPost.created_at)}</p>
-                      </div>
-                      {selectedPost.updated_at !== selectedPost.created_at && (
-                        <div className="bg-green-50 rounded-xl p-4">
-                          <p className="text-sm text-green-600 font-medium mb-1">Last Updated</p>
-                          <p className="text-gray-900">{formatDate(selectedPost.updated_at)}</p>
+          {/* Content Section */}
+          <div className="p-8">
+            
+
+            {/* Content */}
+            <div className="prose prose-lg max-w-none">
+              <div 
+                className="text-gray-700"
+                dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+              />
+            </div>
+
+            {/* All Media Gallery (optional) */}
+            {((selectedPost.images && selectedPost.images.length > 1) || 
+              (selectedPost.videos && selectedPost.videos.length > 1)) && (
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">All Media</h3>
+                
+                {/* Images Grid */}
+                {selectedPost.images && selectedPost.images.length > 1 && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-600 mb-3">Images</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {selectedPost.images.map((url, index) => (
+                        <div key={index} className="relative group rounded-xl overflow-hidden bg-gray-100">
+                          <img
+                            src={url}
+                            alt={`Post image ${index + 1}`}
+                            className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                            onClick={() => window.open(url, '_blank')}
+                          />
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Modal Footer */}
-                <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <Share2 className="w-4 h-4" />
-                        Share Story
-                      </button>
-                      
+                {/* Videos Grid */}
+                {selectedPost.videos && selectedPost.videos.length > 1 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-600 mb-3">Videos</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedPost.videos.map((url, index) => (
+                        <div key={index} className="rounded-xl overflow-hidden bg-gray-900">
+                          <video
+                            src={url}
+                            controls
+                            className="w-full h-40 object-cover"
+                          />
+                        </div>
+                      ))}
                     </div>
-                    <button
-                      onClick={closeModal}
-                      className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                      Close
-                    </button>
                   </div>
-                </div>
+                )}
               </div>
-            </motion.div>
-          </>
-        )}
+            )}
+
+            {/* Dates */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Created</p>
+                  <p className="text-gray-900">
+                    {new Date(selectedPost.created_at).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+                {selectedPost.updated_at !== selectedPost.created_at && (
+                  <div className="bg-green-50 rounded-xl p-4">
+                    <p className="text-sm text-green-600 font-medium mb-1">Last Updated</p>
+                    <p className="text-gray-900">
+                      {new Date(selectedPost.updated_at).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer - Fixed */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <Share2 className="w-4 h-4" />
+                Share Story
+              </button>
+            </div>
+            <button
+              onClick={closeModal}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  </>
+)}
       </AnimatePresence>
     </div>
   );
